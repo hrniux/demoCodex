@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Daily Insights - Personalized guidance combining Chinese Zodiac, Western Astrology, and Solar Terms" />
+  <title>Daily Insights - Your Personal Guidance</title>
+  <style>
+    :root {
+      --primary: #8b5cf6;
+      --primary-dark: #7c3aed;
+      --secondary: #ec4899;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-light: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .bg-animation {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.3;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+      animation: bgFloat 20s ease-in-out infinite;
+    }
+
+    @keyframes bgFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, -30px) scale(1.1); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 48px 24px;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    /* Input Section */
+    .input-section {
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input,
+    .form-select {
+      padding: 14px 18px;
+      background: var(--bg-light);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-select {
+      cursor: pointer;
+    }
+
+    /* Focus Areas */
+    .focus-areas {
+      margin-top: 24px;
+    }
+
+    .focus-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .focus-btn {
+      padding: 14px 20px;
+      background: var(--bg-light);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .focus-btn:hover {
+      border-color: var(--primary);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+
+    .focus-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Generate Button */
+    .generate-btn {
+      width: 100%;
+      padding: 18px 36px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(139, 92, 246, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(0);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Results Section */
+    .results-section {
+      display: none;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Profile Card */
+    .profile-card {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 32px;
+      color: white;
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .profile-icon {
+      font-size: 4rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .profile-info h2 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .profile-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .profile-traits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .trait-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 16px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .trait-label {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .trait-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    /* Insights Grid */
+    .insights-grid {
+      display: grid;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .insight-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 40px var(--shadow);
+      transition: all 0.3s ease;
+    }
+
+    .insight-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px var(--shadow);
+      border-color: var(--primary);
+    }
+
+    .insight-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .insight-icon {
+      font-size: 2.5rem;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 16px;
+      flex-shrink: 0;
+    }
+
+    .insight-title-group h3 {
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .insight-category {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .insight-content {
+      margin-bottom: 20px;
+    }
+
+    .insight-text {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .action-box {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .action-label {
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-text {
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .insight-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .tag {
+      padding: 6px 12px;
+      background: var(--bg-light);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .action-button {
+      padding: 14px 28px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-button:hover {
+      border-color: var(--primary);
+      background: var(--bg-light);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .disclaimer {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .disclaimer-title {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+
+      .input-section {
+        padding: 24px;
+      }
+
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .focus-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .profile-info h2 {
+        font-size: 1.5rem;
+      }
+
+      .insight-card {
+        padding: 24px;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"></div>
+  
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">🌟</div>
+      <h1 class="title">Daily Insights</h1>
+      <p class="subtitle">Personalized guidance combining ancient wisdom and modern understanding</p>
+    </header>
+
+    <!-- Input Section -->
+    <section class="input-section">
+      <form id="insightForm">
+        <div class="input-grid">
+          <div class="form-group">
+            <label class="form-label" for="birthDate">Birth Date</label>
+            <input 
+              type="date" 
+              id="birthDate" 
+              class="form-input" 
+              required
+              max="2025-12-31"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="birthTime">Birth Time (Optional)</label>
+            <input 
+              type="time" 
+              id="birthTime" 
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="timezone">Timezone</label>
+            <select id="timezone" class="form-select">
+              <option value="UTC-8">Pacific Time (UTC-8)</option>
+              <option value="UTC-5">Eastern Time (UTC-5)</option>
+              <option value="UTC-6">Central Time (UTC-6)</option>
+              <option value="UTC-7">Mountain Time (UTC-7)</option>
+              <option value="UTC+0">UTC/GMT</option>
+              <option value="UTC+1">Central European (UTC+1)</option>
+              <option value="UTC+8">China/Singapore (UTC+8)</option>
+              <option value="UTC+9">Japan/Korea (UTC+9)</option>
+              <option value="UTC+10">Australia East (UTC+10)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="focus-areas">
+          <label class="focus-label">Select Your Focus Areas (Choose 1-3)</label>
+          <div class="focus-grid">
+            <button type="button" class="focus-btn" data-focus="career">
+              <span>💼</span> Career
+            </button>
+            <button type="button" class="focus-btn" data-focus="education">
+              <span>📚</span> Education
+            </button>
+            <button type="button" class="focus-btn" data-focus="wealth">
+              <span>💰</span> Wealth
+            </button>
+            <button type="button" class="focus-btn" data-focus="love">
+              <span>❤️</span> Love
+            </button>
+            <button type="button" class="focus-btn" data-focus="health">
+              <span>🏃</span> Health
+            </button>
+            <button type="button" class="focus-btn" data-focus="mindset">
+              <span>🧘</span> Mindset
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="generate-btn">
+          ✨ Generate My Insights
+        </button>
+      </form>
+    </section>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="color: var(--text-secondary); font-size: 1.1rem;">Calculating your personalized insights...</p>
+    </div>
+
+    <!-- Results Section -->
+    <section class="results-section" id="results">
+      <!-- Profile Card -->
+      <div class="profile-card" id="profileCard"></div>
+
+      <!-- Insights Grid -->
+      <div class="insights-grid" id="insightsGrid"></div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="action-button" id="shareBtn">
+          <span>📤</span> Share
+        </button>
+        <button class="action-button" id="saveBtn">
+          <span>💾</span> Save
+        </button>
+        <button class="action-button" id="newBtn">
+          <span>🔄</span> New Reading
+        </button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="disclaimer">
+        <div class="disclaimer-title">
+          <span>⚠️</span> Disclaimer
+        </div>
+        <p>
+          Daily Insights is for entertainment and self-reflection purposes only. 
+          This service does not provide medical, legal, or financial advice. 
+          Always consult qualified professionals for important life decisions.
+        </p>
+      </div>
+      <p>&copy; 2025 Daily Insights · Part of DemoCodex</p>
+    </footer>
+  </div>
+
+  <script type="module" src="./src/js/daily-insights/insights-engine.js"></script>
+  <script type="module" src="./src/js/daily-insights/app.js"></script>
+</body>
+</html>
+

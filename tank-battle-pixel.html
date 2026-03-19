@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="DemoCodex 像素风坦克大战：纯原生 HTML、CSS、JavaScript 打造的简约街机防守游戏。"
+    />
+    <title>钢铁前线 | 像素坦克大战</title>
+    <link rel="stylesheet" href="src/css/tank-battle-pixel.css" />
+  </head>
+  <body>
+    <main class="battlefield" aria-labelledby="game-title">
+      <header class="hero">
+        <p class="hero__eyebrow">DemoCodex / Pixel Arcade</p>
+        <h1 class="hero__title" id="game-title">钢铁前线</h1>
+        <p class="hero__subtitle">
+          纯键盘、纯像素、纯原生。守住基地，清空敌军，别把代码写成兵工厂。
+        </p>
+      </header>
+
+      <section class="layout" aria-label="坦克大战游戏区域">
+        <section class="stage">
+          <div class="toolbar">
+            <div class="toolbar__group">
+              <button class="pixel-button" id="startButton" type="button">开始</button>
+              <button class="pixel-button pixel-button--ghost" id="pauseButton" type="button" aria-pressed="false">
+                暂停
+              </button>
+              <button class="pixel-button pixel-button--ghost" id="restartButton" type="button">重开</button>
+            </div>
+            <p class="toolbar__status" id="statusText">守住鹰巢，等待出击。</p>
+          </div>
+
+          <div class="viewport">
+            <canvas
+              id="gameCanvas"
+              width="256"
+              height="256"
+              role="img"
+              aria-label="像素风坦克大战主战场，玩家需要保护基地并击退敌军。"
+            ></canvas>
+
+            <section class="overlay is-visible" id="overlay" aria-live="polite">
+              <p class="overlay__kicker" id="overlayKicker">任务简报</p>
+              <h2 class="overlay__title" id="overlayTitle">按下开始，进入战场</h2>
+              <p class="overlay__text" id="overlayMessage">
+                W A S D 或方向键移动，空格开火，P 或 ESC 暂停。
+              </p>
+            </section>
+          </div>
+
+          <section class="hud" aria-label="游戏状态">
+            <article class="stat-card">
+              <span class="stat-card__label">得分</span>
+              <strong class="stat-card__value" id="scoreValue">0000</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card__label">生命</span>
+              <strong class="stat-card__value" id="livesValue">3</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card__label">敌军</span>
+              <strong class="stat-card__value" id="enemyValue">12</strong>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card__label">纪录</span>
+              <strong class="stat-card__value" id="highScoreValue">0000</strong>
+            </article>
+          </section>
+        </section>
+
+        <aside class="sidebar">
+          <section class="panel" aria-labelledby="mission-title">
+            <h2 class="panel__title" id="mission-title">任务目标</h2>
+            <ul class="panel__list">
+              <li>击毁全部 12 辆敌方坦克。</li>
+              <li>保护底部基地不被炮弹击中。</li>
+              <li>你的坦克共有 3 条命，归零即失败。</li>
+            </ul>
+          </section>
+
+          <section class="panel" aria-labelledby="controls-title">
+            <h2 class="panel__title" id="controls-title">控制说明</h2>
+            <dl class="controls">
+              <div class="controls__row">
+                <dt>移动</dt>
+                <dd>W A S D / 方向键</dd>
+              </div>
+              <div class="controls__row">
+                <dt>开火</dt>
+                <dd>空格 / Enter</dd>
+              </div>
+              <div class="controls__row">
+                <dt>暂停</dt>
+                <dd>P / ESC</dd>
+              </div>
+              <div class="controls__row">
+                <dt>重开</dt>
+                <dd>R</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="panel" aria-labelledby="legend-title">
+            <h2 class="panel__title" id="legend-title">战场图例</h2>
+            <ul class="legend">
+              <li><span class="legend__swatch legend__swatch--player"></span>玩家坦克</li>
+              <li><span class="legend__swatch legend__swatch--enemy"></span>敌方坦克</li>
+              <li><span class="legend__swatch legend__swatch--brick"></span>砖墙，可摧毁</li>
+              <li><span class="legend__swatch legend__swatch--steel"></span>钢墙，不可摧毁</li>
+              <li><span class="legend__swatch legend__swatch--base"></span>基地，必须保住</li>
+            </ul>
+          </section>
+        </aside>
+      </section>
+
+      <p class="sr-only" id="liveRegion" aria-live="polite"></p>
+    </main>
+
+    <script type="module" src="src/js/tank-battle-pixel.js"></script>
+  </body>
+</html>

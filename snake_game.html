@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>贪吃蛇游戏</title>
+<style>
+body{margin:0;padding:20px;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Arial}
+.container{text-align:center}
+canvas{border:2px solid #4CAF50;background:#000;display:block;margin:0 auto}
+.info{color:#4CAF50;margin:10px 0;font-size:18px}
+.controls{margin-top:20px}
+button{background:#4CAF50;color:white;border:none;padding:10px 20px;margin:0 5px;cursor:pointer;font-size:16px;border-radius:5px}
+button:hover{background:#45a049}
+.game-over{color:#f44336;font-size:24px;margin:20px 0}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="info">得分: <span id="score">0</span> | 最高分: <span id="highScore">0</span></div>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+<div id="gameOver" class="game-over" style="display:none">游戏结束!</div>
+<div class="controls">
+<button onclick="startGame()">开始游戏</button>
+<button onclick="pauseGame()">暂停</button>
+</div>
+</div>
+<script>
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+const gridSize=20;
+const tileCount=canvas.width/gridSize;
+let snake=[{x:10,y:10}];
+let dx=0,dy=0;
+let foodX=15,foodY=15;
+let score=0;
+let highScore=localStorage.getItem('snakeHighScore')||0;
+let gameRunning=false;
+let gamePaused=false;
+document.getElementById('highScore').textContent=highScore;
+
+function drawGame(){
+if(gamePaused||!gameRunning)return;
+moveSnake();
+if(checkCollision()){
+gameOver();
+return;
+}
+clearScreen();
+checkFoodCollision();
+drawFood();
+drawSnake();
+drawScore();
+setTimeout(drawGame,100);
+}
+
+function clearScreen(){
+ctx.fillStyle='black';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function drawSnake(){
+ctx.fillStyle='#4CAF50';
+snake.forEach((segment,index)=>{
+if(index===0){
+ctx.fillStyle='#8BC34A';
+}else{
+ctx.fillStyle='#4CAF50';
+}
+ctx.fillRect(segment.x*gridSize,segment.y*gridSize,gridSize-2,gridSize-2);
+});
+}
+
+function moveSnake(){
+const head={x:snake[0].x+dx,y:snake[0].y+dy};
+snake.unshift(head);
+if(head.x===foodX&&head.y===foodY){
+score++;
+document.getElementById('score').textContent=score;
+generateFood();
+}else{
+snake.pop();
+}
+}
+
+function drawFood(){
+ctx.fillStyle='#FF5722';
+ctx.fillRect(foodX*gridSize,foodY*gridSize,gridSize-2,gridSize-2);
+}
+
+function generateFood(){
+foodX=Math.floor(Math.random()*tileCount);
+foodY=Math.floor(Math.random()*tileCount);
+snake.forEach(segment=>{
+if(segment.x===foodX&&segment.y===foodY){
+generateFood();
+}
+});
+}
+
+function checkCollision(){
+if(snake[0].x<0||snake[0].x>=tileCount||snake[0].y<0||snake[0].y>=tileCount){
+return true;
+}
+for(let i=1;i<snake.length;i++){
+if(snake[0].x===snake[i].x&&snake[0].y===snake[i].y){
+return true;
+}
+}
+return false;
+}
+
+function checkFoodCollision(){
+if(snake[0].x===foodX&&snake[0].y===foodY){
+generateFood();
+}
+}
+
+function drawScore(){
+document.getElementById('score').textContent=score;
+}
+
+function gameOver(){
+gameRunning=false;
+document.getElementById('gameOver').style.display='block';
+if(score>highScore){
+highScore=score;
+localStorage.setItem('snakeHighScore',highScore);
+document.getElementById('highScore').textContent=highScore;
+}
+}
+
+function startGame(){
+snake=[{x:10,y:10}];
+dx=0;dy=0;
+score=0;
+generateFood();
+gameRunning=true;
+gamePaused=false;
+document.getElementById('gameOver').style.display='none';
+document.getElementById('score').textContent=score;
+drawGame();
+}
+
+function pauseGame(){
+gamePaused=!gamePaused;
+if(!gamePaused&&gameRunning){
+drawGame();
+}
+}
+
+document.addEventListener('keydown',changeDirection);
+function changeDirection(e){
+if(!gameRunning)return;
+const LEFT=37,UP=38,RIGHT=39,DOWN=40;
+const W=87,A=65,S=83,D=68;
+const goingUp=dy===-1;
+const goingDown=dy===1;
+const goingRight=dx===1;
+const goingLeft=dx===-1;
+if((e.keyCode===LEFT||e.keyCode===A)&&!goingRight){
+dx=-1;dy=0;
+}
+if((e.keyCode===UP||e.keyCode===W)&&!goingDown){
+dx=0;dy=-1;
+}
+if((e.keyCode===RIGHT||e.keyCode===D)&&!goingLeft){
+dx=1;dy=0;
+}
+if((e.keyCode===DOWN||e.keyCode===S)&&!goingUp){
+dx=0;dy=1;
+}
+}
+</script>
+</body>
+</html>

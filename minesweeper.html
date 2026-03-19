@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扫雷</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: linear-gradient(135deg, #0a0e1a 0%, #1a1e2e 50%, #0a0e1a 100%);
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  user-select: none;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.controls button {
+  background: #1c2333;
+  color: #ffffff;
+  border: 1px solid #2a3040;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.controls button:hover { background: #2a3040; border-color: #3a4a60; }
+.controls button.active { background: #3a4a60; border-color: #5a7a9a; }
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #1c2333;
+  border: 1px solid #2a3040;
+  border-radius: 10px;
+  padding: 8px 20px;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.counter {
+  font-size: 1.4rem;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+  color: #ff4444;
+  font-family: "Courier New", monospace;
+}
+
+.smiley {
+  font-size: 1.6rem;
+  cursor: pointer;
+  background: #1c2333;
+  border: 1px solid #2a3040;
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.smiley:hover { background: #2a3040; }
+
+.timer {
+  font-size: 1.4rem;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+  color: #ff4444;
+  font-family: "Courier New", monospace;
+}
+
+.board-wrapper {
+  background: #1c2333;
+  border: 1px solid #2a3040;
+  border-radius: 12px;
+  padding: 10px;
+  display: inline-block;
+}
+
+.board {
+  display: grid;
+  gap: 1px;
+  background: #2a3040;
+}
+
+.cell {
+  width: 32px;
+  height: 32px;
+  background: #2e3650;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.cell:hover { background: #3a4a60; }
+.cell.revealed { background: #1a1e2e; cursor: default; }
+.cell.revealed:hover { background: #1a1e2e; }
+.cell.mine-hit { background: #cc2222; }
+.cell.flagged::after { content: "\1F6A9"; font-size: 1rem; }
+
+.best-times {
+  margin-top: 16px;
+  background: #1c2333;
+  border: 1px solid #2a3040;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  color: #aab0c0;
+  text-align: center;
+}
+
+.best-times span { color: #ffffff; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>扫雷</h1>
+
+<div class="controls">
+  <button onclick="startGame(0)" id="btn0">初级</button>
+  <button onclick="startGame(1)" id="btn1">中级</button>
+  <button onclick="startGame(2)" id="btn2">高级</button>
+</div>
+
+<div class="status-bar">
+  <div class="counter" id="mineCounter">010</div>
+  <div class="smiley" id="smiley" onclick="startGame(currentLevel)">&#128578;</div>
+  <div class="timer" id="timer">000</div>
+</div>
+
+<div class="board-wrapper">
+  <div class="board" id="board"></div>
+</div>
+
+<div class="best-times" id="bestTimes"></div>
+
+<script>
+const LEVELS = [
+  { name: '初级', cols: 9,  rows: 9,  mines: 10 },
+  { name: '中级', cols: 16, rows: 16, mines: 40 },
+  { name: '高级', cols: 30, rows: 16, mines: 99 }
+];
+
+const NUM_COLORS = ['', '#4444ff', '#22aa22', '#ff2222', '#000088', '#884400', '#00aaaa', '#222222', '#888888'];
+
+let currentLevel = 0;
+let grid = [];
+let cols, rows, totalMines;
+let revealed = 0, flagCount = 0;
+let gameOver = false, firstClick = true;
+let timerInterval = null, seconds = 0;
+
+function startGame(level) {
+  currentLevel = level;
+  const cfg = LEVELS[level];
+  cols = cfg.cols; rows = cfg.rows; totalMines = cfg.mines;
+
+  document.querySelectorAll('.controls button').forEach((b, i) => {
+    b.classList.toggle('active', i === level);
+  });
+
+  grid = [];
+  revealed = 0; flagCount = 0;
+  gameOver = false; firstClick = true;
+  seconds = 0;
+  clearInterval(timerInterval); timerInterval = null;
+
+  for (let r = 0; r < rows; r++) {
+    grid[r] = [];
+    for (let c = 0; c < cols; c++) {
+      grid[r][c] = { mine: false, revealed: false, flagged: false, count: 0 };
+    }
+  }
+
+  updateCounter();
+  document.getElementById('timer').textContent = '000';
+  document.getElementById('smiley').innerHTML = '&#128578;';
+  renderBoard();
+  showBestTimes();
+}
+
+function placeMines(safeR, safeC) {
+  let placed = 0;
+  while (placed < totalMines) {
+    const r = Math.floor(Math.random() * rows);
+    const c = Math.floor(Math.random() * cols);
+    if (grid[r][c].mine) continue;
+    if (Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
+    grid[r][c].mine = true;
+    placed++;
+  }
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid[r][c].mine) continue;
+      let n = 0;
+      forNeighbors(r, c, (nr, nc) => { if (grid[nr][nc].mine) n++; });
+      grid[r][c].count = n;
+    }
+  }
+}
+
+function forNeighbors(r, c, fn) {
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) fn(nr, nc);
+    }
+  }
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
+  board.innerHTML = '';
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      cell.addEventListener('click', onLeftClick);
+      cell.addEventListener('contextmenu', onRightClick);
+      board.appendChild(cell);
+    }
+  }
+}
+
+function getCell(r, c) {
+  return document.getElementById('board').children[r * cols + c];
+}
+
+function onLeftClick(e) {
+  if (gameOver) return;
+  const r = +e.target.dataset.r, c = +e.target.dataset.c;
+  const cell = grid[r][c];
+  if (cell.flagged || cell.revealed) return;
+
+  if (firstClick) {
+    firstClick = false;
+    placeMines(r, c);
+    timerInterval = setInterval(() => {
+      seconds++;
+      document.getElementById('timer').textContent = String(seconds).padStart(3, '0');
+    }, 1000);
+  }
+
+  if (cell.mine) {
+    lose(r, c);
+    return;
+  }
+
+  reveal(r, c);
+  checkWin();
+}
+
+function onRightClick(e) {
+  e.preventDefault();
+  if (gameOver) return;
+  const r = +e.target.dataset.r, c = +e.target.dataset.c;
+  const cell = grid[r][c];
+  if (cell.revealed) return;
+
+  cell.flagged = !cell.flagged;
+  flagCount += cell.flagged ? 1 : -1;
+  const el = getCell(r, c);
+  el.classList.toggle('flagged', cell.flagged);
+  updateCounter();
+}
+
+function reveal(r, c) {
+  const cell = grid[r][c];
+  if (cell.revealed || cell.flagged || cell.mine) return;
+  cell.revealed = true;
+  revealed++;
+  const el = getCell(r, c);
+  el.classList.add('revealed');
+  if (cell.count > 0) {
+    el.textContent = cell.count;
+    el.style.color = NUM_COLORS[cell.count];
+  } else {
+    forNeighbors(r, c, (nr, nc) => reveal(nr, nc));
+  }
+}
+
+function lose(r, c) {
+  gameOver = true;
+  clearInterval(timerInterval);
+  document.getElementById('smiley').innerHTML = '&#128565;';
+  getCell(r, c).classList.add('revealed', 'mine-hit');
+  for (let rr = 0; rr < rows; rr++) {
+    for (let cc = 0; cc < cols; cc++) {
+      if (grid[rr][cc].mine) {
+        const el = getCell(rr, cc);
+        if (rr !== r || cc !== c) {
+          el.classList.add('revealed');
+          el.textContent = '\uD83D\uDCA3';
+        } else {
+          el.textContent = '\uD83D\uDCA5';
+        }
+      }
+    }
+  }
+}
+
+function checkWin() {
+  if (revealed === rows * cols - totalMines) {
+    gameOver = true;
+    clearInterval(timerInterval);
+    document.getElementById('smiley').innerHTML = '&#128526;';
+    saveBestTime();
+    showBestTimes();
+  }
+}
+
+function updateCounter() {
+  const val = totalMines - flagCount;
+  document.getElementById('mineCounter').textContent = String(Math.max(val, 0)).padStart(3, '0');
+}
+
+function saveBestTime() {
+  const key = 'minesweeper_best_' + currentLevel;
+  const prev = localStorage.getItem(key);
+  if (!prev || seconds < +prev) {
+    localStorage.setItem(key, seconds);
+  }
+}
+
+function showBestTimes() {
+  const el = document.getElementById('bestTimes');
+  const parts = LEVELS.map((l, i) => {
+    const val = localStorage.getItem('minesweeper_best_' + i);
+    return `${l.name}: <span>${val ? val + '秒' : '--'}</span>`;
+  });
+  el.innerHTML = '最佳记录 &nbsp; ' + parts.join(' &nbsp;|&nbsp; ');
+}
+
+startGame(0);
+</script>
+</body>
+</html>

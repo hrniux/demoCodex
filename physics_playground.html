@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物理大观园 | Physics Playground</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020617;
+            --card-bg: rgba(15, 23, 42, 0.6);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+
+            /* Spectrum Colors for 9 Modules */
+            --c1: #ef4444;
+            /* Red */
+            --c2: #f97316;
+            /* Orange */
+            --c3: #eab308;
+            /* Yellow */
+            --c4: #84cc16;
+            /* Lime */
+            --c5: #06b6d4;
+            /* Cyan (Center) */
+            --c6: #3b82f6;
+            /* Blue */
+            --c7: #8b5cf6;
+            /* Violet */
+            --c8: #d946ef;
+            /* Fuchsia */
+            --c9: #f43f5e;
+            /* Rose */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 100%);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(to right, var(--c1), var(--c5), var(--c9));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1600px;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 420px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        canvas {
+            width: 100%;
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 0.8rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            appearance: none;
+            border-radius: 2px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Specific Colors for Cards */
+        .card:nth-child(1) {
+            --accent: var(--c1);
+        }
+
+        .card:nth-child(2) {
+            --accent: var(--c2);
+        }
+
+        .card:nth-child(3) {
+            --accent: var(--c3);
+        }
+
+        .card:nth-child(4) {
+            --accent: var(--c4);
+        }
+
+        .card:nth-child(5) {
+            --accent: var(--c5);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.1);
+        }
+
+        .card:nth-child(6) {
+            --accent: var(--c6);
+        }
+
+        .card:nth-child(7) {
+            --accent: var(--c7);
+        }
+
+        .card:nth-child(8) {
+            --accent: var(--c8);
+        }
+
+        .card:nth-child(9) {
+            --accent: var(--c9);
+        }
+
+        .card-title {
+            color: var(--accent);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            background: var(--accent);
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-animation"></div>
+
+    <header>
+        <h1>物理大观园</h1>
+        <p style="color: #64748b; letter-spacing: 2px;">万物之理 · 和谐之美</p>
+    </header>
+
+    <div class="grid">
+        <!-- 1. Gravity (Top-Left) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">01. 自由落体 (Gravity)</div>
+            </div>
+            <canvas id="c1"></canvas>
+            <div class="controls">
+                <span>重力 g</span>
+                <input type="range" id="i1" min="0.1" max="2.0" step="0.1" value="0.8">
+            </div>
+        </div>
+
+        <!-- 2. Projectile (Top-Mid) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">02. 抛体运动 (Projectile)</div>
+            </div>
+            <canvas id="c2"></canvas>
+            <div class="controls">
+                <span>初速度 v0</span>
+                <input type="range" id="i2" min="5" max="20" step="1" value="12">
+            </div>
+        </div>
+
+        <!-- 3. Newton's Cradle (Top-Right) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">03. 牛顿摆 (Momentum)</div>
+            </div>
+            <canvas id="c3"></canvas>
+            <div class="controls">
+                <span>球数 N</span>
+                <input type="range" id="i3" min="3" max="6" step="1" value="5">
+            </div>
+        </div>
+
+        <!-- 4. Spring (Mid-Left) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">04. 弹簧振子 (Spring)</div>
+            </div>
+            <canvas id="c4"></canvas>
+            <div class="controls">
+                <span>劲度系数 k</span>
+                <input type="range" id="i4" min="0.01" max="0.2" step="0.01" value="0.05">
+            </div>
+        </div>
+
+        <!-- 5. Orbit (Center) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title" style="font-size: 1.4rem;">05. 行星轨道 (Orbit)</div>
+            </div>
+            <canvas id="c5"></canvas>
+            <div class="controls">
+                <span>引力 G</span>
+                <input type="range" id="i5" min="0.1" max="1.0" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <!-- 6. Pendulum (Mid-Right) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">06. 单摆 (Pendulum)</div>
+            </div>
+            <canvas id="c6"></canvas>
+            <div class="controls">
+                <span>摆长 L</span>
+                <input type="range" id="i6" min="50" max="200" step="10" value="150">
+            </div>
+        </div>
+
+        <!-- 7. Electrostatics (Bot-Left) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">07. 静电场 (Electrostatics)</div>
+            </div>
+            <canvas id="c7"></canvas>
+            <div class="controls">
+                <span>电荷量 Q</span>
+                <input type="range" id="i7" min="1" max="10" step="1" value="5">
+            </div>
+        </div>
+
+        <!-- 8. Wave (Bot-Mid) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">08. 波的叠加 (Interference)</div>
+            </div>
+            <canvas id="c8"></canvas>
+            <div class="controls">
+                <span>频率 f</span>
+                <input type="range" id="i8" min="0.05" max="0.3" step="0.01" value="0.1">
+            </div>
+        </div>
+
+        <!-- 9. Thermodynamics (Bot-Right) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">09. 分子热运动 (Thermodynamics)</div>
+            </div>
+            <canvas id="c9"></canvas>
+            <div class="controls">
+                <span>温度 T</span>
+                <input type="range" id="i9" min="1" max="10" step="1" value="5">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const colors = [
+            '#ef4444', '#f97316', '#eab308',
+            '#84cc16', '#06b6d4', '#3b82f6',
+            '#8b5cf6', '#d946ef', '#f43f5e'
+        ];
+
+        function setup(id) {
+            const canvas = document.getElementById(id);
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            return { ctx, w: rect.width, h: rect.height, canvas };
+        }
+
+        // 1. Gravity
+        (function () {
+            const { ctx, w, h, canvas } = setup('c1');
+            let ball = { x: w / 2, y: 50, vy: 0 };
+            let g = 0.8;
+            document.getElementById('i1').oninput = e => g = parseFloat(e.target.value);
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                ball.vy += g;
+                ball.y += ball.vy;
+                if (ball.y > h - 15) { ball.y = h - 15; ball.vy *= -0.75; }
+
+                ctx.beginPath(); ctx.arc(ball.x, ball.y, 15, 0, 6.28);
+                ctx.fillStyle = colors[0]; ctx.fill();
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = () => { ball.y = 50; ball.vy = 0; };
+            loop();
+        })();
+
+        // 2. Projectile
+        (function () {
+            const { ctx, w, h, canvas } = setup('c2');
+            let p = { x: 10, y: h - 10, vx: 0, vy: 0 };
+            let trail = [];
+            let v0 = 12;
+            document.getElementById('i2').oninput = e => v0 = parseFloat(e.target.value);
+
+            function reset() {
+                p.x = 10; p.y = h - 10;
+                p.vx = v0 * Math.cos(-Math.PI / 4);
+                p.vy = v0 * Math.sin(-Math.PI / 4);
+                trail = [];
+            }
+
+            function loop() {
+                ctx.fillStyle = 'rgba(15,23,42,0.2)'; ctx.fillRect(0, 0, w, h);
+
+                p.vy += 0.2;
+                p.x += p.vx; p.y += p.vy;
+                if (p.y > h - 5 || p.x > w) reset();
+
+                trail.push({ x: p.x, y: p.y });
+                if (trail.length > 20) trail.shift();
+
+                ctx.beginPath();
+                trail.forEach((t, i) => {
+                    if (i == 0) ctx.moveTo(t.x, t.y); else ctx.lineTo(t.x, t.y);
+                });
+                ctx.strokeStyle = colors[1]; ctx.stroke();
+
+                ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, 6.28);
+                ctx.fillStyle = colors[1]; ctx.fill();
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = reset;
+            reset(); loop();
+        })();
+
+        // 3. Newton's Cradle
+        (function () {
+            const { ctx, w, h, canvas } = setup('c3');
+            let N = 5;
+            let balls = [];
+            document.getElementById('i3').oninput = e => { N = parseInt(e.target.value); init(); };
+
+            function init() {
+                balls = [];
+                let startX = w / 2 - (N - 1) * 15;
+                for (let i = 0; i < N; i++) balls.push({ x: startX + i * 30, a: 0, va: 0, ox: startX + i * 30 });
+            }
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                balls.forEach((b, i) => {
+                    let acc = -0.01 * Math.sin(b.a);
+                    b.va += acc; b.a += b.va;
+                    b.x = b.ox + 100 * Math.sin(b.a);
+                    let by = 100 * Math.cos(b.a); // relative y
+
+                    // Collision (simplified)
+                    if (i < N - 1) {
+                        let next = balls[i + 1];
+                        if (b.x + 15 > next.x - 15) {
+                            let temp = b.va; b.va = next.va; next.va = temp;
+                            b.va *= 0.99; // damp
+                        }
+                    }
+
+                    ctx.beginPath(); ctx.moveTo(b.ox, 0); ctx.lineTo(b.x, by + 20);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.stroke();
+                    ctx.beginPath(); ctx.arc(b.x, by + 20, 14, 0, 6.28);
+                    ctx.fillStyle = colors[2]; ctx.fill();
+                });
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = () => { balls[0].a = -1; balls[0].va = 0; };
+            init(); loop();
+        })();
+
+        // 4. Spring
+        (function () {
+            const { ctx, w, h, canvas } = setup('c4');
+            let y = 100, vy = 0;
+            let k = 0.05;
+            document.getElementById('i4').oninput = e => k = parseFloat(e.target.value);
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                let f = -k * (y - h / 2);
+                vy += f; vy *= 0.98;
+                y += vy;
+
+                // Draw spring
+                ctx.beginPath(); ctx.moveTo(w / 2, 0);
+                for (let i = 0; i <= y; i += 5) {
+                    ctx.lineTo(w / 2 + Math.sin(i * 0.5) * 10, i);
+                }
+                ctx.strokeStyle = colors[3]; ctx.stroke();
+
+                ctx.beginPath(); ctx.rect(w / 2 - 20, y, 40, 40);
+                ctx.fillStyle = colors[3]; ctx.fill();
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = () => { vy = 10; };
+            loop();
+        })();
+
+        // 5. Orbit (Center)
+        (function () {
+            const { ctx, w, h, canvas } = setup('c5');
+            let p = { x: w / 2 + 80, y: h / 2, vx: 0, vy: 2 };
+            let G = 0.5;
+            document.getElementById('i5').oninput = e => G = parseFloat(e.target.value);
+
+            function loop() {
+                ctx.fillStyle = 'rgba(15,23,42,0.1)'; ctx.fillRect(0, 0, w, h);
+                let dx = w / 2 - p.x, dy = h / 2 - p.y;
+                let d = Math.sqrt(dx * dx + dy * dy);
+                let f = (G * 1000) / (d * d);
+                p.vx += f * dx / d; p.vy += f * dy / d;
+                p.x += p.vx; p.y += p.vy;
+
+                ctx.beginPath(); ctx.arc(w / 2, h / 2, 20, 0, 6.28);
+                ctx.fillStyle = colors[4]; ctx.shadowBlur = 20; ctx.shadowColor = colors[4]; ctx.fill(); ctx.shadowBlur = 0;
+
+                ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 6.28);
+                ctx.fillStyle = '#fff'; ctx.fill();
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = () => { p.x = w / 2 + 80; p.y = h / 2; p.vx = 0; p.vy = 2 + Math.random(); };
+            loop();
+        })();
+
+        // 6. Pendulum
+        (function () {
+            const { ctx, w, h, canvas } = setup('c6');
+            let a = 0.5, va = 0, len = 150;
+            document.getElementById('i6').oninput = e => len = parseFloat(e.target.value);
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                let acc = -0.01 * Math.sin(a);
+                va += acc; va *= 0.995; a += va;
+                let x = w / 2 + len * Math.sin(a);
+                let y = len * Math.cos(a);
+
+                ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.stroke();
+                ctx.beginPath(); ctx.arc(x, y, 15, 0, 6.28);
+                ctx.fillStyle = colors[5]; ctx.fill();
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = () => { va += 0.1; };
+            loop();
+        })();
+
+        // 7. Electrostatics
+        (function () {
+            const { ctx, w, h, canvas } = setup('c7');
+            let particles = [];
+            let Q = 5;
+            document.getElementById('i7').oninput = e => Q = parseFloat(e.target.value);
+
+            for (let i = 0; i < 10; i++) particles.push({ x: Math.random() * w, y: Math.random() * h, vx: 0, vy: 0 });
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                // Center charge
+                ctx.beginPath(); ctx.arc(w / 2, h / 2, 10, 0, 6.28);
+                ctx.fillStyle = colors[6]; ctx.fill();
+
+                particles.forEach(p => {
+                    let dx = w / 2 - p.x, dy = h / 2 - p.y;
+                    let d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 10) d = 10;
+                    let f = Q * 10 / (d * d); // Repulsion or Attraction? Let's do attraction
+                    p.vx += f * dx / d; p.vy += f * dy / d;
+                    p.x += p.vx; p.y += p.vy;
+                    p.vx *= 0.95; p.vy *= 0.95; // damp
+
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, 6.28);
+                    ctx.fillStyle = 'rgba(139, 92, 246, 0.6)'; ctx.fill();
+                });
+                requestAnimationFrame(loop);
+            }
+            canvas.onclick = () => { particles.forEach(p => { p.x = Math.random() * w; p.y = Math.random() * h; p.vx = 0; p.vy = 0; }); };
+            loop();
+        })();
+
+        // 8. Wave
+        (function () {
+            const { ctx, w, h, canvas } = setup('c8');
+            let time = 0;
+            let freq = 0.1;
+            document.getElementById('i8').oninput = e => freq = parseFloat(e.target.value);
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                time += freq;
+                ctx.beginPath();
+                for (let x = 0; x < w; x += 5) {
+                    // Interference of two sources
+                    let y1 = Math.sin(x * 0.05 + time) * 20;
+                    let y2 = Math.sin((x - w) * 0.05 - time) * 20;
+                    ctx.lineTo(x, h / 2 + y1 + y2);
+                }
+                ctx.strokeStyle = colors[7]; ctx.lineWidth = 2; ctx.stroke();
+                requestAnimationFrame(loop);
+            }
+            loop();
+        })();
+
+        // 9. Thermodynamics
+        (function () {
+            const { ctx, w, h, canvas } = setup('c9');
+            let parts = [];
+            let temp = 5;
+            document.getElementById('i9').oninput = e => temp = parseFloat(e.target.value);
+
+            for (let i = 0; i < 50; i++) parts.push({ x: w / 2, y: h / 2, vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2 });
+
+            function loop() {
+                ctx.clearRect(0, 0, w, h);
+                parts.forEach(p => {
+                    p.x += p.vx * (temp / 2);
+                    p.y += p.vy * (temp / 2);
+                    if (p.x < 0 || p.x > w) p.vx *= -1;
+                    if (p.y < 0 || p.y > h) p.vy *= -1;
+
+                    ctx.fillStyle = colors[8];
+                    ctx.fillRect(p.x, p.y, 3, 3);
+                });
+                requestAnimationFrame(loop);
+            }
+            loop();
+        })();
+
+    </script>
+</body>
+
+</html>

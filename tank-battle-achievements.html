@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>成就系统 - 坦克大战</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #0a0e1a 0%, #141827 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ff6b35, #f7931e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      background: #1c2333;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #4ecdc4, #2a9d8f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .achievements-section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #ff6b35;
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .achievement-card {
+      background: #1c2333;
+      padding: 24px;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      transition: all 0.3s ease;
+      opacity: 0.5;
+    }
+
+    .achievement-card.unlocked {
+      opacity: 1;
+      border-color: #4ecdc4;
+      background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(42, 157, 143, 0.05));
+    }
+
+    .achievement-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .achievement-icon {
+      font-size: 3rem;
+      flex-shrink: 0;
+    }
+
+    .achievement-content {
+      flex: 1;
+    }
+
+    .achievement-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .achievement-description {
+      font-size: 0.9rem;
+      color: #a0aec0;
+    }
+
+    .achievement-locked {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .progress-section {
+      background: #1c2333;
+      padding: 32px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 32px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 32px;
+      background: #0a0e1a;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4ecdc4, #2a9d8f);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, #ff6b35, #f7931e);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      margin-top: 32px;
+    }
+
+    .back-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .reset-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #ff3864;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-left: 16px;
+    }
+
+    .reset-button:hover {
+      background: #c9184a;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">🏆 成就系统</h1>
+      <p style="color: #a0aec0; font-size: 1.1rem;">追踪你的游戏历程</p>
+    </div>
+
+    <div class="progress-section">
+      <h2 class="section-title" style="margin-bottom: 16px;">总体进度</h2>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-text" id="progressText">0/10 已解锁</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalKills">0</div>
+        <div class="stat-label">总击杀</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="accuracy">0%</div>
+        <div class="stat-label">命中率</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="kdRatio">0</div>
+        <div class="stat-label">K/D比率</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="gamesPlayed">0</div>
+        <div class="stat-label">游戏局数</div>
+      </div>
+    </div>
+
+    <div class="achievements-section">
+      <h2 class="section-title">🎯 成就列表</h2>
+      <div class="achievements-grid" id="achievementsList"></div>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="tank-battle.html" class="back-button">返回游戏</a>
+      <button class="reset-button" id="resetButton">重置所有成就</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { AchievementManager } from './src/js/tank-game/achievements.js';
+
+    const manager = new AchievementManager();
+    const achievements = manager.getAchievements();
+    const stats = manager.getStats();
+
+    // 显示统计数据
+    document.getElementById('totalKills').textContent = stats.totalKills;
+    document.getElementById('accuracy').textContent = `${stats.accuracy}%`;
+    document.getElementById('kdRatio').textContent = stats.kdRatio;
+    document.getElementById('gamesPlayed').textContent = stats.gamesPlayed;
+
+    // 显示进度
+    const unlockedCount = manager.getUnlockedCount();
+    const totalCount = manager.getTotalCount();
+    const progress = (unlockedCount / totalCount) * 100;
+    document.getElementById('progressFill').style.width = `${progress}%`;
+    document.getElementById('progressText').textContent = `${unlockedCount}/${totalCount} 已解锁 (${Math.round(progress)}%)`;
+
+    // 显示成就列表
+    const achievementsList = document.getElementById('achievementsList');
+    achievements.forEach(achievement => {
+      const card = document.createElement('div');
+      card.className = `achievement-card ${achievement.unlocked ? 'unlocked' : ''}`;
+      card.innerHTML = `
+        <div class="achievement-icon">${achievement.unlocked ? achievement.icon : '🔒'}</div>
+        <div class="achievement-content">
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-description">${achievement.description}</div>
+          ${!achievement.unlocked ? '<div class="achievement-locked">尚未解锁</div>' : ''}
+        </div>
+      `;
+      achievementsList.appendChild(card);
+    });
+
+    // 重置按钮
+    document.getElementById('resetButton').addEventListener('click', () => {
+      if (confirm('确定要重置所有成就和统计数据吗？此操作不可恢复！')) {
+        manager.reset();
+        localStorage.removeItem('tankGameHighScore');
+        alert('所有数据已重置！');
+        location.reload();
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,347 @@
+:root {
+  --stellar-bg: #030712;
+  --stellar-surface: rgba(8, 15, 32, 0.8);
+  --stellar-surface-strong: rgba(13, 23, 48, 0.96);
+  --stellar-border: rgba(125, 211, 252, 0.22);
+  --stellar-text: #ecfeff;
+  --stellar-muted: #8aa3bf;
+  --stellar-accent: #7dd3fc;
+  --stellar-hot: #fb7185;
+  --stellar-gold: #facc15;
+  --stellar-grid: rgba(61, 88, 125, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+html {
+  background: #02050d;
+}
+
+body.stellar-page {
+  min-height: 100vh;
+  font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  color: var(--stellar-text);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(14, 116, 144, 0.25), transparent 28%),
+    radial-gradient(circle at 80% 0%, rgba(244, 114, 182, 0.22), transparent 24%),
+    linear-gradient(160deg, #02050d 0%, #09111f 48%, #050910 100%);
+}
+
+body.stellar-page::before,
+body.stellar-page::after {
+  content: "";
+  position: fixed;
+  inset: auto;
+  border-radius: 999px;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.28;
+}
+
+body.stellar-page::before {
+  width: 280px;
+  height: 280px;
+  top: 5%;
+  right: 8%;
+  background: #38bdf8;
+}
+
+body.stellar-page::after {
+  width: 340px;
+  height: 340px;
+  bottom: 8%;
+  left: 6%;
+  background: #f97316;
+}
+
+.stellar-page__shell {
+  width: min(1320px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 40px;
+}
+
+.stellar-page__hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.stellar-page__back,
+.stellar-page__cta,
+.stellar-btn {
+  border-radius: 999px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+.stellar-page__back {
+  color: var(--stellar-text);
+  padding: 12px 18px;
+  background: rgba(5, 10, 24, 0.64);
+}
+
+.stellar-page__eyebrow {
+  margin: 0 0 10px;
+  color: #f9a8d4;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.78rem;
+}
+
+.stellar-page__title {
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 4.8rem);
+  line-height: 0.98;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stellar-page__lead {
+  margin: 14px 0 0;
+  max-width: 60ch;
+  color: var(--stellar-muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.stellar-page__cta {
+  padding: 14px 22px;
+  background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+  color: #020617;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.stellar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(280px, 0.92fr);
+  gap: 24px;
+}
+
+.stellar-panel {
+  background: var(--stellar-surface);
+  border: 1px solid var(--stellar-border);
+  border-radius: 28px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.35);
+}
+
+.stellar-panel--primary {
+  padding: 20px;
+}
+
+.stellar-panel--side {
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.stellar-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.stellar-stat,
+.stellar-sidecard {
+  background: var(--stellar-surface-strong);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 20px;
+}
+
+.stellar-stat {
+  padding: 14px 16px;
+}
+
+.stellar-stat__label {
+  display: block;
+  color: var(--stellar-muted);
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.stellar-stat__value {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.stellar-canvas-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.14), transparent 42%),
+    linear-gradient(180deg, #020617 0%, #081120 58%, #070b12 100%);
+}
+
+#stellar-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.stellar-overlay {
+  position: absolute;
+  inset: auto 16px 16px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.76);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  color: var(--stellar-text);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.stellar-sidecard {
+  padding: 16px;
+}
+
+.stellar-sidecard__title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+.stellar-sidecard__body,
+.stellar-metrics dt,
+.stellar-controls,
+.stellar-feed {
+  color: var(--stellar-muted);
+}
+
+.stellar-sidecard__body {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.stellar-metrics {
+  margin: 0;
+}
+
+.stellar-metrics__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.stellar-metrics__row:last-child {
+  border-bottom: 0;
+}
+
+.stellar-metrics dt,
+.stellar-metrics dd {
+  margin: 0;
+}
+
+.stellar-metrics dd {
+  color: var(--stellar-text);
+  font-weight: 700;
+}
+
+.stellar-controls,
+.stellar-feed {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.7;
+}
+
+.stellar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.stellar-btn {
+  flex: 1;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.9), rgba(96, 165, 250, 0.82));
+  color: #03111e;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.stellar-btn--ghost {
+  background: rgba(8, 15, 32, 0.6);
+  color: var(--stellar-text);
+}
+
+.stellar-autotest {
+  margin: 16px 0 0;
+  color: #7dd3fc;
+}
+
+button,
+a {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+button:hover,
+a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.2);
+  border-color: rgba(125, 211, 252, 0.4);
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(125, 211, 252, 0.6);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1080px) {
+  .stellar-page__hero,
+  .stellar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stellar-page__cta {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .stellar-page__shell {
+    width: min(100% - 20px, 100%);
+    padding-top: 20px;
+  }
+
+  .stellar-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stellar-actions {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

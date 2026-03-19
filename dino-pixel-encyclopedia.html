@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="像素风格的恐龙科普站，带你探索中生代的地球霸主，从地质年代到代表物种一应俱全。" />
+  <title>像素恐龙档案馆 | DemoCodex</title>
+  <link rel="stylesheet" href="src/css/dino-pixel.css" />
+</head>
+<body class="page">
+  <a class="skip-link" href="#main-content">跳转到正文</a>
+  <header class="page-header">
+    <div class="page-header__brand">
+      <span class="page-header__logo pixel-crest" aria-hidden="true"></span>
+      <div class="page-header__text">
+        <p class="page-header__eyebrow">DemoCodex 科普计划</p>
+        <h1 class="page-header__title">像素恐龙档案馆</h1>
+      </div>
+    </div>
+    <p class="page-header__tagline">
+      中生代的星空下，恐龙以惊人的适应力统治陆地。以像素为笔，我们将它们的故事重新点亮，还原充满乐趣与科学依据的史前景象。
+    </p>
+    <nav class="page-header__nav" aria-label="主要章节">
+      <ul class="page-header__nav-list">
+        <li><a href="#overview">概览</a></li>
+        <li><a href="#timeline">地质年表</a></li>
+        <li><a href="#species">代表物种</a></li>
+        <li><a href="#habitats">生态环境</a></li>
+        <li><a href="#resources">继续探索</a></li>
+        <li><a href="#glossary">术语速查</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main-content" class="page-main">
+    <section class="hero" id="overview">
+      <div class="hero__visual" role="presentation">
+        <div class="pixel-diorama" aria-hidden="true">
+          <svg viewBox="0 0 32 24" role="img" aria-labelledby="hero-dino-title" shape-rendering="crispEdges">
+            <title id="hero-dino-title">像素风格的霸王龙剪影站在暮色草原上</title>
+            <rect width="32" height="24" fill="#05060f" />
+            <rect y="18" width="32" height="6" fill="#2c3d71" />
+            <rect x="24" y="3" width="5" height="5" fill="#ffe066" />
+            <rect x="3" y="8" width="14" height="6" fill="#63ffc6" />
+            <rect x="17" y="8" width="4" height="3" fill="#63ffc6" />
+            <rect x="4" y="14" width="6" height="3" fill="#63ffc6" />
+            <rect x="10" y="14" width="4" height="3" fill="#63ffc6" />
+            <rect x="15" y="11" width="2" height="4" fill="#63ffc6" />
+            <rect x="19" y="11" width="2" height="3" fill="#63ffc6" />
+            <rect x="12" y="7" width="3" height="2" fill="#05060f" />
+            <rect x="7" y="10" width="2" height="2" fill="#05060f" />
+          </svg>
+        </div>
+        <div class="hero__scanline" aria-hidden="true"></div>
+      </div>
+      <div class="hero__content">
+        <h2 class="hero__title">欢迎来到中生代</h2>
+        <p class="hero__lead">
+          恐龙横跨三叠纪、侏罗纪与白垩纪，其演化与灭绝记录了地球气候与生态的剧烈变化。本页面精选核心信息，帮助你以像素美学快速了解恐龙世界的关键脉络。
+        </p>
+        <dl class="hero__stats" role="list">
+          <div class="hero__stat">
+            <dt class="hero__stat-label">活跃年代</dt>
+            <dd class="hero__stat-value">约 2.52 亿 — 6600 万年前</dd>
+          </div>
+          <div class="hero__stat">
+            <dt class="hero__stat-label">已命名物种</dt>
+            <dd class="hero__stat-value">超 1000 种</dd>
+          </div>
+          <div class="hero__stat">
+            <dt class="hero__stat-label">足迹分布</dt>
+            <dd class="hero__stat-value">除南极洲外各大洲</dd>
+          </div>
+          <div class="hero__stat">
+            <dt class="hero__stat-label">灭绝假说</dt>
+            <dd class="hero__stat-value">陨石撞击 + 火山活动</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="timeline" id="timeline" aria-labelledby="timeline-title">
+      <h2 class="section-title" id="timeline-title">地质年表</h2>
+      <p class="timeline__intro">
+        中生代被划分为三叠纪、侏罗纪与白垩纪三个阶段。不同的环境压力推动恐龙形态与生态位不断多样化。
+      </p>
+      <ol class="timeline__list">
+        <li class="timeline__item">
+          <h3 class="timeline__era">三叠纪（252-201 Ma）</h3>
+          <p class="timeline__details">早期恐龙体型较小，多数为双足奔跑者，需与原蜥脚类及鳄形超目竞争。</p>
+        </li>
+        <li class="timeline__item">
+          <h3 class="timeline__era">侏罗纪（201-145 Ma）</h3>
+          <p class="timeline__details">暖湿气候催生超大型蜥脚类与多样化的竖冠兽脚类，第一批鸟类在此时期出现。</p>
+        </li>
+        <li class="timeline__item">
+          <h3 class="timeline__era">白垩纪（145-66 Ma）</h3>
+          <p class="timeline__details">开花植物崛起，恐龙逐渐向专门化演化；末期的白垩纪—古近纪灭绝事件终结了非鸟类恐龙。</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="species" id="species" aria-labelledby="species-title">
+      <h2 class="section-title" id="species-title">代表物种</h2>
+      <p class="species__lede">从草食巨兽到敏捷猎手，这些代表物种展示了恐龙族群在体型、行为与生态位上的惊人差异。</p>
+      <div class="species__grid">
+        <article class="species-card species-card--herbivore" aria-labelledby="species-triceratops">
+          <header class="species-card__header">
+            <h3 class="species-card__name" id="species-triceratops">三角龙</h3>
+            <span class="badge badge--herbivore">草食</span>
+          </header>
+          <p>
+            白垩纪末期的角龙类代表，以巨大的颈盾与三根角著称，被认为是群居防御型食草动物。
+          </p>
+          <ul class="species-card__meta">
+            <li><span class="species-card__meta-label">体长</span> 约 8 米</li>
+            <li><span class="species-card__meta-label">体重</span> 约 6 吨</li>
+            <li><span class="species-card__meta-label">产地</span> 北美拉腊米地区</li>
+          </ul>
+          <details>
+            <summary>像素足迹</summary>
+            <p>
+              角龙类脚印常呈三趾形，前肢偶见五趾痕迹。化石发现提示其可能拥有复杂的视觉与听觉交流方式。
+            </p>
+          </details>
+        </article>
+
+        <article class="species-card species-card--carnivore" aria-labelledby="species-tyrannosaurus">
+          <header class="species-card__header">
+            <h3 class="species-card__name" id="species-tyrannosaurus">霸王龙</h3>
+            <span class="badge badge--carnivore">肉食</span>
+          </header>
+          <p>
+            以咬合力惊人的头骨与短小前肢闻名，是白垩纪末期北美食物链顶端的象征，具备高度发达的嗅觉系统。
+          </p>
+          <ul class="species-card__meta">
+            <li><span class="species-card__meta-label">体长</span> 约 12 米</li>
+            <li><span class="species-card__meta-label">体重</span> 约 8 吨</li>
+            <li><span class="species-card__meta-label">产地</span> 北美西部内陆</li>
+          </ul>
+          <details>
+            <summary>像素足迹</summary>
+            <p>
+              霸王龙足迹宽大且爪印清晰，推测其能以 27 km/h 左右速度短距离冲刺，擅长伏击獵杀与掠食腐肉。
+            </p>
+          </details>
+        </article>
+
+        <article class="species-card species-card--carnivore" aria-labelledby="species-velociraptor">
+          <header class="species-card__header">
+            <h3 class="species-card__name" id="species-velociraptor">伶盗龙</h3>
+            <span class="badge badge--carnivore">肉食</span>
+          </header>
+          <p>
+            小型兽脚类，腿部长羽，具备镰刀状第二趾爪。化石显示其可能以群体协作的方式捕猎较大型猎物。
+          </p>
+          <ul class="species-card__meta">
+            <li><span class="species-card__meta-label">体长</span> 约 2 米</li>
+            <li><span class="species-card__meta-label">体重</span> 约 15 公斤</li>
+            <li><span class="species-card__meta-label">产地</span> 蒙古戈壁地区</li>
+          </ul>
+          <details>
+            <summary>像素足迹</summary>
+            <p>
+              羽毛印痕证明恐龙与现代鸟类的亲缘关系；伶盗龙臂部骨骼具“乌鸦腕”结构，显示其翅膀类似鸟类折叠方式。
+            </p>
+          </details>
+        </article>
+
+        <article class="species-card species-card--herbivore" aria-labelledby="species-apatosaurus">
+          <header class="species-card__header">
+            <h3 class="species-card__name" id="species-apatosaurus">迷惑龙</h3>
+            <span class="badge badge--herbivore">草食</span>
+          </header>
+          <p>
+            侏罗纪晚期的长颈巨龙，拥有鞭状尾巴与粗壮四肢，推测依赖气囊系统减轻骨骼负担，利于长时间取食高大植被。
+          </p>
+          <ul class="species-card__meta">
+            <li><span class="species-card__meta-label">体长</span> 约 22 米</li>
+            <li><span class="species-card__meta-label">体重</span> 约 18 吨</li>
+            <li><span class="species-card__meta-label">产地</span> 北美莫里逊组</li>
+          </ul>
+          <details>
+            <summary>像素足迹</summary>
+            <p>
+              蜥脚类足迹呈现前足半圆、后足椭圆的组合。迷惑龙尾椎连接紧密，可产生高频鞭声，或用于群体交流与防御。
+            </p>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <section class="habitat" id="habitats" aria-labelledby="habitats-title">
+      <h2 class="section-title" id="habitats-title">生态环境</h2>
+      <p class="habitat__content">
+        恐龙在多样的气候带繁衍，从河漫滩到针叶林皆可见其踪影。研究沉积岩、植物化石与同位素信息，可重建它们的生活舞台。
+      </p>
+      <div class="habitat__columns">
+        <div>
+          <h3 class="section-title">典型生境</h3>
+          <ul class="habitat__list">
+            <li>泛大陆裂解形成的季节性河流与三角洲</li>
+            <li>富含苏铁、银杏的亚热带森林</li>
+            <li>半干旱草原与盐湖共存的内陆盆地</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="section-title">共生伙伴</h3>
+          <ul class="habitat__list">
+            <li>翼龙与早期鸟类负责空中觅食与种子传播</li>
+            <li>早期被子植物为草食恐龙提供高营养叶片</li>
+            <li>甲龙与角龙借群居策略构建“像素防线”</li>
+          </ul>
+        </div>
+      </div>
+      <p class="habitat__callout">记得开启浏览器的“减少动态效果”选项以获得无动画体验</p>
+    </section>
+
+    <section class="resources" id="resources" aria-labelledby="resources-title">
+      <h2 class="section-title" id="resources-title">继续探索</h2>
+      <div class="resources__grid">
+        <article class="resource-card">
+          <h3 class="resource-card__title">化石辨识清单</h3>
+          <p class="resource-card__meta">
+            了解化石挖掘现场常见的骨骼部位与矿化结构，快速记录观察数据，适合学生团队实地考察时使用。
+          </p>
+          <a class="link-inline" href="#" aria-label="查看化石辨识清单（示例链接）">示例链接</a>
+        </article>
+        <article class="resource-card">
+          <h3 class="resource-card__title">中生代气候地图</h3>
+          <p class="resource-card__meta">
+            通过同位素数据与沉积物分析重建温度与降水变化，帮助理解恐龙分布区域的气候驱动因素。
+          </p>
+          <a class="link-inline" href="#" aria-label="查看中生代气候地图（示例链接）">示例链接</a>
+        </article>
+        <article class="resource-card">
+          <h3 class="resource-card__title">亲子探索任务卡</h3>
+          <p class="resource-card__meta">
+            将恐龙知识融入寻宝游戏与谜题，支持在博物馆或家中开展沉浸式学习活动，附带静音模式指引。
+          </p>
+          <a class="link-inline" href="#" aria-label="查看亲子探索任务卡（示例链接）">示例链接</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="glossary" id="glossary" aria-labelledby="glossary-title">
+      <h2 class="section-title" id="glossary-title">术语速查</h2>
+      <div class="glossary__list">
+        <article>
+          <h3 class="glossary__term">羽毛恐龙</h3>
+          <p class="glossary__definition">具备丝状或羽片结构的恐龙，证明羽毛演化并非鸟类独享，可用于保温或展示。</p>
+        </article>
+        <article>
+          <h3 class="glossary__term">巢化石</h3>
+          <p class="glossary__definition">保存了卵与幼体骨骼的化石，可推测繁殖行为与成长速度。</p>
+        </article>
+        <article>
+          <h3 class="glossary__term">铀铅定年</h3>
+          <p class="glossary__definition">利用锆石中铀与铅同位素比例推算岩石年龄的放射性定年方法。</p>
+        </article>
+        <article>
+          <h3 class="glossary__term">陨击冬天</h3>
+          <p class="glossary__definition">指大型陨石撞击引发的全球遮光与降温现象，被认为是恐龙灭绝的关键因素之一。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <div class="page-footer__inner">
+      <p>本页面遵循 DemoCodex 协作指南：语义化结构、模块化样式与像素审美兼顾可访问性。</p>
+      <p>若要集成至主站，请在导航中加入此页面链接，并同步检查深浅色模式对比度。</p>
+    </div>
+  </footer>
+</body>
+</html>

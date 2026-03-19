@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="回声矩阵：记忆越来越长的霓虹序列，在时间压力下完成多轮共振挑战。"
+    />
+    <title>回声矩阵 | DemoCodex</title>
+    <link rel="stylesheet" href="src/css/echo-matrix.css" />
+  </head>
+  <body class="echo-page">
+    <main class="echo-page__shell">
+      <header class="echo-page__hero">
+        <a class="echo-page__back" href="games-collection.html">返回合集</a>
+        <div class="echo-page__title-wrap">
+          <p class="echo-page__eyebrow">Memory Rhythm</p>
+          <h1 class="echo-page__title">回声矩阵</h1>
+          <p class="echo-page__lead">
+            观察霓虹序列，记住闪烁顺序，再在计时结束前一口气打完。回合越深，节奏越快。
+          </p>
+        </div>
+        <div class="echo-page__hero-actions">
+          <label class="echo-toggle" for="echo-hard-mode">
+            <input id="echo-hard-mode" type="checkbox" />
+            <span>高压模式</span>
+          </label>
+          <button class="echo-page__cta" id="echo-start" type="button">开始演算</button>
+        </div>
+      </header>
+
+      <section class="echo-layout">
+        <section class="echo-panel echo-panel--primary" aria-label="游戏主区域">
+          <div class="echo-stats">
+            <article class="echo-stat">
+              <span class="echo-stat__label">回合</span>
+              <strong class="echo-stat__value" id="echo-round">0</strong>
+            </article>
+            <article class="echo-stat">
+              <span class="echo-stat__label">得分</span>
+              <strong class="echo-stat__value" id="echo-score">0</strong>
+            </article>
+            <article class="echo-stat">
+              <span class="echo-stat__label">连击</span>
+              <strong class="echo-stat__value" id="echo-streak">0</strong>
+            </article>
+            <article class="echo-stat">
+              <span class="echo-stat__label">剩余机会</span>
+              <strong class="echo-stat__value" id="echo-hearts">3</strong>
+            </article>
+          </div>
+
+          <section class="echo-stage">
+            <div class="echo-stage__header">
+              <div>
+                <p class="echo-stage__label">当前状态</p>
+                <h2 class="echo-stage__status" id="echo-status" aria-live="polite">
+                  准备开始第一轮共振演算
+                </h2>
+              </div>
+              <div class="echo-timer-wrap" aria-label="本轮输入剩余时间">
+                <span class="echo-timer__value" id="echo-timer">0.0s</span>
+                <div class="echo-timer__bar">
+                  <div class="echo-timer__fill" id="echo-timer-fill"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="echo-grid" id="echo-grid" aria-label="3乘3 记忆矩阵"></div>
+          </section>
+        </section>
+
+        <aside class="echo-panel echo-panel--side" aria-label="规则与控制">
+          <section class="echo-sidecard">
+            <h2 class="echo-sidecard__title">玩法说明</h2>
+            <p class="echo-sidecard__body">
+              先看系统依次点亮的格子，再按相同顺序输入。每轮会多一个步骤，错误或超时都会失去一次机会。
+            </p>
+          </section>
+
+          <section class="echo-sidecard">
+            <h2 class="echo-sidecard__title">加分机制</h2>
+            <ul class="echo-rules">
+              <li>连续正确输入会累计连击并抬高得分。</li>
+              <li>每轮随机出现一个“共振格”，命中时有额外奖励。</li>
+              <li>高压模式会缩短展示和输入时间。</li>
+            </ul>
+          </section>
+
+          <section class="echo-sidecard">
+            <h2 class="echo-sidecard__title">控制方式</h2>
+            <ul class="echo-rules">
+              <li>鼠标 / 触摸：点击格子</li>
+              <li>`1 - 9`：按宫格顺序输入</li>
+              <li>`Enter`：开始新局</li>
+            </ul>
+          </section>
+
+          <section class="echo-sidecard">
+            <h2 class="echo-sidecard__title">行动面板</h2>
+            <div class="echo-actions">
+              <button class="echo-btn" id="echo-restart" type="button">重新开始</button>
+            </div>
+          </section>
+
+          <section class="echo-sidecard">
+            <h2 class="echo-sidecard__title">系统日志</h2>
+            <ul class="echo-feed" id="echo-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p class="echo-autotest" id="echo-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/echo-matrix.js"></script>
+  </body>
+</html>

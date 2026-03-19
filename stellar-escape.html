@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="星环逃逸：在陨石雨里生存、收集能量晶体并用护盾和冲刺打出高分。"
+    />
+    <title>星环逃逸 | DemoCodex</title>
+    <link rel="stylesheet" href="src/css/stellar-escape.css" />
+  </head>
+  <body class="stellar-page">
+    <main class="stellar-page__shell">
+      <header class="stellar-page__hero">
+        <a class="stellar-page__back" href="games-collection.html">返回合集</a>
+        <div class="stellar-page__title-wrap">
+          <p class="stellar-page__eyebrow">Arcade Survival</p>
+          <h1 class="stellar-page__title">星环逃逸</h1>
+          <p class="stellar-page__lead">
+            驾驶拦截机穿过失控轨道。躲开陨石、抢能量晶体、用护盾硬吃危险弹道，尽量活得更久。
+          </p>
+        </div>
+        <button class="stellar-page__cta" id="stellar-start" type="button">开始任务</button>
+      </header>
+
+      <section class="stellar-layout">
+        <section class="stellar-panel stellar-panel--primary" aria-label="游戏主区域">
+          <div class="stellar-stats">
+            <article class="stellar-stat">
+              <span class="stellar-stat__label">得分</span>
+              <strong class="stellar-stat__value" id="stellar-score">0</strong>
+            </article>
+            <article class="stellar-stat">
+              <span class="stellar-stat__label">生命</span>
+              <strong class="stellar-stat__value" id="stellar-health">3</strong>
+            </article>
+            <article class="stellar-stat">
+              <span class="stellar-stat__label">护盾</span>
+              <strong class="stellar-stat__value" id="stellar-energy">100%</strong>
+            </article>
+            <article class="stellar-stat">
+              <span class="stellar-stat__label">最高分</span>
+              <strong class="stellar-stat__value" id="stellar-best">0</strong>
+            </article>
+          </div>
+
+          <div class="stellar-canvas-shell">
+            <canvas
+              id="stellar-canvas"
+              width="960"
+              height="540"
+              role="img"
+              aria-label="星环逃逸游戏画面：飞船在陨石雨中穿梭并收集晶体"
+            ></canvas>
+            <div class="stellar-overlay" id="stellar-overlay" aria-live="polite">
+              按“开始任务”或 Enter 起飞
+            </div>
+          </div>
+        </section>
+
+        <aside class="stellar-panel stellar-panel--side" aria-label="游戏信息与控制">
+          <section class="stellar-sidecard">
+            <h2 class="stellar-sidecard__title">任务规则</h2>
+            <p class="stellar-sidecard__body" id="stellar-status">
+              生存越久，陨石越密。收集晶体可补护盾并提高连击倍率。
+            </p>
+          </section>
+
+          <section class="stellar-sidecard">
+            <h2 class="stellar-sidecard__title">战术数据</h2>
+            <dl class="stellar-metrics">
+              <div class="stellar-metrics__row">
+                <dt>连击倍率</dt>
+                <dd id="stellar-combo">x1.0</dd>
+              </div>
+              <div class="stellar-metrics__row">
+                <dt>存活时间</dt>
+                <dd id="stellar-time">0.0s</dd>
+              </div>
+              <div class="stellar-metrics__row">
+                <dt>冲刺冷却</dt>
+                <dd id="stellar-dash">就绪</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="stellar-sidecard">
+            <h2 class="stellar-sidecard__title">控制方式</h2>
+            <ul class="stellar-controls">
+              <li>`WASD` / 方向键：移动</li>
+              <li>`Shift`：短距冲刺</li>
+              <li>`Space`：开启护盾</li>
+              <li>`P`：暂停</li>
+              <li>鼠标 / 触控拖动：跟随指针</li>
+            </ul>
+          </section>
+
+          <section class="stellar-sidecard">
+            <h2 class="stellar-sidecard__title">行动面板</h2>
+            <div class="stellar-actions">
+              <button class="stellar-btn" id="stellar-pause" type="button">暂停</button>
+              <button class="stellar-btn stellar-btn--ghost" id="stellar-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="stellar-sidecard">
+            <h2 class="stellar-sidecard__title">任务日志</h2>
+            <ul class="stellar-feed" id="stellar-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p class="stellar-autotest" id="stellar-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/stellar-escape.js"></script>
+  </body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>像素飞鸟 - Flappy Bird</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #0a0e1a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .game-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .game-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #facc15, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .score-bar {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: #a0aec0;
+    }
+    .score-bar span { color: #facc15; font-weight: 700; font-size: 1.1rem; }
+    canvas {
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.1);
+      display: block;
+      image-rendering: pixelated;
+      cursor: pointer;
+    }
+    .hint {
+      margin-top: 12px;
+      color: #718096;
+      font-size: 0.85rem;
+    }
+    a.back {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      color: #4ecdc4;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    a.back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <a class="back" href="games-collection.html">&larr; 返回合集</a>
+  <div class="game-header">
+    <h1>像素飞鸟</h1>
+  </div>
+  <div class="score-bar">
+    <div>得分: <span id="score">0</span></div>
+    <div>最高: <span id="best">0</span></div>
+  </div>
+  <canvas id="c"></canvas>
+  <p class="hint">点击 / 空格 / 上键 起飞</p>
+
+<script>
+(() => {
+  /* ---------- 常量 ---------- */
+  const W = 400, H = 600;
+  const GRAVITY = 0.45;
+  const FLAP = -7.5;
+  const PIPE_W = 52;
+  const GAP = 150;
+  const PIPE_SPEED = 2.5;
+  const PIPE_INTERVAL = 100; // 帧
+  const BIRD_R = 14;
+  const GROUND_H = 60;
+  const PLAY_H = H - GROUND_H;
+
+  /* ---------- 画布 ---------- */
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  canvas.width = W;
+  canvas.height = H;
+
+  const $score = document.getElementById('score');
+  const $best = document.getElementById('best');
+
+  /* ---------- 状态 ---------- */
+  let bird, pipes, score, bestScore, frameCount, state; // 'idle' | 'play' | 'dead'
+
+  bestScore = +(localStorage.getItem('flappy_best') || 0);
+  $best.textContent = bestScore;
+
+  function reset() {
+    bird = { x: 80, y: PLAY_H / 2, vy: 0, angle: 0 };
+    pipes = [];
+    score = 0;
+    frameCount = 0;
+    state = 'idle';
+    $score.textContent = 0;
+  }
+  reset();
+
+  /* ---------- 管道生成 ---------- */
+  function spawnPipe() {
+    const minTop = 60;
+    const maxTop = PLAY_H - GAP - 60;
+    const topH = minTop + Math.random() * (maxTop - minTop);
+    pipes.push({ x: W, topH, scored: false });
+  }
+
+  /* ---------- 碰撞检测 ---------- */
+  function collides() {
+    const bx = bird.x, by = bird.y, r = BIRD_R;
+    // 地面/天花板
+    if (by + r > PLAY_H || by - r < 0) return true;
+    for (const p of pipes) {
+      if (bx + r > p.x && bx - r < p.x + PIPE_W) {
+        if (by - r < p.topH || by + r > p.topH + GAP) return true;
+      }
+    }
+    return false;
+  }
+
+  /* ---------- 绘制 ---------- */
+  // 颜色
+  const SKY_TOP = '#0f172a';
+  const SKY_BOT = '#1e293b';
+  const PIPE_COL = '#22c55e';
+  const PIPE_EDGE = '#16a34a';
+  const GROUND_COL = '#78350f';
+  const GROUND_TOP = '#a16207';
+  const BIRD_BODY = '#facc15';
+  const BIRD_WING = '#f97316';
+  const BIRD_EYE = '#fff';
+
+  function drawBg() {
+    const g = ctx.createLinearGradient(0, 0, 0, PLAY_H);
+    g.addColorStop(0, SKY_TOP);
+    g.addColorStop(1, SKY_BOT);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, PLAY_H);
+    // 地面
+    ctx.fillStyle = GROUND_TOP;
+    ctx.fillRect(0, PLAY_H, W, 4);
+    ctx.fillStyle = GROUND_COL;
+    ctx.fillRect(0, PLAY_H + 4, W, GROUND_H - 4);
+    // 地面纹理
+    ctx.fillStyle = '#92400e';
+    for (let x = ((frameCount * 2) % 24) - 24; x < W; x += 24) {
+      ctx.fillRect(x, PLAY_H + 12, 12, 4);
+      ctx.fillRect(x + 12, PLAY_H + 28, 12, 4);
+    }
+  }
+
+  function drawPipe(p) {
+    // 上管
+    ctx.fillStyle = PIPE_COL;
+    ctx.fillRect(p.x, 0, PIPE_W, p.topH);
+    ctx.fillStyle = PIPE_EDGE;
+    ctx.fillRect(p.x - 3, p.topH - 24, PIPE_W + 6, 24);
+    // 下管
+    const botY = p.topH + GAP;
+    ctx.fillStyle = PIPE_COL;
+    ctx.fillRect(p.x, botY, PIPE_W, PLAY_H - botY);
+    ctx.fillStyle = PIPE_EDGE;
+    ctx.fillRect(p.x - 3, botY, PIPE_W + 6, 24);
+    // 高光
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(p.x + 4, 0, 6, p.topH);
+    ctx.fillRect(p.x + 4, botY, 6, PLAY_H - botY);
+  }
+
+  function drawBird() {
+    ctx.save();
+    ctx.translate(bird.x, bird.y);
+    ctx.rotate(bird.angle);
+    // 身体
+    ctx.fillStyle = BIRD_BODY;
+    ctx.beginPath();
+    ctx.arc(0, 0, BIRD_R, 0, Math.PI * 2);
+    ctx.fill();
+    // 翅膀
+    ctx.fillStyle = BIRD_WING;
+    const wingY = Math.sin(frameCount * 0.3) * 4;
+    ctx.beginPath();
+    ctx.ellipse(-4, wingY, 10, 6, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // 眼睛
+    ctx.fillStyle = BIRD_EYE;
+    ctx.beginPath();
+    ctx.arc(6, -4, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.arc(7, -4, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // 嘴
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(BIRD_R, -3);
+    ctx.lineTo(BIRD_R + 8, 0);
+    ctx.lineTo(BIRD_R, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawOverlay(text, sub) {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(text, W / 2, H / 2 - 20);
+    if (sub) {
+      ctx.fillStyle = '#a0aec0';
+      ctx.font = '16px sans-serif';
+      ctx.fillText(sub, W / 2, H / 2 + 20);
+    }
+  }
+
+  /* ---------- 更新 ---------- */
+  function update() {
+    if (state !== 'play') return;
+    frameCount++;
+
+    // 鸟
+    bird.vy += GRAVITY;
+    bird.y += bird.vy;
+    bird.angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 6, bird.vy * 0.06));
+
+    // 管道
+    if (frameCount % PIPE_INTERVAL === 0) spawnPipe();
+    for (let i = pipes.length - 1; i >= 0; i--) {
+      const p = pipes[i];
+      p.x -= PIPE_SPEED;
+      if (!p.scored && p.x + PIPE_W < bird.x) {
+        p.scored = true;
+        score++;
+        $score.textContent = score;
+      }
+      if (p.x + PIPE_W < -10) pipes.splice(i, 1);
+    }
+
+    // 碰撞
+    if (collides()) {
+      state = 'dead';
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('flappy_best', bestScore);
+        $best.textContent = bestScore;
+      }
+    }
+  }
+
+  /* ---------- 渲染 ---------- */
+  function render() {
+    drawBg();
+    for (const p of pipes) drawPipe(p);
+    drawBird();
+    if (state === 'idle') drawOverlay('像素飞鸟', '点击开始');
+    if (state === 'dead') drawOverlay('游戏结束  得分: ' + score, '点击重新开始');
+  }
+
+  /* ---------- 主循环 ---------- */
+  let rafId;
+  function loop() {
+    update();
+    render();
+    rafId = requestAnimationFrame(loop);
+  }
+  rafId = requestAnimationFrame(loop);
+
+  /* ---------- 输入 ---------- */
+  function flap() {
+    if (state === 'idle') {
+      state = 'play';
+      bird.vy = FLAP;
+      frameCount = 0;
+    } else if (state === 'play') {
+      bird.vy = FLAP;
+    } else if (state === 'dead') {
+      reset();
+    }
+  }
+
+  canvas.addEventListener('pointerdown', (e) => { e.preventDefault(); flap(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); flap(); }
+  });
+})();
+</script>
+</body>
+</html>
