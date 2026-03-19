@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="霓虹潜行：回合制潜入解谜游戏，收集数据核心、冻结巡逻无人机并从霓虹封锁线中撤离。"
+    />
+    <title>霓虹潜行 | DemoCodex</title>
+    <link rel="stylesheet" href="src/css/neon-heist.css" />
+  </head>
+  <body class="heist-page">
+    <main class="heist-shell">
+      <header class="heist-hero">
+        <a class="heist-hero__back" href="games-collection.html">返回合集</a>
+        <div class="heist-hero__title-wrap">
+          <p class="heist-hero__eyebrow">Turn-Based Stealth</p>
+          <h1 class="heist-hero__title">霓虹潜行</h1>
+          <p class="heist-hero__lead">
+            每走一步，巡逻无人机也会同步推进一步。拿齐 3 枚数据核心，抢到 EMP
+            的停滞窗口，再从亮起的出口撤离。
+          </p>
+        </div>
+        <div class="heist-hero__actions">
+          <button class="heist-hero__cta" id="heist-start" type="button">开始潜入</button>
+          <button class="heist-hero__cta heist-hero__cta--ghost" id="heist-reset" type="button">
+            重置战局
+          </button>
+        </div>
+      </header>
+
+      <section class="heist-layout">
+        <section class="heist-panel heist-panel--primary" aria-label="霓虹潜行主区域">
+          <div class="heist-stats">
+            <article class="heist-stat">
+              <span class="heist-stat__label">楼层</span>
+              <strong class="heist-stat__value" id="heist-floor">1</strong>
+            </article>
+            <article class="heist-stat">
+              <span class="heist-stat__label">得分</span>
+              <strong class="heist-stat__value" id="heist-score">0</strong>
+            </article>
+            <article class="heist-stat">
+              <span class="heist-stat__label">生命</span>
+              <strong class="heist-stat__value" id="heist-lives">3</strong>
+            </article>
+            <article class="heist-stat">
+              <span class="heist-stat__label">核心</span>
+              <strong class="heist-stat__value" id="heist-cores">0 / 3</strong>
+            </article>
+            <article class="heist-stat">
+              <span class="heist-stat__label">脉冲</span>
+              <strong class="heist-stat__value" id="heist-pulse">就绪</strong>
+            </article>
+            <article class="heist-stat">
+              <span class="heist-stat__label">纪录</span>
+              <strong class="heist-stat__value" id="heist-best">0</strong>
+            </article>
+          </div>
+
+          <div class="heist-board-shell">
+            <canvas
+              id="heist-canvas"
+              width="720"
+              height="720"
+              role="img"
+              aria-label="霓虹潜行游戏棋盘，玩家需要躲避巡逻无人机，收集 3 枚数据核心后到达出口"
+            ></canvas>
+            <div class="heist-overlay is-visible" id="heist-overlay" aria-live="polite">
+              <p class="heist-overlay__kicker">潜入提示</p>
+              <h2 class="heist-overlay__title" id="heist-overlay-title">按开始潜入或 Enter 开局</h2>
+              <p class="heist-overlay__body" id="heist-overlay-body">
+                方向键或 WASD 移动，空格原地等待一拍。每个回合敌方巡逻也会同步推进。
+              </p>
+            </div>
+          </div>
+
+          <section class="heist-pad" aria-label="触摸控制面板">
+            <button class="heist-pad__button heist-pad__button--up" data-move="up" type="button">上</button>
+            <button class="heist-pad__button heist-pad__button--left" data-move="left" type="button">左</button>
+            <button class="heist-pad__button heist-pad__button--wait" data-move="wait" type="button">等待</button>
+            <button class="heist-pad__button heist-pad__button--right" data-move="right" type="button">右</button>
+            <button class="heist-pad__button heist-pad__button--down" data-move="down" type="button">下</button>
+          </section>
+        </section>
+
+        <aside class="heist-panel heist-panel--side" aria-label="规则与情报">
+          <section class="heist-sidecard">
+            <h2 class="heist-sidecard__title">任务简报</h2>
+            <p class="heist-sidecard__body" id="heist-status">
+              先拿到 3 枚数据核心，再去亮起的出口脱身。
+            </p>
+            <p class="heist-sidecard__body heist-sidecard__body--muted" id="heist-objective">
+              EMP 会让巡逻停滞两回合，但每次潜入只会刷出少量脉冲节点。
+            </p>
+          </section>
+
+          <section class="heist-sidecard">
+            <h2 class="heist-sidecard__title">玩法说明</h2>
+            <ul class="heist-rules">
+              <li>每移动一步，所有巡逻无人机也会自动推进一步。</li>
+              <li>拾取数据核心后得分提升，拿齐 3 枚后出口才会解锁。</li>
+              <li>踩到 EMP 节点会冻结巡逻两回合，适合拿来抢线路。</li>
+            </ul>
+          </section>
+
+          <section class="heist-sidecard">
+            <h2 class="heist-sidecard__title">控制方式</h2>
+            <ul class="heist-rules">
+              <li>`WASD` / 方向键：移动</li>
+              <li>`Space`：原地等待一拍</li>
+              <li>`Enter`：开始新局</li>
+              <li>`R`：重置本次潜入</li>
+            </ul>
+          </section>
+
+          <section class="heist-sidecard">
+            <h2 class="heist-sidecard__title">行动面板</h2>
+            <div class="heist-actions">
+              <button class="heist-action" id="heist-wait" type="button">等待一拍</button>
+              <button class="heist-action heist-action--ghost" id="heist-restart" type="button">重新部署</button>
+            </div>
+          </section>
+
+          <section class="heist-sidecard">
+            <h2 class="heist-sidecard__title">黑箱记录</h2>
+            <dl class="heist-metrics">
+              <div class="heist-metrics__row">
+                <dt>本层回合</dt>
+                <dd id="heist-turns">0</dd>
+              </div>
+              <div class="heist-metrics__row">
+                <dt>巡逻密度</dt>
+                <dd id="heist-alert">2 架</dd>
+              </div>
+              <div class="heist-metrics__row">
+                <dt>最佳楼层</dt>
+                <dd id="heist-best-floor">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="heist-sidecard">
+            <h2 class="heist-sidecard__title">行动日志</h2>
+            <ul class="heist-feed" id="heist-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p id="heist-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/neon-heist.js"></script>
+  </body>
+</html>

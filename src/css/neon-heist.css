@@ -1,0 +1,426 @@
+:root {
+  --heist-bg: #071014;
+  --heist-surface: rgba(9, 19, 24, 0.82);
+  --heist-surface-strong: rgba(13, 27, 34, 0.96);
+  --heist-border: rgba(110, 231, 255, 0.14);
+  --heist-grid: rgba(55, 82, 92, 0.28);
+  --heist-text: #f6fffb;
+  --heist-muted: #9ec6cb;
+  --heist-accent: #7dd3fc;
+  --heist-mint: #5eead4;
+  --heist-gold: #fbbf24;
+  --heist-hot: #fb7185;
+  --heist-shadow: rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+html {
+  background: #04090c;
+}
+
+body.heist-page {
+  min-height: 100vh;
+  font-family: "Trebuchet MS", "Avenir Next", "Gill Sans", sans-serif;
+  color: var(--heist-text);
+  background:
+    radial-gradient(circle at 18% 14%, rgba(34, 197, 94, 0.14), transparent 24%),
+    radial-gradient(circle at 85% 8%, rgba(251, 191, 36, 0.16), transparent 20%),
+    radial-gradient(circle at 50% 100%, rgba(14, 165, 233, 0.16), transparent 28%),
+    linear-gradient(180deg, #050b0f 0%, #091217 42%, #05090d 100%);
+}
+
+body.heist-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(circle at center, #000 42%, transparent 100%);
+  pointer-events: none;
+}
+
+.heist-shell {
+  width: min(1320px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 40px;
+}
+
+.heist-hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.heist-hero__back,
+.heist-hero__cta,
+.heist-action,
+.heist-pad__button {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+}
+
+.heist-hero__back {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 18px;
+  color: var(--heist-text);
+  text-decoration: none;
+  background: rgba(7, 14, 18, 0.66);
+}
+
+.heist-hero__eyebrow {
+  margin: 0 0 10px;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 0.78rem;
+}
+
+.heist-hero__title {
+  margin: 0;
+  font-size: clamp(2.8rem, 6vw, 4.9rem);
+  line-height: 0.96;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.heist-hero__lead {
+  margin: 14px 0 0;
+  max-width: 62ch;
+  color: var(--heist-muted);
+  line-height: 1.7;
+}
+
+.heist-hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.heist-hero__cta,
+.heist-action {
+  padding: 13px 20px;
+  color: #041013;
+  font-weight: 800;
+  background: linear-gradient(135deg, #5eead4, #fbbf24);
+  cursor: pointer;
+}
+
+.heist-hero__cta--ghost,
+.heist-action--ghost {
+  background: rgba(7, 14, 18, 0.66);
+  color: var(--heist-text);
+}
+
+.heist-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(280px, 0.95fr);
+  gap: 24px;
+}
+
+.heist-panel {
+  background: var(--heist-surface);
+  border: 1px solid var(--heist-border);
+  border-radius: 30px;
+  box-shadow: 0 28px 64px var(--heist-shadow);
+}
+
+.heist-panel--primary {
+  padding: 20px;
+}
+
+.heist-panel--side {
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.heist-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.heist-stat,
+.heist-sidecard {
+  background: var(--heist-surface-strong);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+}
+
+.heist-stat {
+  padding: 14px 16px;
+}
+
+.heist-stat__label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--heist-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.heist-stat__value {
+  font-size: 1.36rem;
+  font-weight: 800;
+}
+
+.heist-board-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  background:
+    radial-gradient(circle at top, rgba(94, 234, 212, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(3, 10, 14, 0.98), rgba(8, 18, 23, 0.94));
+}
+
+#heist-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.heist-overlay {
+  position: absolute;
+  inset: auto 18px 18px;
+  max-width: min(420px, calc(100% - 36px));
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(4, 10, 14, 0.84);
+  border: 1px solid rgba(94, 234, 212, 0.24);
+  transform: translateY(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.heist-overlay.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.heist-overlay__kicker {
+  margin: 0 0 6px;
+  color: #fbbf24;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.heist-overlay__title {
+  margin: 0 0 8px;
+  font-size: 1.32rem;
+}
+
+.heist-overlay__body {
+  margin: 0;
+  color: var(--heist-muted);
+  line-height: 1.6;
+}
+
+.heist-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: min(360px, 100%);
+  margin: 18px auto 0;
+}
+
+.heist-pad__button {
+  min-height: 52px;
+  background: rgba(7, 14, 18, 0.72);
+  color: var(--heist-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.heist-pad__button--up {
+  grid-column: 2;
+}
+
+.heist-pad__button--left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.heist-pad__button--wait {
+  grid-column: 2;
+  grid-row: 2;
+  color: var(--heist-gold);
+}
+
+.heist-pad__button--right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.heist-pad__button--down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.heist-sidecard {
+  padding: 16px;
+}
+
+.heist-sidecard__title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.heist-sidecard__body,
+.heist-rules,
+.heist-feed,
+.heist-metrics dt {
+  color: var(--heist-muted);
+}
+
+.heist-sidecard__body {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.heist-sidecard__body--muted {
+  margin-top: 10px;
+  color: #b9d2d8;
+}
+
+.heist-rules,
+.heist-feed {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.heist-rules li,
+.heist-feed li {
+  line-height: 1.65;
+}
+
+.heist-rules li + li,
+.heist-feed li + li {
+  margin-top: 8px;
+}
+
+.heist-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.heist-action {
+  min-width: 132px;
+}
+
+.heist-metrics {
+  margin: 0;
+}
+
+.heist-metrics__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.heist-metrics__row:last-child {
+  border-bottom: 0;
+}
+
+.heist-metrics dt,
+.heist-metrics dd {
+  margin: 0;
+}
+
+.heist-metrics dd {
+  color: var(--heist-text);
+  font-weight: 700;
+}
+
+.heist-hero__cta:hover,
+.heist-action:hover,
+.heist-pad__button:hover,
+.heist-hero__back:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1120px) {
+  .heist-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .heist-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .heist-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .heist-hero__actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .heist-shell {
+    width: min(100%, calc(100% - 20px));
+    padding-top: 20px;
+  }
+
+  .heist-panel--primary,
+  .heist-panel--side {
+    padding: 14px;
+  }
+
+  .heist-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .heist-overlay {
+    inset: auto 12px 12px;
+    max-width: calc(100% - 24px);
+    padding: 14px;
+  }
+
+  .heist-actions {
+    flex-direction: column;
+  }
+
+  .heist-action {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heist-overlay,
+  .heist-hero__cta,
+  .heist-action,
+  .heist-pad__button,
+  .heist-hero__back {
+    transition: none;
+  }
+}

@@ -5,7 +5,7 @@
 
 [打开合集入口](./games-collection.html) | [仓库地址](https://github.com/hrniux/demoCodex) | [GitHub About 文案](./.github/project-about.md)
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 18 个可直接运行的 HTML 页面，其中 `games-collection.html` 聚合了 13 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 19 个可直接运行的 HTML 页面，其中 `games-collection.html` 聚合了 14 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 
 ## 项目亮点
 
@@ -46,6 +46,7 @@ python3 -m http.server 8000
 | 导航入口 | `games-collection.html` | DemoCodex 主合集页，适合作为仓库首页和试玩入口。 |
 | 个性化内容 | `daily-insights.html` | 融合生肖、星座与节气的每日洞见生成器。 |
 | 像素街机 | `tank-battle-pixel.html` | 简约像素风坦克大战，强调基地防守、轻量 AI 和零依赖。 |
+| 潜行解谜 | `neon-heist.html` | 回合制霓虹潜入小游戏，围绕巡逻同步推进、EMP 停滞与路线计算展开。 |
 | 经典休闲 | `snake_game.html` | 经典贪吃蛇，高分可本地保存。 |
 | 科普互动 | `dino-pixel-encyclopedia.html` | 像素风恐龙百科，兼顾视觉和知识内容。 |
 | 科普互动 | `armory-pixel-arsenal.html` | 像素兵工图鉴，以专题内容页形式展示武器演进。 |
@@ -71,7 +72,7 @@ python3 -m http.server 8000
 
 - 渲染方式：Canvas 2D 是主要交互载体，部分页面采用像素风绘制和 `requestAnimationFrame` 循环。
 - 代码组织：仓库同时存在单文件原型页与按 `src/css`、`src/js` 拆分的模块化页面。
-- 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、像素坦克等页面都使用了浏览器本地存储。
+- 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、霓虹潜行、像素坦克等页面都使用了浏览器本地存储。
 - 依赖策略：除 `voxelcraft.html` 和个别字体资源外，整体坚持轻依赖甚至零依赖。
 
 ## 目录结构
