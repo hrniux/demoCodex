@@ -46,7 +46,7 @@ python3 -m http.server 8000
 | 导航入口 | `games-collection.html` | DemoCodex 主合集页，适合作为仓库首页和试玩入口。 |
 | 个性化内容 | `daily-insights.html` | 融合生肖、星座与节气的每日洞见生成器。 |
 | 像素街机 | `tank-battle-pixel.html` | 简约像素风坦克大战，强调基地防守、轻量 AI 和零依赖。 |
-| 潜行解谜 | `neon-heist.html` | 回合制霓虹潜入小游戏，围绕巡逻同步推进、EMP 停滞与路线计算展开。 |
+| 潜行解谜 | `neon-heist.html` | 回合制霓虹潜入小游戏，围绕巡逻同步推进、EMP 停滞、诱饵错位与路线计算展开。 |
 | 经典休闲 | `snake_game.html` | 经典贪吃蛇，高分可本地保存。 |
 | 科普互动 | `dino-pixel-encyclopedia.html` | 像素风恐龙百科，兼顾视觉和知识内容。 |
 | 科普互动 | `armory-pixel-arsenal.html` | 像素兵工图鉴，以专题内容页形式展示武器演进。 |

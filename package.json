@@ -1,0 +1,26 @@
+{
+  "name": "democodex",
+  "version": "1.0.0",
+  "description": "DemoCodex HTML game collection",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:neon-heist:logic",
+    "test:neon-heist:logic": "node -e \"const mod=require('./src/js/neon-heist.js'); const result=mod.runSelfCheck(40); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:neon-heist:browser": "node scripts/test-neon-heist-browser.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrniux/demoCodex.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hrniux/demoCodex/issues"
+  },
+  "homepage": "https://github.com/hrniux/demoCodex#readme",
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
+}

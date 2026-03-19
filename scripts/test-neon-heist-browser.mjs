@@ -1,0 +1,181 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { chromium } from 'playwright';
+
+const TEST_URL =
+  process.env.NEON_HEIST_TEST_URL ||
+  'http://127.0.0.1:4173/neon-heist.html?autotest=1&seed=4242';
+const SCREENSHOT_DIR = path.resolve(process.cwd(), 'output/neon-heist-browser');
+const CAPTURE_SCREENSHOTS = process.env.NEON_HEIST_CAPTURE === '1';
+
+async function ensureDir(dir) {
+  await fs.mkdir(dir, { recursive: true });
+}
+
+function trackErrors(page) {
+  const errors = [];
+
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      errors.push({ type: 'console', text: msg.text() });
+    }
+  });
+
+  page.on('pageerror', (error) => {
+    errors.push({ type: 'pageerror', text: String(error) });
+  });
+
+  return errors;
+}
+
+async function screenshot(page, name) {
+  if (!CAPTURE_SCREENSHOTS) {
+    return null;
+  }
+  const target = path.join(SCREENSHOT_DIR, name);
+  await page.screenshot({ path: target, fullPage: true });
+  return target;
+}
+
+async function readState(page) {
+  return page.evaluate(() => {
+    if (typeof window.render_game_to_text !== 'function') {
+      throw new Error('window.render_game_to_text is not available');
+    }
+    return JSON.parse(window.render_game_to_text());
+  });
+}
+
+async function runBasicRoute(page) {
+  await page.goto(TEST_URL, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(300);
+  await page.click('#heist-start');
+
+  for (const key of ['ArrowUp', 'ArrowUp', 'ArrowUp', 'Space']) {
+    await page.keyboard.press(key);
+    await page.waitForTimeout(50);
+  }
+
+  const state = await readState(page);
+  assert.equal(state.mode, 'active');
+  assert.equal(state.player.x, 1);
+  assert.equal(state.player.y, 5);
+  assert.equal(state.collected, 1);
+  assert.equal(state.lives, 3);
+
+  const shot = await screenshot(page, 'core-route.png');
+  return { shot, state };
+}
+
+async function runDecoyScenario(page) {
+  await page.goto(TEST_URL, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(300);
+
+  await page.evaluate(() => {
+    const game = window.neonHeistGame;
+    game.level = 2;
+    game.loadLevel(2, game.seedForLevel(2));
+    game.running = true;
+    game.gameOver = false;
+    game.levelState.player = { x: 3, y: 2 };
+    game.levelState.decoyCharges = 1;
+    game.levelState.decoys.forEach((item) => {
+      item.active = false;
+    });
+    game.levelState.cores.forEach((item) => {
+      item.active = false;
+    });
+    game.levelState.emps.forEach((item) => {
+      item.active = false;
+    });
+    game.levelData.walls = new Set();
+    game.levelState.drones = [{ id: 0, x: 3, y: 0 }];
+    game.setStatus('测试场景');
+    game.setObjective('验证诱饵是否改变追踪目标。');
+    game.updateHud();
+    game.render();
+  });
+
+  await page.keyboard.press('KeyQ');
+  await page.waitForTimeout(50);
+  const afterDeploy = await readState(page);
+  assert.equal(afterDeploy.decoyCharges, 0);
+  assert.deepEqual(afterDeploy.activeDecoy, { x: 3, y: 2, turns: 1 });
+  assert.deepEqual(afterDeploy.drones, [{ x: 3, y: 1 }]);
+
+  await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(50);
+  const afterMove = await readState(page);
+  assert.equal(afterMove.player.x, 4);
+  assert.equal(afterMove.player.y, 2);
+  assert.equal(afterMove.activeDecoy, null);
+  assert.deepEqual(afterMove.drones, [{ x: 3, y: 2 }]);
+
+  const shot = await screenshot(page, 'decoy-route.png');
+  return { shot, afterDeploy, afterMove };
+}
+
+async function main() {
+  if (CAPTURE_SCREENSHOTS) {
+    await ensureDir(SCREENSHOT_DIR);
+  }
+
+  const browser = await chromium.launch({
+    channel: 'chrome',
+    headless: true,
+    args: ['--use-gl=angle', '--use-angle=swiftshader'],
+  });
+
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 1280 },
+  });
+  const errors = trackErrors(page);
+
+  try {
+    const basic = await runBasicRoute(page);
+    const decoy = await runDecoyScenario(page);
+
+    assert.equal(errors.length, 0, `unexpected browser errors: ${JSON.stringify(errors)}`);
+
+    console.log(
+      JSON.stringify(
+        {
+          ok: true,
+          url: TEST_URL,
+          screenshots: CAPTURE_SCREENSHOTS
+            ? {
+                basic: basic.shot,
+                decoy: decoy.shot,
+              }
+            : null,
+          basic: {
+            turn: basic.state.turn,
+            collected: basic.state.collected,
+            player: basic.state.player,
+          },
+          decoy: {
+            afterDeploy: {
+              activeDecoy: decoy.afterDeploy.activeDecoy,
+              drones: decoy.afterDeploy.drones,
+            },
+            afterMove: {
+              activeDecoy: decoy.afterMove.activeDecoy,
+              drones: decoy.afterMove.drones,
+              player: decoy.afterMove.player,
+            },
+          },
+        },
+        null,
+        2,
+      ),
+    );
+  } finally {
+    await browser.close();
+  }
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

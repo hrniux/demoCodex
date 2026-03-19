@@ -1,6 +1,16 @@
-const AUTOTEST =
-  typeof window !== 'undefined' &&
-  new URLSearchParams(window.location.search).has('autotest');
+function parseSeedValue(value) {
+  if (value === null || value === '') {
+    return null;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed >>> 0 : null;
+}
+
+const QUERY_PARAMS =
+  typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+const AUTOTEST = Boolean(QUERY_PARAMS && QUERY_PARAMS.has('autotest'));
+const FIXED_SEED = parseSeedValue(QUERY_PARAMS ? QUERY_PARAMS.get('seed') : null);
 
 const BOARD_SIZE = 10;
 const CORE_TARGET = 3;
@@ -20,6 +30,7 @@ const MOVE_KEYS = new Map([
 ]);
 
 const WAIT_KEYS = new Set(['Space', 'KeyX', 'Period']);
+const DECOY_KEYS = new Set(['KeyQ']);
 
 const DIRECTIONS = {
   up: { x: 0, y: -1, label: '上移' },
@@ -33,6 +44,7 @@ const copy = {
   live: '每走一步，巡逻无人机也会同步推进一步。',
   exit: '出口已解锁，立刻撤离。',
   frozen: 'EMP 生效，本回合巡逻停滞。',
+  decoy: '诱饵已部署，巡逻会优先扑向旧位置。',
   hit: '警报拉响，本层已重置。',
   gameOver: '警报拉满，整局潜入失败。按 Enter 或按钮重新部署。',
 };
@@ -103,14 +115,25 @@ function cloneAgents(items) {
   return items.map((item) => ({ id: item.id, x: item.x, y: item.y, active: item.active }));
 }
 
+function cloneTimedMarker(marker) {
+  if (!marker) {
+    return null;
+  }
+
+  return { x: marker.x, y: marker.y, turns: marker.turns };
+}
+
 function cloneState(state) {
   return {
     player: cloneCell(state.player),
     drones: state.drones.map((drone) => ({ id: drone.id, x: drone.x, y: drone.y })),
     cores: cloneAgents(state.cores),
     emps: cloneAgents(state.emps),
+    decoys: cloneAgents(state.decoys),
     collected: state.collected,
     freezeTurns: state.freezeTurns,
+    decoyCharges: state.decoyCharges,
+    activeDecoy: cloneTimedMarker(state.activeDecoy),
     turns: state.turns,
     exitUnlocked: state.exitUnlocked,
   };
@@ -215,6 +238,7 @@ function buildFallbackLevel(level, seed) {
       { x: 8, y: 6 },
     ],
     emps: level >= 4 ? [{ x: 1, y: 4 }, { x: 5, y: 8 }] : [{ x: 1, y: 4 }],
+    decoys: level >= 2 ? [{ x: 2, y: 1 }] : [],
     drones,
   };
 }
@@ -226,6 +250,7 @@ function generateLevel(level, seed = (Date.now() ^ (Math.random() * 0xffffffff))
   const wallTarget = clamp(9 + level * 2, 10, 22);
   const droneTarget = Math.min(2 + Math.floor((level - 1) / 2), 5);
   const empTarget = level >= 4 ? 2 : 1;
+  const decoyTarget = level >= 2 ? 1 : 0;
   const interiorCells = buildInteriorCells(size);
 
   for (let attempt = 0; attempt < 240; attempt += 1) {
@@ -244,13 +269,21 @@ function generateLevel(level, seed = (Date.now() ^ (Math.random() * 0xffffffff))
     );
 
     const cores = specialPool.slice(0, CORE_TARGET).map(cloneCell);
-    const emps = specialPool
+    const utilityPool = specialPool
       .slice(CORE_TARGET)
-      .filter((cell) => cores.every((core) => manhattan(core, cell) >= 2))
-      .slice(0, empTarget)
+      .filter((cell) => cores.every((core) => manhattan(core, cell) >= 2));
+    const emps = utilityPool.slice(0, empTarget).map(cloneCell);
+    const decoys = utilityPool
+      .slice(empTarget)
+      .filter((cell) => emps.every((emp) => manhattan(emp, cell) >= 2))
+      .slice(0, decoyTarget)
       .map(cloneCell);
 
-    if (cores.length !== CORE_TARGET || emps.length !== empTarget) {
+    if (
+      cores.length !== CORE_TARGET ||
+      emps.length !== empTarget ||
+      decoys.length !== decoyTarget
+    ) {
       continue;
     }
 
@@ -259,6 +292,7 @@ function generateLevel(level, seed = (Date.now() ^ (Math.random() * 0xffffffff))
       cellKey(exit),
       ...cores.map(cellKey),
       ...emps.map(cellKey),
+      ...decoys.map(cellKey),
     ]);
 
     const walls = new Set();
@@ -323,6 +357,7 @@ function generateLevel(level, seed = (Date.now() ^ (Math.random() * 0xffffffff))
       walls,
       cores,
       emps,
+      decoys,
       drones,
     };
   }
@@ -336,8 +371,16 @@ function createLevelState(levelData) {
     drones: levelData.drones.map((drone) => ({ id: drone.id, x: drone.x, y: drone.y })),
     cores: levelData.cores.map((core, index) => ({ id: index, x: core.x, y: core.y, active: true })),
     emps: levelData.emps.map((emp, index) => ({ id: index, x: emp.x, y: emp.y, active: true })),
+    decoys: levelData.decoys.map((decoy, index) => ({
+      id: index,
+      x: decoy.x,
+      y: decoy.y,
+      active: true,
+    })),
     collected: 0,
     freezeTurns: 0,
+    decoyCharges: 0,
+    activeDecoy: null,
     turns: 0,
     exitUnlocked: false,
   };
@@ -376,6 +419,7 @@ class NeonHeistGame {
     this.canvas = refs.canvas;
     this.ctx = refs.canvas.getContext('2d');
     this.autotest = Boolean(options.autotest);
+    this.fixedSeedBase = Number.isInteger(options.seedBase) ? options.seedBase >>> 0 : null;
     this.cellSize = this.canvas.width / BOARD_SIZE;
     this.logs = [];
     this.storageAvailable = this.canUseStorage();
@@ -403,6 +447,7 @@ class NeonHeistGame {
     this.refs.start.addEventListener('click', () => this.startRun());
     this.refs.reset.addEventListener('click', () => this.resetRun());
     this.refs.restart.addEventListener('click', () => this.resetRun());
+    this.refs.decoy.addEventListener('click', () => this.deployDecoy());
     this.refs.wait.addEventListener('click', () => {
       if (!this.running) {
         this.startRun();
@@ -432,7 +477,8 @@ class NeonHeistGame {
   }
 
   resetRun() {
-    this.seedBase = (Date.now() ^ ((Math.random() * 0xffffffff) >>> 0)) >>> 0;
+    this.seedBase =
+      this.fixedSeedBase ?? ((Date.now() ^ ((Math.random() * 0xffffffff) >>> 0)) >>> 0);
     this.running = false;
     this.gameOver = false;
     this.level = 1;
@@ -441,10 +487,10 @@ class NeonHeistGame {
     this.logs = [];
     this.loadLevel(this.level, this.seedForLevel(this.level));
     this.setStatus(copy.boot);
-    this.setObjective('EMP 会冻结巡逻两回合，适合拿来抢出口或绕到核心背后。');
+    this.setObjective('EMP 会冻结巡逻两回合，诱饵会把巡逻拖回旧位置。');
     this.showOverlay(
       '按开始潜入或 Enter 开局',
-      '方向键或 WASD 移动，空格原地等待一拍。每个回合敌方巡逻也会同步推进。',
+      '方向键或 WASD 移动，空格原地等待一拍，Q 可部署诱饵。每个回合敌方巡逻也会同步推进。',
     );
     this.pushLog('夜幕已落下，潜入窗口重新打开。');
     this.updateHud();
@@ -506,6 +552,12 @@ class NeonHeistGame {
       return;
     }
 
+    if (DECOY_KEYS.has(event.code)) {
+      event.preventDefault();
+      this.deployDecoy();
+      return;
+    }
+
     if (event.code === 'Enter') {
       event.preventDefault();
       this.startRun();
@@ -543,14 +595,45 @@ class NeonHeistGame {
     this.takeTurn(next, false);
   }
 
-  takeTurn(target, waited) {
+  deployDecoy() {
+    if (!this.running) {
+      this.startRun();
+    }
+
     if (!this.running || this.gameOver) {
       return;
     }
 
+    if (this.levelState.decoyCharges <= 0) {
+      this.setStatus('你还没有拿到诱饵芯片。');
+      this.showOverlay('缺少诱饵', '先去拾取蓝紫色芯片，再用 Q 或按钮部署诱饵。');
+      this.render();
+      return;
+    }
+
+    this.takeTurn(cloneCell(this.levelState.player), false, { deployDecoy: true });
+  }
+
+  takeTurn(target, waited, options = {}) {
+    if (!this.running || this.gameOver) {
+      return;
+    }
+
+    const deployDecoy = Boolean(options.deployDecoy);
     this.hideOverlay();
     this.levelState.turns += 1;
     this.levelState.player = cloneCell(target);
+
+    if (deployDecoy) {
+      this.levelState.decoyCharges -= 1;
+      this.levelState.activeDecoy = {
+        x: this.levelState.player.x,
+        y: this.levelState.player.y,
+        turns: 2,
+      };
+      this.pushLog('诱饵信标已丢下，巡逻会扑向旧位置。');
+      this.setObjective('趁诱饵吸走巡逻的两回合，快速切到核心或出口。');
+    }
 
     if (this.playerCaught()) {
       this.resolveHit('你直接撞上了一架巡逻无人机。');
@@ -570,14 +653,18 @@ class NeonHeistGame {
 
     if (this.levelState.freezeTurns > 0) {
       this.levelState.freezeTurns -= 1;
+      this.tickActiveDecoy([]);
       this.setStatus(copy.frozen);
     } else {
-      this.advanceDrones();
+      const nextPositions = this.advanceDrones();
+      this.tickActiveDecoy(nextPositions);
       if (this.playerCaught()) {
         this.resolveHit('巡逻无人机在转角处完成锁定。');
         return;
       }
-      this.setStatus(this.levelState.exitUnlocked ? copy.exit : copy.live);
+      this.setStatus(
+        deployDecoy ? copy.decoy : this.levelState.exitUnlocked ? copy.exit : copy.live,
+      );
     }
 
     this.syncRecords();
@@ -615,20 +702,32 @@ class NeonHeistGame {
       this.pushLog('EMP 脉冲触发，巡逻停滞两回合。');
       this.setObjective('趁巡逻停滞时抢核心，或者直接切向出口。');
     }
+
+    const decoy = this.levelState.decoys.find(
+      (item) => item.active && sameCell(item, this.levelState.player),
+    );
+    if (decoy) {
+      decoy.active = false;
+      this.levelState.decoyCharges += 1;
+      this.score += 55;
+      this.pushLog('收下一枚诱饵芯片，可丢下信标误导巡逻。');
+      this.setObjective('需要错位时按 Q 部署诱饵，让巡逻先扑向旧位置。');
+    }
   }
 
   advanceDrones() {
+    const target = this.getPursuitTarget();
     const nextPositions = [];
     this.levelState.drones.forEach((drone, index) => {
       const occupied = new Set(nextPositions.map(cellKey));
       for (let rest = index + 1; rest < this.levelState.drones.length; rest += 1) {
         const other = this.levelState.drones[rest];
         const otherKey = cellKey(other);
-        if (otherKey !== cellKey(this.levelState.player)) {
+        if (otherKey !== cellKey(target)) {
           occupied.add(otherKey);
         }
       }
-      const step = pickDroneStep(this.levelData, drone, this.levelState.player, occupied);
+      const step = pickDroneStep(this.levelData, drone, target, occupied);
       nextPositions.push(step);
     });
 
@@ -637,6 +736,34 @@ class NeonHeistGame {
       x: cell.x,
       y: cell.y,
     }));
+
+    return nextPositions;
+  }
+
+  getPursuitTarget() {
+    if (this.levelState.activeDecoy && this.levelState.activeDecoy.turns > 0) {
+      return this.levelState.activeDecoy;
+    }
+
+    return this.levelState.player;
+  }
+
+  tickActiveDecoy(drones) {
+    if (!this.levelState.activeDecoy) {
+      return;
+    }
+
+    if (drones.some((drone) => sameCell(drone, this.levelState.activeDecoy))) {
+      this.levelState.activeDecoy = null;
+      this.pushLog('巡逻扑中了诱饵，干扰信号瞬间熄灭。');
+      return;
+    }
+
+    this.levelState.activeDecoy.turns -= 1;
+    if (this.levelState.activeDecoy.turns <= 0) {
+      this.levelState.activeDecoy = null;
+      this.pushLog('诱饵信号已经耗尽。');
+    }
   }
 
   playerCaught() {
@@ -714,6 +841,9 @@ class NeonHeistGame {
     this.refs.cores.textContent = `${this.levelState.collected} / ${CORE_TARGET}`;
     this.refs.pulse.textContent =
       this.levelState.freezeTurns > 0 ? `${this.levelState.freezeTurns} 回合` : '就绪';
+    this.refs.decoys.textContent = this.levelState.activeDecoy
+      ? `${this.levelState.decoyCharges} 库存 · ${this.levelState.activeDecoy.turns} 回合`
+      : `${this.levelState.decoyCharges} 库存`;
     this.refs.best.textContent = String(this.bestScore);
     this.refs.turns.textContent = String(this.levelState.turns);
     this.refs.alert.textContent =
@@ -835,6 +965,51 @@ class NeonHeistGame {
     });
   }
 
+  drawDecoyPickups() {
+    const { ctx } = this;
+    this.levelState.decoys.forEach((decoy) => {
+      if (!decoy.active) {
+        return;
+      }
+      const cx = decoy.x * this.cellSize + this.cellSize / 2;
+      const cy = decoy.y * this.cellSize + this.cellSize / 2;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(-15, -15, 30, 30);
+      ctx.fillStyle = '#f3e8ff';
+      ctx.fillRect(-6, -6, 12, 12);
+      ctx.strokeStyle = 'rgba(243, 232, 255, 0.8)';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(-19, -19, 38, 38);
+      ctx.restore();
+    });
+  }
+
+  drawActiveDecoy() {
+    if (!this.levelState.activeDecoy) {
+      return;
+    }
+
+    const { ctx } = this;
+    const { activeDecoy } = this.levelState;
+    const cx = activeDecoy.x * this.cellSize + this.cellSize / 2;
+    const cy = activeDecoy.y * this.cellSize + this.cellSize / 2;
+    ctx.strokeStyle = 'rgba(192, 132, 252, 0.82)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = '#f5d0fe';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   drawDrones() {
     const { ctx } = this;
     this.levelState.drones.forEach((drone) => {
@@ -881,24 +1056,65 @@ class NeonHeistGame {
     ctx.strokeRect(4, 4, this.canvas.width - 8, this.canvas.height - 8);
   }
 
+  renderGameToText() {
+    const payload = {
+      mode: this.gameOver ? 'game_over' : this.running ? 'active' : 'ready',
+      board: {
+        size: this.levelData.size,
+        coordinates: 'origin=(0,0) top-left; x increases right; y increases down',
+      },
+      level: this.level,
+      score: this.score,
+      lives: this.lives,
+      turn: this.levelState.turns,
+      collected: this.levelState.collected,
+      freezeTurns: this.levelState.freezeTurns,
+      decoyCharges: this.levelState.decoyCharges,
+      player: cloneCell(this.levelState.player),
+      exit: {
+        x: this.levelData.exit.x,
+        y: this.levelData.exit.y,
+        unlocked: this.levelState.exitUnlocked,
+      },
+      activeDecoy: cloneTimedMarker(this.levelState.activeDecoy),
+      drones: this.levelState.drones.map((drone) => ({ x: drone.x, y: drone.y })),
+      walls: [...this.levelData.walls].sort(),
+      cores: this.levelState.cores
+        .filter((item) => item.active)
+        .map((item) => ({ x: item.x, y: item.y })),
+      emps: this.levelState.emps
+        .filter((item) => item.active)
+        .map((item) => ({ x: item.x, y: item.y })),
+      decoyPickups: this.levelState.decoys
+        .filter((item) => item.active)
+        .map((item) => ({ x: item.x, y: item.y })),
+      status: this.refs.status.textContent,
+      objective: this.refs.objective.textContent,
+      overlay: this.refs.overlay.classList.contains('is-visible')
+        ? {
+            title: this.refs.overlayTitle.textContent,
+            body: this.refs.overlayBody.textContent,
+          }
+        : null,
+    };
+
+    return JSON.stringify(payload);
+  }
+
   render() {
     this.drawBoard();
     this.drawExit();
     this.drawWalls();
     this.drawEmps();
+    this.drawDecoyPickups();
     this.drawCores();
+    this.drawActiveDecoy();
     this.drawDrones();
     this.drawPlayer();
     this.drawFrame();
 
     if (this.autotest) {
-      this.refs.autotest.textContent = JSON.stringify({
-        level: this.level,
-        score: this.score,
-        lives: this.lives,
-        collected: this.levelState.collected,
-        freezeTurns: this.levelState.freezeTurns,
-      });
+      this.refs.autotest.textContent = this.renderGameToText();
     }
   }
 }
@@ -917,6 +1133,7 @@ function getRefs() {
     lives: document.querySelector('#heist-lives'),
     cores: document.querySelector('#heist-cores'),
     pulse: document.querySelector('#heist-pulse'),
+    decoys: document.querySelector('#heist-decoys'),
     best: document.querySelector('#heist-best'),
     turns: document.querySelector('#heist-turns'),
     alert: document.querySelector('#heist-alert'),
@@ -924,6 +1141,7 @@ function getRefs() {
     start: document.querySelector('#heist-start'),
     reset: document.querySelector('#heist-reset'),
     wait: document.querySelector('#heist-wait'),
+    decoy: document.querySelector('#heist-decoy'),
     restart: document.querySelector('#heist-restart'),
     pad: document.querySelector('.heist-pad'),
     autotest: document.querySelector('#heist-autotest'),
@@ -950,10 +1168,13 @@ if (typeof window !== 'undefined') {
     if (!refs.canvas) {
       return;
     }
-    const game = new NeonHeistGame(refs, { autotest: AUTOTEST });
+    const game = new NeonHeistGame(refs, { autotest: AUTOTEST, seedBase: FIXED_SEED });
     if (AUTOTEST) {
-      refs.autotest.textContent = JSON.stringify(runSelfCheck(4));
+      window.neonHeistSelfCheck = runSelfCheck(4);
+      refs.autotest.textContent = game.renderGameToText();
     }
+    window.render_game_to_text = () => game.renderGameToText();
+    window.advanceTime = async () => game.renderGameToText();
     window.neonHeistGame = game;
   });
 }

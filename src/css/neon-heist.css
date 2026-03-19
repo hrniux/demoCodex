@@ -119,6 +119,7 @@ body.heist-page::before {
   font-weight: 800;
   background: linear-gradient(135deg, #5eead4, #fbbf24);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .heist-hero__cta--ghost,
@@ -153,7 +154,7 @@ body.heist-page::before {
 
 .heist-stats {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
   gap: 14px;
   margin-bottom: 16px;
 }
