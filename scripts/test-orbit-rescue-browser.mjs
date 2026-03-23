@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import { launchLocalChrome } from './local-chrome.mjs';
 
 const TEST_URL =
   process.env.ORBIT_RESCUE_TEST_URL ||
@@ -176,11 +177,7 @@ async function main() {
     await ensureDir(SCREENSHOT_DIR);
   }
 
-  const browser = await chromium.launch({
-    channel: 'chrome',
-    headless: true,
-    args: ['--use-gl=angle', '--use-angle=swiftshader'],
-  });
+  const { browser, executablePath } = await launchLocalChrome(chromium);
 
   const page = await browser.newPage({
     viewport: { width: 1440, height: 1280 },
@@ -199,6 +196,7 @@ async function main() {
         {
           ok: true,
           url: TEST_URL,
+          browser: executablePath,
           screenshots: CAPTURE_SCREENSHOTS
             ? {
                 collection: collection.shot,
