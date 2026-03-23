@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="轨道营救：在不断旋转的碎片环带之间穿梭，回收救生舱并用停滞脉冲抢出返航窗口。"
+    />
+    <title>轨道营救 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23051218'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%2367e8f9' stroke-width='5'/%3E%3Ccircle cx='32' cy='10' r='6' fill='%23fbbf24'/%3E%3Cpath d='M32 24 L40 40 L32 36 L24 40 Z' fill='%23f8fafc' stroke='%2367e8f9' stroke-width='2'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/orbit-rescue.css" />
+  </head>
+  <body class="orbit-page">
+    <main class="orbit-shell">
+      <header class="orbit-hero">
+        <a class="orbit-hero__back" href="games-collection.html">返回合集</a>
+        <div class="orbit-hero__title-wrap">
+          <p class="orbit-hero__eyebrow">Orbital Recovery</p>
+          <h1 class="orbit-hero__title">轨道营救</h1>
+          <p class="orbit-hero__lead">
+            每行动一拍，环带碎片也会同步绕轨旋转。回收 3 个救生舱，拾取停滞节点，算准返航窗口，再回到外环对接点。
+          </p>
+        </div>
+        <div class="orbit-hero__actions">
+          <button class="orbit-hero__cta" id="orbit-start" type="button">开始回收</button>
+          <button class="orbit-hero__cta orbit-hero__cta--ghost" id="orbit-reset" type="button">
+            重置任务
+          </button>
+        </div>
+      </header>
+
+      <section class="orbit-layout">
+        <section class="orbit-panel orbit-panel--primary" aria-label="轨道营救主区域">
+          <div class="orbit-stats">
+            <article class="orbit-stat">
+              <span class="orbit-stat__label">轨道</span>
+              <strong class="orbit-stat__value" id="orbit-level">1</strong>
+            </article>
+            <article class="orbit-stat">
+              <span class="orbit-stat__label">得分</span>
+              <strong class="orbit-stat__value" id="orbit-score">0</strong>
+            </article>
+            <article class="orbit-stat">
+              <span class="orbit-stat__label">船体</span>
+              <strong class="orbit-stat__value" id="orbit-hull">3</strong>
+            </article>
+            <article class="orbit-stat">
+              <span class="orbit-stat__label">救生舱</span>
+              <strong class="orbit-stat__value" id="orbit-pods">0 / 3</strong>
+            </article>
+            <article class="orbit-stat">
+              <span class="orbit-stat__label">停滞脉冲</span>
+              <strong class="orbit-stat__value" id="orbit-pulse">0</strong>
+            </article>
+            <article class="orbit-stat">
+              <span class="orbit-stat__label">纪录</span>
+              <strong class="orbit-stat__value" id="orbit-best">0</strong>
+            </article>
+          </div>
+
+          <div class="orbit-board-shell">
+            <canvas
+              id="orbit-canvas"
+              width="800"
+              height="800"
+              role="img"
+              aria-label="轨道营救游戏画面：玩家在 5 条环形轨道之间穿梭，躲避旋转碎片并回收救生舱"
+            ></canvas>
+            <div class="orbit-overlay is-visible" id="orbit-overlay" aria-live="polite">
+              <p class="orbit-overlay__kicker">任务提示</p>
+              <h2 class="orbit-overlay__title" id="orbit-overlay-title">按开始回收或 Enter 出发</h2>
+              <p class="orbit-overlay__body" id="orbit-overlay-body">
+                方向键或 WASD 在轨道间移动，空格等待一拍，Q 释放停滞脉冲。
+              </p>
+            </div>
+          </div>
+
+          <section class="orbit-pad" aria-label="触摸控制面板">
+            <button class="orbit-pad__button orbit-pad__button--in" data-action="in" type="button">
+              向内
+            </button>
+            <button class="orbit-pad__button orbit-pad__button--left" data-action="left" type="button">
+              左转
+            </button>
+            <button class="orbit-pad__button orbit-pad__button--wait" data-action="wait" type="button">
+              等待
+            </button>
+            <button class="orbit-pad__button orbit-pad__button--right" data-action="right" type="button">
+              右转
+            </button>
+            <button class="orbit-pad__button orbit-pad__button--out" data-action="out" type="button">
+              向外
+            </button>
+            <button class="orbit-pad__button orbit-pad__button--pulse" data-action="pulse" type="button">
+              脉冲
+            </button>
+          </section>
+        </section>
+
+        <aside class="orbit-panel orbit-panel--side" aria-label="规则与轨道情报">
+          <section class="orbit-sidecard">
+            <h2 class="orbit-sidecard__title">任务简报</h2>
+            <p class="orbit-sidecard__body" id="orbit-status">
+              先回收 3 个救生舱，再返回外环 12 点位的对接灯塔。
+            </p>
+            <p class="orbit-sidecard__body orbit-sidecard__body--muted" id="orbit-objective">
+              金色节点会提供停滞脉冲，能把全部环带冻结两拍。
+            </p>
+          </section>
+
+          <section class="orbit-sidecard">
+            <h2 class="orbit-sidecard__title">玩法说明</h2>
+            <ul class="orbit-rules">
+              <li>每行动一拍，所有环带碎片都会按固定方向绕轨移动一格。</li>
+              <li>回收满 3 个救生舱后，对接点会亮起，可以返回起点撤离。</li>
+              <li>拾取金色停滞节点后可按 `Q`，冻结所有碎片两拍。</li>
+              <li>碰到碎片会损失 1 点船体，并被弹回外环对接点。</li>
+            </ul>
+          </section>
+
+          <section class="orbit-sidecard">
+            <h2 class="orbit-sidecard__title">控制方式</h2>
+            <ul class="orbit-rules">
+              <li>`A / ←`：逆时针挪一格</li>
+              <li>`D / →`：顺时针挪一格</li>
+              <li>`W / ↑`：切向内环</li>
+              <li>`S / ↓`：切向外环</li>
+              <li>`Space`：等待一拍</li>
+              <li>`Q`：释放停滞脉冲</li>
+              <li>`Enter`：开始任务</li>
+              <li>`R`：重置整局</li>
+            </ul>
+          </section>
+
+          <section class="orbit-sidecard">
+            <h2 class="orbit-sidecard__title">行动面板</h2>
+            <div class="orbit-actions">
+              <button class="orbit-action" id="orbit-wait" type="button">等待一拍</button>
+              <button class="orbit-action" id="orbit-pulse-action" type="button">释放脉冲</button>
+              <button class="orbit-action orbit-action--ghost" id="orbit-restart" type="button">
+                重新部署
+              </button>
+            </div>
+          </section>
+
+          <section class="orbit-sidecard">
+            <h2 class="orbit-sidecard__title">轨道遥测</h2>
+            <dl class="orbit-metrics">
+              <div class="orbit-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="orbit-turns">0</dd>
+              </div>
+              <div class="orbit-metrics__row">
+                <dt>环带流向</dt>
+                <dd id="orbit-drift">1↻ 2↺ 3↻ 4↺ 5↻</dd>
+              </div>
+              <div class="orbit-metrics__row">
+                <dt>最佳轨道</dt>
+                <dd id="orbit-best-level">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="orbit-sidecard">
+            <h2 class="orbit-sidecard__title">黑箱记录</h2>
+            <ul class="orbit-feed" id="orbit-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p id="orbit-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/orbit-rescue.js"></script>
+  </body>
+</html>

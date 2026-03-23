@@ -54,6 +54,9 @@
     }
 
     .game-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       background: linear-gradient(135deg, #1c2333 0%, #141827 100%);
       border-radius: 20px;
       overflow: hidden;
@@ -138,7 +141,14 @@
       background: linear-gradient(135deg, #34d399 0%, #f59e0b 100%);
     }
 
+    .game-banner.orbit {
+      background: linear-gradient(135deg, #67e8f9 0%, #a78bfa 100%);
+    }
+
     .game-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
       padding: 32px;
     }
 
@@ -202,6 +212,7 @@
     .play-button {
       display: block;
       width: 100%;
+      margin-top: auto;
       padding: 16px;
       background: linear-gradient(135deg, #ff6b35, #f7931e);
       color: white;
@@ -233,6 +244,8 @@
     }
 
     .featured .game-content {
+      display: flex;
+      flex-direction: column;
       padding: 48px;
     }
 
@@ -506,6 +519,27 @@
             <span class="feature-tag">诱饵错位</span>
           </div>
           <a href="neon-heist.html" class="play-button" onclick="event.stopPropagation()">🕶️ 开始潜入</a>
+        </div>
+      </div>
+
+      <!-- 轨道营救 -->
+      <div class="game-card" onclick="location.href='orbit-rescue.html'">
+        <div class="game-banner orbit">
+          <span>🛰️</span>
+        </div>
+        <div class="game-content">
+          <span class="badge">🆕 新增</span>
+          <h2 class="game-title">轨道营救</h2>
+          <p class="game-description">
+            在不断旋转的碎片环带之间抢回救生舱。每动一步，所有环带也会同步换位，还得把停滞脉冲留给最危险的返航窗口。
+          </p>
+          <div class="game-features">
+            <span class="feature-tag">轨道谜局</span>
+            <span class="feature-tag">回合推进</span>
+            <span class="feature-tag">脉冲冻结</span>
+            <span class="feature-tag">救援撤离</span>
+          </div>
+          <a href="orbit-rescue.html" class="play-button" onclick="event.stopPropagation()">🛰️ 开始回收</a>
         </div>
       </div>
 

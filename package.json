@@ -4,9 +4,11 @@
   "description": "DemoCodex HTML game collection",
   "private": true,
   "scripts": {
-    "test": "npm run test:neon-heist:logic",
+    "test": "npm run test:neon-heist:logic && npm run test:orbit-rescue:logic",
     "test:neon-heist:logic": "node -e \"const mod=require('./src/js/neon-heist.js'); const result=mod.runSelfCheck(40); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:neon-heist:browser": "node scripts/test-neon-heist-browser.mjs"
+    "test:neon-heist:browser": "node scripts/test-neon-heist-browser.mjs",
+    "test:orbit-rescue:logic": "node -e \"const mod=require('./src/js/orbit-rescue.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:orbit-rescue:browser": "node scripts/test-orbit-rescue-browser.mjs"
   },
   "repository": {
     "type": "git",

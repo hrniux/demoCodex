@@ -5,7 +5,7 @@
 
 [打开合集入口](./games-collection.html) | [仓库地址](https://github.com/hrniux/demoCodex) | [GitHub About 文案](./.github/project-about.md)
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 19 个可直接运行的 HTML 页面，其中 `games-collection.html` 聚合了 14 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 20 个可直接运行的 HTML 页面，其中 `games-collection.html` 聚合了 15 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 
 ## 项目亮点
 
@@ -47,6 +47,7 @@ python3 -m http.server 8000
 | 个性化内容 | `daily-insights.html` | 融合生肖、星座与节气的每日洞见生成器。 |
 | 像素街机 | `tank-battle-pixel.html` | 简约像素风坦克大战，强调基地防守、轻量 AI 和零依赖。 |
 | 潜行解谜 | `neon-heist.html` | 回合制霓虹潜入小游戏，围绕巡逻同步推进、EMP 停滞、诱饵错位与路线计算展开。 |
+| 轨道策略 | `orbit-rescue.html` | 环形轨道回收游戏，利用停滞脉冲与节拍式移动在碎片环带间抢回救生舱。 |
 | 经典休闲 | `snake_game.html` | 经典贪吃蛇，高分可本地保存。 |
 | 科普互动 | `dino-pixel-encyclopedia.html` | 像素风恐龙百科，兼顾视觉和知识内容。 |
 | 科普互动 | `armory-pixel-arsenal.html` | 像素兵工图鉴，以专题内容页形式展示武器演进。 |
