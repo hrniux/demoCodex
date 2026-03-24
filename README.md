@@ -37,6 +37,21 @@ python3 -m http.server 8000
 - 含 ES Module 的页面更适合通过本地静态服务器访问，兼容性更稳定。
 - `voxelcraft.html` 依赖 CDN 加载 `three.js`，需要联网。
 
+### 本地验证
+
+```bash
+npm install
+npm test
+npm run test:browser
+```
+
+补充说明：
+
+- `npm test` 运行当前内建的逻辑自检。
+- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行 `neon-heist` 与 `orbit-rescue` 的浏览器回归。
+- 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
+- 仓库不会回退到 Playwright bundled browser，也不需要为本项目运行 `playwright install`。
+
 ## 作品清单
 
 ### 合集主推页面

@@ -1,57 +1,25 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright';
+import {
+  buildTestUrl,
+  maybeCaptureScreenshot,
+  openStartedPage,
+  readRenderState,
+  trackPageErrors,
+} from './browser-test-helpers.mjs';
 import { launchLocalChrome } from './local-chrome.mjs';
 
-const TEST_URL =
-  process.env.ORBIT_RESCUE_TEST_URL ||
-  'http://127.0.0.1:4173/orbit-rescue.html?autotest=1&seed=4242';
+const TEST_URL = buildTestUrl({
+  envName: 'ORBIT_RESCUE_TEST_URL',
+  pathname: '/orbit-rescue.html',
+  query: '?autotest=1&seed=4242',
+});
 const SCREENSHOT_DIR = path.resolve(process.cwd(), 'output/orbit-rescue-browser');
 const CAPTURE_SCREENSHOTS = process.env.ORBIT_RESCUE_CAPTURE === '1';
 
-async function ensureDir(dir) {
-  await fs.mkdir(dir, { recursive: true });
-}
-
-function trackErrors(page) {
-  const errors = [];
-
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') {
-      errors.push({ type: 'console', text: msg.text() });
-    }
-  });
-
-  page.on('pageerror', (error) => {
-    errors.push({ type: 'pageerror', text: String(error) });
-  });
-
-  return errors;
-}
-
-async function screenshot(page, name) {
-  if (!CAPTURE_SCREENSHOTS) {
-    return null;
-  }
-  const target = path.join(SCREENSHOT_DIR, name);
-  await page.screenshot({ path: target, fullPage: true });
-  return target;
-}
-
-async function readState(page) {
-  return page.evaluate(() => {
-    if (typeof window.render_game_to_text !== 'function') {
-      throw new Error('window.render_game_to_text is not available');
-    }
-    return JSON.parse(window.render_game_to_text());
-  });
-}
-
 async function prepareScenario(page, fn) {
-  await page.goto(TEST_URL, { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(300);
-  await page.click('#orbit-start');
+  await openStartedPage(page, { url: TEST_URL, startSelector: '#orbit-start' });
   await page.evaluate(fn);
   await page.waitForTimeout(30);
 }
@@ -86,7 +54,7 @@ async function runCollectionScenario(page) {
 
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(50);
-  const state = await readState(page);
+  const state = await readRenderState(page);
   assert.equal(state.player.ring, 4);
   assert.equal(state.player.sector, 1);
   assert.equal(state.collected, 1);
@@ -96,7 +64,7 @@ async function runCollectionScenario(page) {
     { ring: 1, sector: 8 },
   ]);
 
-  const shot = await screenshot(page, 'collection.png');
+  const shot = await maybeCaptureScreenshot(page, SCREENSHOT_DIR, 'collection.png', CAPTURE_SCREENSHOTS);
   return { state, shot };
 }
 
@@ -123,19 +91,19 @@ async function runPulseScenario(page) {
 
   await page.keyboard.press('KeyQ');
   await page.waitForTimeout(50);
-  const afterPulse = await readState(page);
+  const afterPulse = await readRenderState(page);
   assert.equal(afterPulse.pulseCharges, 0);
   assert.equal(afterPulse.freezeTurns, 1);
   assert.deepEqual(afterPulse.debris, [{ ring: 4, sector: 2 }]);
 
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(50);
-  const afterMove = await readState(page);
+  const afterMove = await readRenderState(page);
   assert.equal(afterMove.player.sector, 1);
   assert.equal(afterMove.freezeTurns, 0);
   assert.deepEqual(afterMove.debris, [{ ring: 4, sector: 2 }]);
 
-  const shot = await screenshot(page, 'pulse.png');
+  const shot = await maybeCaptureScreenshot(page, SCREENSHOT_DIR, 'pulse.png', CAPTURE_SCREENSHOTS);
   return { afterPulse, afterMove, shot };
 }
 
@@ -162,27 +130,23 @@ async function runExtractionScenario(page) {
 
   await page.keyboard.press('ArrowRight');
   await page.waitForTimeout(50);
-  const state = await readState(page);
+  const state = await readRenderState(page);
   assert.equal(state.orbit, 2);
   assert.equal(state.score, 420);
   assert.equal(state.hull, 2);
   assert.equal(state.collected, 0);
 
-  const shot = await screenshot(page, 'extract.png');
+  const shot = await maybeCaptureScreenshot(page, SCREENSHOT_DIR, 'extract.png', CAPTURE_SCREENSHOTS);
   return { state, shot };
 }
 
 async function main() {
-  if (CAPTURE_SCREENSHOTS) {
-    await ensureDir(SCREENSHOT_DIR);
-  }
-
   const { browser, executablePath } = await launchLocalChrome(chromium);
 
   const page = await browser.newPage({
     viewport: { width: 1440, height: 1280 },
   });
-  const errors = trackErrors(page);
+  const errors = trackPageErrors(page);
 
   try {
     const collection = await runCollectionScenario(page);
