@@ -145,6 +145,10 @@
       background: linear-gradient(135deg, #67e8f9 0%, #a78bfa 100%);
     }
 
+    .game-banner.tide {
+      background: linear-gradient(135deg, #38bdf8 0%, #fb923c 100%);
+    }
+
     .game-content {
       display: flex;
       flex-direction: column;
@@ -540,6 +544,27 @@
             <span class="feature-tag">救援撤离</span>
           </div>
           <a href="orbit-rescue.html" class="play-button" onclick="event.stopPropagation()">🛰️ 开始回收</a>
+        </div>
+      </div>
+
+      <!-- 潮汐信使 -->
+      <div class="game-card" onclick="location.href='tide-courier.html'">
+        <div class="game-banner tide">
+          <span>⛵</span>
+        </div>
+        <div class="game-content">
+          <span class="badge">🆕 新增</span>
+          <h2 class="game-title">潮汐信使</h2>
+          <p class="game-description">
+            港湾潮道会在每回合同步拖拽小艇和驳船。你得抢回漂流货箱，踩到换流浮标后反转整片水道，再从灯塔码头完成极限投递。
+          </p>
+          <div class="game-features">
+            <span class="feature-tag">潮道漂移</span>
+            <span class="feature-tag">回合策略</span>
+            <span class="feature-tag">换流反转</span>
+            <span class="feature-tag">港湾投递</span>
+          </div>
+          <a href="tide-courier.html" class="play-button" onclick="event.stopPropagation()">⛵ 开始出航</a>
         </div>
       </div>
 

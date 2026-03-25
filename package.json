@@ -4,13 +4,15 @@
   "description": "DemoCodex HTML game collection",
   "private": true,
   "scripts": {
-    "test": "npm run test:neon-heist:logic && npm run test:orbit-rescue:logic",
+    "test": "npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic",
     "test:browser": "node scripts/test-browser-suite.mjs",
     "test:full": "npm test && npm run test:browser",
     "test:neon-heist:logic": "node -e \"const mod=require('./src/js/neon-heist.js'); const result=mod.runSelfCheck(40); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:neon-heist:browser": "node scripts/test-neon-heist-browser.mjs",
     "test:orbit-rescue:logic": "node -e \"const mod=require('./src/js/orbit-rescue.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:orbit-rescue:browser": "node scripts/test-orbit-rescue-browser.mjs"
+    "test:orbit-rescue:browser": "node scripts/test-orbit-rescue-browser.mjs",
+    "test:tide-courier:logic": "node -e \"const mod=require('./src/js/tide-courier.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:tide-courier:browser": "node scripts/test-tide-courier-browser.mjs"
   },
   "repository": {
     "type": "git",

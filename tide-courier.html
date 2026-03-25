@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="潮汐信使：在会拖拽小艇的潮道之间回收漂流货箱，反转港湾潮流并赶在撞上驳船前完成投递。"
+    />
+    <title>潮汐信使 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307212e'/%3E%3Cpath d='M12 44 C18 28 28 18 48 16' fill='none' stroke='%2367e8f9' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M24 18 L40 26 L24 34 Z' fill='%23f8fafc'/%3E%3Ccircle cx='46' cy='44' r='8' fill='%23fb923c'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/tide-courier.css" />
+  </head>
+  <body class="tide-page">
+    <main class="tide-shell">
+      <header class="tide-hero">
+        <a class="tide-hero__back" href="games-collection.html">返回合集</a>
+        <div class="tide-hero__title-wrap">
+          <p class="tide-hero__eyebrow">Harbor Drift Puzzle</p>
+          <h1 class="tide-hero__title">潮汐信使</h1>
+          <p class="tide-hero__lead">
+            每行动一拍，港湾潮道和驳船都会同步推进。抢回 3 个漂流货箱，拿到换流浮标，按准
+            `Q` 反转潮流，再回到南侧灯塔码头完成投递。
+          </p>
+        </div>
+        <div class="tide-hero__actions">
+          <button class="tide-hero__cta" id="tide-start" type="button">开始出航</button>
+          <button class="tide-hero__cta tide-hero__cta--ghost" id="tide-reset" type="button">
+            重置航次
+          </button>
+        </div>
+      </header>
+
+      <section class="tide-layout">
+        <section class="tide-panel tide-panel--primary" aria-label="潮汐信使主区域">
+          <div class="tide-stats">
+            <article class="tide-stat">
+              <span class="tide-stat__label">潮次</span>
+              <strong class="tide-stat__value" id="tide-level">1</strong>
+            </article>
+            <article class="tide-stat">
+              <span class="tide-stat__label">得分</span>
+              <strong class="tide-stat__value" id="tide-score">0</strong>
+            </article>
+            <article class="tide-stat">
+              <span class="tide-stat__label">船体</span>
+              <strong class="tide-stat__value" id="tide-hull">3</strong>
+            </article>
+            <article class="tide-stat">
+              <span class="tide-stat__label">货箱</span>
+              <strong class="tide-stat__value" id="tide-cargo">0 / 3</strong>
+            </article>
+            <article class="tide-stat">
+              <span class="tide-stat__label">换流</span>
+              <strong class="tide-stat__value" id="tide-relay">0</strong>
+            </article>
+            <article class="tide-stat">
+              <span class="tide-stat__label">纪录</span>
+              <strong class="tide-stat__value" id="tide-best">0</strong>
+            </article>
+          </div>
+
+          <div class="tide-board-shell">
+            <canvas
+              id="tide-canvas"
+              width="810"
+              height="810"
+              role="img"
+              aria-label="潮汐信使游戏画面：玩家在 9x9 港湾网格中驾驶小艇，躲避潮道驳船并回收漂流货箱"
+            ></canvas>
+            <div class="tide-overlay is-visible" id="tide-overlay" aria-live="polite">
+              <p class="tide-overlay__kicker">出航提示</p>
+              <h2 class="tide-overlay__title" id="tide-overlay-title">按开始出航或 Enter 起航</h2>
+              <p class="tide-overlay__body" id="tide-overlay-body">
+                方向键或 WASD 移动，空格原地等待一拍，Q 反转全部潮道方向。
+              </p>
+            </div>
+          </div>
+
+          <section class="tide-pad" aria-label="触摸控制面板">
+            <button class="tide-pad__button tide-pad__button--up" data-action="up" type="button">上</button>
+            <button class="tide-pad__button tide-pad__button--left" data-action="left" type="button">
+              左
+            </button>
+            <button class="tide-pad__button tide-pad__button--wait" data-action="wait" type="button">
+              等待
+            </button>
+            <button class="tide-pad__button tide-pad__button--right" data-action="right" type="button">
+              右
+            </button>
+            <button class="tide-pad__button tide-pad__button--down" data-action="down" type="button">
+              下
+            </button>
+            <button class="tide-pad__button tide-pad__button--relay" data-action="reverse" type="button">
+              反转潮流
+            </button>
+          </section>
+        </section>
+
+        <aside class="tide-panel tide-panel--side" aria-label="潮汐规则与情报">
+          <section class="tide-sidecard">
+            <h2 class="tide-sidecard__title">任务简报</h2>
+            <p class="tide-sidecard__body" id="tide-status">
+              抢回 3 个漂流货箱，再返回南侧灯塔码头完成投递。
+            </p>
+            <p class="tide-sidecard__body tide-sidecard__body--muted" id="tide-objective">
+              换流浮标能反转全部潮道，适合拿来躲避驳船或借潮切线。
+            </p>
+          </section>
+
+          <section class="tide-sidecard">
+            <h2 class="tide-sidecard__title">玩法说明</h2>
+            <ul class="tide-rules">
+              <li>第 2、4、6、8 行是潮道，小艇和驳船会在回合末被潮流拖拽一格。</li>
+              <li>每次行动后驳船都会先移动，再结算小艇漂移，所以要预留会车空间。</li>
+              <li>踩到橙色换流浮标后可按 `Q`，把全部潮道方向整体反转。</li>
+              <li>碰上驳船会损失 1 点船体，并被拖回南侧灯塔码头。</li>
+            </ul>
+          </section>
+
+          <section class="tide-sidecard">
+            <h2 class="tide-sidecard__title">控制方式</h2>
+            <ul class="tide-rules">
+              <li>`WASD` / 方向键：移动</li>
+              <li>`Space`：原地等待一拍</li>
+              <li>`Q`：反转全部潮道</li>
+              <li>`Enter`：开始当前航次</li>
+              <li>`R`：重置整局</li>
+            </ul>
+          </section>
+
+          <section class="tide-sidecard">
+            <h2 class="tide-sidecard__title">行动面板</h2>
+            <div class="tide-actions">
+              <button class="tide-action" id="tide-wait" type="button">等待一拍</button>
+              <button class="tide-action" id="tide-relay-action" type="button">反转潮流</button>
+              <button class="tide-action tide-action--ghost" id="tide-restart" type="button">
+                重新出航
+              </button>
+            </div>
+          </section>
+
+          <section class="tide-sidecard">
+            <h2 class="tide-sidecard__title">航道遥测</h2>
+            <dl class="tide-metrics">
+              <div class="tide-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="tide-turns">0</dd>
+              </div>
+              <div class="tide-metrics__row">
+                <dt>潮道流向</dt>
+                <dd id="tide-flow">2→ 4← 6→ 8←</dd>
+              </div>
+              <div class="tide-metrics__row">
+                <dt>最佳潮次</dt>
+                <dd id="tide-best-level">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="tide-sidecard">
+            <h2 class="tide-sidecard__title">航海日志</h2>
+            <ul class="tide-feed" id="tide-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p id="tide-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/tide-courier.js"></script>
+  </body>
+</html>

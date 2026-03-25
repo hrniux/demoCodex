@@ -56,6 +56,7 @@ async function main() {
       DEMOCODEX_BASE_URL: server.url,
       NEON_HEIST_CAPTURE: shouldCapture ? '1' : process.env.NEON_HEIST_CAPTURE,
       ORBIT_RESCUE_CAPTURE: shouldCapture ? '1' : process.env.ORBIT_RESCUE_CAPTURE,
+      TIDE_COURIER_CAPTURE: shouldCapture ? '1' : process.env.TIDE_COURIER_CAPTURE,
     };
 
     const neonHeist = await runNodeScript(
@@ -64,6 +65,10 @@ async function main() {
     );
     const orbitRescue = await runNodeScript(
       path.resolve(rootDir, 'scripts/test-orbit-rescue-browser.mjs'),
+      sharedEnv,
+    );
+    const tideCourier = await runNodeScript(
+      path.resolve(rootDir, 'scripts/test-tide-courier-browser.mjs'),
       sharedEnv,
     );
 
@@ -75,6 +80,7 @@ async function main() {
           tests: {
             neonHeist,
             orbitRescue,
+            tideCourier,
           },
         },
         null,
