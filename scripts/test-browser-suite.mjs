@@ -57,6 +57,7 @@ async function main() {
       NEON_HEIST_CAPTURE: shouldCapture ? '1' : process.env.NEON_HEIST_CAPTURE,
       ORBIT_RESCUE_CAPTURE: shouldCapture ? '1' : process.env.ORBIT_RESCUE_CAPTURE,
       TIDE_COURIER_CAPTURE: shouldCapture ? '1' : process.env.TIDE_COURIER_CAPTURE,
+      CAVERN_BLAST_CAPTURE: shouldCapture ? '1' : process.env.CAVERN_BLAST_CAPTURE,
     };
 
     const neonHeist = await runNodeScript(
@@ -71,6 +72,10 @@ async function main() {
       path.resolve(rootDir, 'scripts/test-tide-courier-browser.mjs'),
       sharedEnv,
     );
+    const cavernBlast = await runNodeScript(
+      path.resolve(rootDir, 'scripts/test-cavern-blast-browser.mjs'),
+      sharedEnv,
+    );
 
     console.log(
       JSON.stringify(
@@ -81,6 +86,7 @@ async function main() {
             neonHeist,
             orbitRescue,
             tideCourier,
+            cavernBlast,
           },
         },
         null,

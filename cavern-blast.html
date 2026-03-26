@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="晶洞爆破：像素风回合制爆破地城，埋设雷芯、炸开碎岩、清掉追击虫群并带着晶体撤离。"
+    />
+    <title>晶洞爆破 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23120f19'/%3E%3Crect x='10' y='10' width='18' height='18' fill='%232ee6c6'/%3E%3Crect x='36' y='14' width='16' height='16' fill='%23ff8a3d'/%3E%3Crect x='20' y='36' width='24' height='12' fill='%23ffe082'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/cavern-blast.css" />
+  </head>
+  <body class="cavern-page">
+    <main class="cavern-shell">
+      <header class="cavern-hero">
+        <a class="cavern-hero__back" href="games-collection.html">返回合集</a>
+        <div class="cavern-hero__title-wrap">
+          <p class="cavern-hero__eyebrow">Pixel Demolition Crawl</p>
+          <h1 class="cavern-hero__title">晶洞爆破</h1>
+          <p class="cavern-hero__lead">
+            这不是潜行，也不是纯躲避。你要在 11x11 的像素晶洞里一边跑路，一边埋雷芯炸开碎岩和追击虫群，抢回
+            3 枚晶体后立刻冲向升降台。
+          </p>
+        </div>
+        <div class="cavern-hero__actions">
+          <button class="cavern-hero__cta" id="cavern-start" type="button">进入晶洞</button>
+          <button class="cavern-hero__cta cavern-hero__cta--ghost" id="cavern-reset" type="button">
+            重置地城
+          </button>
+        </div>
+      </header>
+
+      <section class="cavern-layout">
+        <section class="cavern-panel cavern-panel--primary" aria-label="晶洞爆破主区域">
+          <div class="cavern-stats">
+            <article class="cavern-stat">
+              <span class="cavern-stat__label">层数</span>
+              <strong class="cavern-stat__value" id="cavern-floor">1</strong>
+            </article>
+            <article class="cavern-stat">
+              <span class="cavern-stat__label">得分</span>
+              <strong class="cavern-stat__value" id="cavern-score">0</strong>
+            </article>
+            <article class="cavern-stat">
+              <span class="cavern-stat__label">护盾</span>
+              <strong class="cavern-stat__value" id="cavern-hull">3</strong>
+            </article>
+            <article class="cavern-stat">
+              <span class="cavern-stat__label">晶体</span>
+              <strong class="cavern-stat__value" id="cavern-crystals">0 / 3</strong>
+            </article>
+            <article class="cavern-stat">
+              <span class="cavern-stat__label">雷芯</span>
+              <strong class="cavern-stat__value" id="cavern-charges">1 / 1</strong>
+            </article>
+            <article class="cavern-stat">
+              <span class="cavern-stat__label">纪录</span>
+              <strong class="cavern-stat__value" id="cavern-best">0</strong>
+            </article>
+          </div>
+
+          <div class="cavern-board-shell">
+            <canvas
+              id="cavern-canvas"
+              width="880"
+              height="880"
+              role="img"
+              aria-label="晶洞爆破像素地城画面：玩家在 11x11 网格中埋设炸药、炸开碎岩并躲避追击虫群"
+            ></canvas>
+            <div class="cavern-overlay is-visible" id="cavern-overlay" aria-live="polite">
+              <p class="cavern-overlay__kicker">入场提示</p>
+              <h2 class="cavern-overlay__title" id="cavern-overlay-title">按开始或 Enter 进入晶洞</h2>
+              <p class="cavern-overlay__body" id="cavern-overlay-body">
+                方向键或 WASD 移动，空格等待一拍，Q 在脚下埋设雷芯。
+              </p>
+            </div>
+          </div>
+
+          <section class="cavern-pad" aria-label="触摸控制面板">
+            <button class="cavern-pad__button cavern-pad__button--up" data-action="up" type="button">上</button>
+            <button class="cavern-pad__button cavern-pad__button--left" data-action="left" type="button">
+              左
+            </button>
+            <button class="cavern-pad__button cavern-pad__button--wait" data-action="wait" type="button">
+              等待
+            </button>
+            <button class="cavern-pad__button cavern-pad__button--right" data-action="right" type="button">
+              右
+            </button>
+            <button class="cavern-pad__button cavern-pad__button--down" data-action="down" type="button">
+              下
+            </button>
+            <button class="cavern-pad__button cavern-pad__button--bomb" data-action="bomb" type="button">
+              埋设雷芯
+            </button>
+          </section>
+        </section>
+
+        <aside class="cavern-panel cavern-panel--side" aria-label="晶洞规则与情报">
+          <section class="cavern-sidecard">
+            <h2 class="cavern-sidecard__title">任务简报</h2>
+            <p class="cavern-sidecard__body" id="cavern-status">
+              带着雷芯穿过碎岩走廊，拿到 3 枚晶体后冲向右上角升降台。
+            </p>
+            <p class="cavern-sidecard__body cavern-sidecard__body--muted" id="cavern-objective">
+              雷芯会在两拍后爆炸，既能炸开碎岩，也能顺手清掉追击虫群。
+            </p>
+          </section>
+
+          <section class="cavern-sidecard">
+            <h2 class="cavern-sidecard__title">玩法说明</h2>
+            <ul class="cavern-rules">
+              <li>每行动一拍，爬行虫群都会沿最近路线向你逼近一格。</li>
+              <li>埋下雷芯后再行动一拍就会爆炸，爆风最多延伸 2 格。</li>
+              <li>爆风会摧毁碎岩、击碎虫群，并把空出来的雷芯容量返还给你。</li>
+              <li>拿齐 3 枚晶体后，右上角升降台才会亮起。</li>
+            </ul>
+          </section>
+
+          <section class="cavern-sidecard">
+            <h2 class="cavern-sidecard__title">控制方式</h2>
+            <ul class="cavern-rules">
+              <li>`WASD` / 方向键：移动</li>
+              <li>`Space`：原地等待一拍</li>
+              <li>`Q`：埋设雷芯</li>
+              <li>`Enter`：开始当前层</li>
+              <li>`R`：重置整局</li>
+            </ul>
+          </section>
+
+          <section class="cavern-sidecard">
+            <h2 class="cavern-sidecard__title">行动面板</h2>
+            <div class="cavern-actions">
+              <button class="cavern-action" id="cavern-wait" type="button">等待一拍</button>
+              <button class="cavern-action" id="cavern-bomb-action" type="button">埋设雷芯</button>
+              <button class="cavern-action cavern-action--ghost" id="cavern-restart" type="button">
+                重新钻进
+              </button>
+            </div>
+          </section>
+
+          <section class="cavern-sidecard">
+            <h2 class="cavern-sidecard__title">地城遥测</h2>
+            <dl class="cavern-metrics">
+              <div class="cavern-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="cavern-turns">0</dd>
+              </div>
+              <div class="cavern-metrics__row">
+                <dt>追击虫群</dt>
+                <dd id="cavern-crawlers">3</dd>
+              </div>
+              <div class="cavern-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="cavern-best-floor">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="cavern-sidecard">
+            <h2 class="cavern-sidecard__title">行动日志</h2>
+            <ul class="cavern-feed" id="cavern-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p id="cavern-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/cavern-blast.js"></script>
+  </body>
+</html>

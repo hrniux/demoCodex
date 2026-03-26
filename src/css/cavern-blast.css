@@ -1,0 +1,370 @@
+:root {
+  --cavern-bg: #110e18;
+  --cavern-panel: #1d1827;
+  --cavern-panel-strong: #231c30;
+  --cavern-line: rgba(255, 255, 255, 0.08);
+  --cavern-mint: #2ee6c6;
+  --cavern-orange: #ff8a3d;
+  --cavern-amber: #ffe082;
+  --cavern-rose: #ff5c7c;
+  --cavern-ink: #0b0910;
+  --cavern-text: #f8f4ff;
+  --cavern-muted: rgba(248, 244, 255, 0.68);
+  --cavern-shadow: 0 28px 60px rgba(0, 0, 0, 0.38);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.cavern-page {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(46, 230, 198, 0.12), transparent 34%),
+    linear-gradient(180deg, #151120 0%, #0d0b14 100%);
+  color: var(--cavern-text);
+  font-family: 'Courier New', 'Lucida Console', monospace;
+}
+
+.cavern-shell {
+  width: min(1500px, calc(100vw - 28px));
+  margin: 0 auto;
+  padding: 24px 0 42px;
+}
+
+.cavern-hero,
+.cavern-panel,
+.cavern-sidecard {
+  border: 2px solid var(--cavern-line);
+  box-shadow: var(--cavern-shadow);
+}
+
+.cavern-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(36, 28, 48, 0.98), rgba(22, 18, 31, 0.98)),
+    radial-gradient(circle at right top, rgba(255, 138, 61, 0.12), transparent 30%);
+}
+
+.cavern-hero__back {
+  grid-column: 1 / -1;
+  width: fit-content;
+  color: var(--cavern-mint);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.cavern-hero__back:hover {
+  color: var(--cavern-amber);
+}
+
+.cavern-hero__eyebrow {
+  margin: 0 0 10px;
+  color: var(--cavern-mint);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.cavern-hero__title {
+  margin: 0;
+  font-size: clamp(2.5rem, 5vw, 4.6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.cavern-hero__lead {
+  max-width: 62ch;
+  margin: 16px 0 0;
+  color: var(--cavern-muted);
+  line-height: 1.7;
+}
+
+.cavern-hero__actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cavern-hero__cta,
+.cavern-action,
+.cavern-pad__button {
+  appearance: none;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--cavern-text);
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.cavern-hero__cta:hover,
+.cavern-action:hover,
+.cavern-pad__button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.cavern-hero__cta {
+  min-width: 188px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #ff9a54, #ff6b1a);
+  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.cavern-hero__cta--ghost,
+.cavern-action--ghost {
+  background: linear-gradient(180deg, rgba(63, 54, 82, 0.9), rgba(41, 35, 54, 0.96));
+}
+
+.cavern-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.24fr) minmax(320px, 0.8fr);
+  gap: 20px;
+}
+
+.cavern-panel {
+  background: linear-gradient(180deg, rgba(30, 24, 40, 0.98), rgba(19, 15, 26, 0.99));
+}
+
+.cavern-panel--primary {
+  padding: 20px;
+}
+
+.cavern-panel--side {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.cavern-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cavern-stat,
+.cavern-sidecard {
+  background: linear-gradient(180deg, rgba(42, 34, 56, 0.96), rgba(28, 22, 38, 0.98));
+  border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.cavern-stat {
+  min-height: 92px;
+  padding: 14px 16px;
+}
+
+.cavern-stat__label {
+  display: block;
+  color: var(--cavern-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cavern-stat__value {
+  display: block;
+  margin-top: 10px;
+  color: var(--cavern-amber);
+  font-size: 1.7rem;
+}
+
+.cavern-board-shell {
+  position: relative;
+  padding: 12px;
+  background: linear-gradient(180deg, rgba(14, 11, 20, 0.98), rgba(9, 8, 14, 1));
+  border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+#cavern-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #09070f;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.cavern-overlay {
+  position: absolute;
+  inset: 18px;
+  display: grid;
+  place-content: center;
+  padding: 24px;
+  background: rgba(10, 8, 14, 0.82);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cavern-overlay.is-visible {
+  opacity: 1;
+}
+
+.cavern-overlay__kicker {
+  margin: 0 0 10px;
+  color: var(--cavern-orange);
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cavern-overlay__title {
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2.3rem);
+  line-height: 1.15;
+}
+
+.cavern-overlay__body {
+  max-width: 32rem;
+  margin: 14px auto 0;
+  color: var(--cavern-muted);
+  line-height: 1.7;
+}
+
+.cavern-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cavern-pad__button,
+.cavern-action {
+  min-height: 48px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #372b47, #281f34);
+  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.cavern-pad__button--bomb {
+  grid-column: 1 / -1;
+  background: linear-gradient(180deg, #ff9a54, #ff6b1a);
+}
+
+.cavern-sidecard {
+  padding: 16px;
+}
+
+.cavern-sidecard__title {
+  margin: 0 0 10px;
+  color: var(--cavern-amber);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cavern-sidecard__body {
+  margin: 0;
+  color: rgba(248, 244, 255, 0.9);
+  line-height: 1.65;
+}
+
+.cavern-sidecard__body--muted {
+  margin-top: 10px;
+  color: var(--cavern-muted);
+}
+
+.cavern-rules,
+.cavern-feed {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: rgba(248, 244, 255, 0.88);
+  line-height: 1.7;
+}
+
+.cavern-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cavern-metrics {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.cavern-metrics__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.cavern-metrics__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cavern-metrics dt {
+  color: var(--cavern-muted);
+}
+
+.cavern-metrics dd {
+  margin: 0;
+  color: var(--cavern-amber);
+  font-weight: 700;
+}
+
+.cavern-feed {
+  display: grid;
+  gap: 8px;
+}
+
+.cavern-feed li::marker {
+  color: var(--cavern-orange);
+}
+
+@media (max-width: 1100px) {
+  .cavern-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 840px) {
+  .cavern-shell {
+    width: min(100vw - 18px, 100%);
+    padding-top: 14px;
+  }
+
+  .cavern-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .cavern-hero__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .cavern-hero__cta {
+    flex: 1 1 180px;
+  }
+
+  .cavern-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cavern-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cavern-hero__cta,
+  .cavern-action,
+  .cavern-pad__button,
+  .cavern-overlay {
+    transition: none;
+  }
+}

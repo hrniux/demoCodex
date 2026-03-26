@@ -5,7 +5,7 @@
 
 [打开合集入口](./games-collection.html) | [仓库地址](https://github.com/hrniux/demoCodex) | [GitHub About 文案](./.github/project-about.md)
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 21 个可直接运行的 HTML 页面，其中 `games-collection.html` 聚合了 16 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 22 个可直接运行的 HTML 页面，其中 `games-collection.html` 聚合了 17 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 
 ## 项目亮点
 
@@ -48,7 +48,7 @@ npm run test:browser
 补充说明：
 
 - `npm test` 运行当前内建的逻辑自检。
-- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行 `neon-heist`、`orbit-rescue` 与 `tide-courier` 的浏览器回归。
+- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行 `neon-heist`、`orbit-rescue`、`tide-courier` 与 `cavern-blast` 的浏览器回归。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
 - 仓库不会回退到 Playwright bundled browser，也不需要为本项目运行 `playwright install`。
 
@@ -61,6 +61,7 @@ npm run test:browser
 | 导航入口 | `games-collection.html` | DemoCodex 主合集页，适合作为仓库首页和试玩入口。 |
 | 个性化内容 | `daily-insights.html` | 融合生肖、星座与节气的每日洞见生成器。 |
 | 像素街机 | `tank-battle-pixel.html` | 简约像素风坦克大战，强调基地防守、轻量 AI 和零依赖。 |
+| 像素爆破 | `cavern-blast.html` | 像素风回合制爆破地城，围绕雷芯延时爆炸、碎岩清障与虫群追击展开。 |
 | 潜行解谜 | `neon-heist.html` | 回合制霓虹潜入小游戏，围绕巡逻同步推进、EMP 停滞、诱饵错位与路线计算展开。 |
 | 轨道策略 | `orbit-rescue.html` | 环形轨道回收游戏，利用停滞脉冲与节拍式移动在碎片环带间抢回救生舱。 |
 | 港湾策略 | `tide-courier.html` | 港湾潮道投递谜局，利用潮流拖拽与换流浮标反转航道，在驳船间抢回漂流货箱。 |
@@ -89,7 +90,7 @@ npm run test:browser
 
 - 渲染方式：Canvas 2D 是主要交互载体，部分页面采用像素风绘制和 `requestAnimationFrame` 循环。
 - 代码组织：仓库同时存在单文件原型页与按 `src/css`、`src/js` 拆分的模块化页面。
-- 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、霓虹潜行、轨道营救、潮汐信使、像素坦克等页面都使用了浏览器本地存储。
+- 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、霓虹潜行、轨道营救、潮汐信使、晶洞爆破、像素坦克等页面都使用了浏览器本地存储。
 - 依赖策略：除 `voxelcraft.html` 和个别字体资源外，整体坚持轻依赖甚至零依赖。
 
 ## 目录结构
