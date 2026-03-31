@@ -47,8 +47,8 @@ npm run test:browser
 
 补充说明：
 
-- `npm test` 运行当前内建的逻辑自检，现已覆盖 `neon-heist`、`orbit-rescue`、`tide-courier`、`cavern-blast`、`magnet-forge` 以及新增的 8 个像素小游戏。
-- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的 `neon-heist`、`orbit-rescue`、`tide-courier`、`cavern-blast` 与 `magnet-forge` 浏览器回归。
+- `npm test` 运行当前内建的逻辑自检，现已覆盖现有主推策略页与新增的 8 个像素小游戏。
+- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的主推像素游戏浏览器回归。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
 - 仓库不会回退到 Playwright bundled browser，也不需要为本项目运行 `playwright install`。
 

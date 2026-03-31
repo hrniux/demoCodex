@@ -18,13 +18,21 @@
     "test:magnet-forge:logic": "node -e \"const mod=require('./src/js/magnet-forge.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:magnet-forge:browser": "node scripts/test-magnet-forge-browser.mjs",
     "test:ember-shift:logic": "node -e \"const mod=require('./src/js/ember-shift.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:ember-shift:browser": "node scripts/test-ember-shift-browser.mjs",
     "test:rail-rift:logic": "node -e \"const mod=require('./src/js/rail-rift.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:rail-rift:browser": "node scripts/test-rail-rift-browser.mjs",
     "test:glyph-keeper:logic": "node -e \"const mod=require('./src/js/glyph-keeper.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:glyph-keeper:browser": "node scripts/test-glyph-keeper-browser.mjs",
     "test:pixel-orchard:logic": "node -e \"const mod=require('./src/js/pixel-orchard.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:pixel-orchard:browser": "node scripts/test-pixel-orchard-browser.mjs",
     "test:signal-sprint:logic": "node -e \"const mod=require('./src/js/signal-sprint.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:signal-sprint:browser": "node scripts/test-signal-sprint-browser.mjs",
     "test:vault-pusher:logic": "node -e \"const mod=require('./src/js/vault-pusher.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:vault-pusher:browser": "node scripts/test-vault-pusher-browser.mjs",
     "test:comet-lantern:logic": "node -e \"const mod=require('./src/js/comet-lantern.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:frostbite-freight:logic": "node -e \"const mod=require('./src/js/frostbite-freight.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\""
+    "test:comet-lantern:browser": "node scripts/test-comet-lantern-browser.mjs",
+    "test:frostbite-freight:logic": "node -e \"const mod=require('./src/js/frostbite-freight.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:frostbite-freight:browser": "node scripts/test-frostbite-freight-browser.mjs"
   },
   "repository": {
     "type": "git",
