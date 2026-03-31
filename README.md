@@ -5,7 +5,7 @@
 
 [打开合集入口](./index.html) | [仓库地址](https://github.com/hrniux/demoCodex) | [GitHub About 文案](./.github/project-about.md)
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 22 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 17 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 32 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 27 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 
 ## 项目亮点
 
@@ -47,8 +47,8 @@ npm run test:browser
 
 补充说明：
 
-- `npm test` 运行当前内建的逻辑自检。
-- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行 `neon-heist`、`orbit-rescue`、`tide-courier`、`cavern-blast` 与 `magnet-forge` 的浏览器回归。
+- `npm test` 运行当前内建的逻辑自检，现已覆盖 `neon-heist`、`orbit-rescue`、`tide-courier`、`cavern-blast`、`magnet-forge` 以及新增的 8 个像素小游戏。
+- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的 `neon-heist`、`orbit-rescue`、`tide-courier`、`cavern-blast` 与 `magnet-forge` 浏览器回归。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
 - 仓库不会回退到 Playwright bundled browser，也不需要为本项目运行 `playwright install`。
 
@@ -60,9 +60,19 @@ npm run test:browser
 | --- | --- | --- |
 | 导航入口 | `index.html` | DemoCodex 主合集页，适合作为仓库首页和试玩入口。 |
 | 个性化内容 | `daily-insights.html` | 融合生肖、星座与节气的每日洞见生成器。 |
+| 结构化工具 | `bazi-insights.html` | 输入出生信息后生成五行偏向、性格侧重与行动建议的规则映射工具。 |
+| 结构化工具 | `mind-lab.html` | 8 题轻量逻辑测试，提供即时得分、结果分段与简短解读。 |
 | 像素街机 | `tank-battle-pixel.html` | 简约像素风坦克大战，强调基地防守、轻量 AI 和零依赖。 |
+| 像素策略 | `ember-shift.html` | 像素火线推箱谜局，把水桶送进火点并用泡沫冻结余烬。 |
+| 像素策略 | `rail-rift.html` | 断轨峡谷中的补给调度关卡，围绕收集、切线与跃轨窗口展开。 |
+| 像素策略 | `glyph-keeper.html` | 符文收集与暗影追逐结合的小型守门关卡。 |
 | 像素策略 | `magnet-forge.html` | 像素风磁力推箱谜局，用推动与脉冲牵引把磁芯电池送进反应座，并躲开巡检火花。 |
+| 像素策略 | `pixel-orchard.html` | 果园采收街机，边摘果边躲乌鸦，用惊鸟哨抢节奏。 |
+| 像素策略 | `signal-sprint.html` | 惯性滑行与芯片收集结合的像素冲刺关卡。 |
+| 像素策略 | `vault-pusher.html` | 金库推箱变体，把金条箱推上称重点并躲开探灯。 |
+| 像素策略 | `comet-lantern.html` | 夜巡拾星小游戏，用闪灯脉冲震开黑影并回收彗尘。 |
 | 像素爆破 | `cavern-blast.html` | 像素风回合制爆破地城，围绕雷芯延时爆炸、碎岩清障与虫群追击展开。 |
+| 像素策略 | `frostbite-freight.html` | 冰面惯性货运谜局，利用滑行和制动器把货箱送进停靠位。 |
 | 潜行解谜 | `neon-heist.html` | 回合制霓虹潜入小游戏，围绕巡逻同步推进、EMP 停滞、诱饵错位与路线计算展开。 |
 | 轨道策略 | `orbit-rescue.html` | 环形轨道回收游戏，利用停滞脉冲与节拍式移动在碎片环带间抢回救生舱。 |
 | 港湾策略 | `tide-courier.html` | 港湾潮道投递谜局，利用潮流拖拽与换流浮标反转航道，在驳船间抢回漂流货箱。 |
@@ -90,7 +100,7 @@ npm run test:browser
 
 - 渲染方式：Canvas 2D 是主要交互载体，部分页面采用像素风绘制和 `requestAnimationFrame` 循环。
 - 代码组织：仓库同时存在单文件原型页与按 `src/css`、`src/js` 拆分的模块化页面。
-- 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、霓虹潜行、轨道营救、潮汐信使、晶洞爆破、磁场工坊、像素坦克等页面都使用了浏览器本地存储。
+- 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、霓虹潜行、轨道营救、潮汐信使、晶洞爆破、磁场工坊、余烬搬运、裂轨列调、符文守卫、像素果园、信号冲刺、金库推箱、彗灯拾星、霜轨货运、像素坦克等页面都使用了浏览器本地存储。
 - 依赖策略：除 `voxelcraft.html` 和个别字体资源外，整体坚持轻依赖甚至零依赖。
 
 ## 目录结构

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Mind Lab 智力测试：用多道逻辑题快速评估你的模式识别、推理和注意力表现。"
+    />
+    <title>Mind Lab 智力测试 | DemoCodex</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2309141d'/%3E%3Crect x='16' y='16' width='32' height='32' fill='%2338bdf8'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="src/css/mind-lab.css" />
+  </head>
+  <body class="mind-page">
+    <main class="mind-shell">
+      <section class="mind-hero">
+        <a class="mind-back" href="index.html">返回首页</a>
+        <p class="mind-hero__eyebrow">Logic · Focus · Pattern</p>
+        <h1 class="mind-hero__title">Mind Lab 智力测试</h1>
+        <p class="mind-hero__lead">
+          一个轻量但完整的小型逻辑测试。题目覆盖数列、图形替代、条件推理和信息筛选，适合 3 到 5 分钟完成。
+        </p>
+      </section>
+
+      <section class="mind-layout">
+        <section class="mind-card mind-card--intro" id="mind-intro">
+          <h2>开始前</h2>
+          <ul class="mind-list">
+            <li>共 8 题，每题 4 个选项。</li>
+            <li>支持鼠标点击，也支持键盘 `1` 到 `4` 选项。</li>
+            <li>结果更像一次逻辑状态快照，不等于正式 IQ 测评。</li>
+          </ul>
+          <button class="mind-button" id="mind-start" type="button">开始测试</button>
+        </section>
+
+        <section class="mind-card mind-card--quiz" id="mind-quiz" hidden>
+          <div class="mind-progress">
+            <span id="mind-step">第 1 题 / 8</span>
+            <span id="mind-score">当前得分 0</span>
+          </div>
+
+          <article class="mind-question">
+            <h2 id="mind-question-title">题目</h2>
+            <p id="mind-question-body"></p>
+          </article>
+
+          <div class="mind-options" id="mind-options" role="list"></div>
+        </section>
+
+        <section class="mind-card mind-card--result" id="mind-result" hidden tabindex="-1">
+          <h2>测试结果</h2>
+          <p class="mind-result__headline" id="mind-result-title"></p>
+          <p class="mind-result__body" id="mind-result-body"></p>
+          <div class="mind-summary" id="mind-summary"></div>
+          <button class="mind-button mind-button--ghost" id="mind-restart" type="button">
+            再测一次
+          </button>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="src/js/mind-lab.js"></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="裂轨列调：像素列车切轨游戏，在断裂铁轨与货柜墙之间切换轨道，把车头安全送出峡谷。" />
+    <title>裂轨列调 | DemoCodex</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2309141d'/%3E%3Crect x='16' y='16' width='32' height='32' fill='%2338bdf8'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="src/css/rail-rift.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Rail Rift</p>
+          <h1 class="pixel-title">裂轨列调</h1>
+          <p class="pixel-lead">你控制的不是速度，而是轨道。列车会自动前冲，你要在断轨、障碍和补给轨之间瞬时切换，拖着整列货厢冲出峡谷。</p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">启动列车</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置调度</button>
+        </div>
+      </header>
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">区段</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">里程</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">车体</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">补给</span><strong class="pixel-stat__value" id="stat-target">0 / 6</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">切轨</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="900" height="720" role="img" aria-label="裂轨列调轨道画面"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">轨控简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 发车</h2>
+              <p class="pixel-overlay__body" id="overlay-body">左右切轨，上键短促提速，Q 可瞬时穿越一段断轨。</p>
+            </div>
+          </div>
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">提速</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左轨</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">稳速</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右轨</button>
+            <button class="pixel-pad__button" data-action="down" type="button">刹稳</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">跃轨</button>
+          </section>
+        </section>
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">任务状态</h2><p class="pixel-sidecard__body" id="status-text">切换轨道避开断口，顺手吃掉蓝色补给片。</p><p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">跃轨会让列车无视一次断轨，但冷却较长。</p></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">玩法说明</h2><ul class="pixel-rules"><li>列车自动前进。</li><li>补给片用于加分与解锁下一段。</li><li>撞断轨或货柜会损失车体。</li></ul></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">控制方式</h2><ul class="pixel-rules"><li>A / D：切轨</li><li>W：短促提速</li><li>S：稳住车头</li><li>Q：跃轨</li><li>Enter：开始</li></ul></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">行动面板</h2><div class="pixel-mini-actions"><button class="pixel-button pixel-button--ghost" id="action-wait" type="button">稳速</button><button class="pixel-button pixel-button--accent" id="action-skill" type="button">跃轨</button><button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button></div></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">遥测</h2><dl class="pixel-metrics"><div class="pixel-metrics__row"><dt>当前秒数</dt><dd id="metric-turn">0</dd></div><div class="pixel-metrics__row"><dt>轨障数量</dt><dd id="metric-danger">0</dd></div><div class="pixel-metrics__row"><dt>最佳区段</dt><dd id="metric-best-stage">0</dd></div></dl></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">行动日志</h2><ul class="pixel-feed" id="feed-list"></ul></section>
+        </aside>
+      </section>
+    </main>
+    <script src="src/js/grid-arcade-core.js"></script><script src="src/js/pixel-page-runtime.js"></script><script src="src/js/rail-rift.js"></script>
+    <script type="module" src="src/js/rail-rift.js"></script>
+  </body>
+</html>

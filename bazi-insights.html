@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="八字映射实验室：输入出生信息，获取结构化的五行偏向、性格倾向与行动建议。"
+    />
+    <title>八字映射实验室 | DemoCodex</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2309141d'/%3E%3Crect x='16' y='16' width='32' height='32' fill='%2338bdf8'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="src/css/bazi-insights.css" />
+  </head>
+  <body class="bazi-page">
+    <main class="bazi-shell">
+      <section class="bazi-hero">
+        <a class="bazi-back" href="index.html">返回首页</a>
+        <p class="bazi-hero__eyebrow">Pattern-Based Reading</p>
+        <h1 class="bazi-hero__title">八字映射实验室</h1>
+        <p class="bazi-hero__lead">
+          这是一个基于出生时间、节令与规则映射的结构化解读工具，不替代专业命理判断，更适合拿来做自我观察和行动提醒。
+        </p>
+      </section>
+
+      <section class="bazi-layout">
+        <section class="bazi-card bazi-card--form" aria-label="出生信息输入">
+          <h2>输入信息</h2>
+          <form id="bazi-form" class="bazi-form">
+            <label class="bazi-field">
+              <span>出生日期</span>
+              <input id="birth-date" name="birth-date" type="date" required />
+            </label>
+
+            <label class="bazi-field">
+              <span>出生时间</span>
+              <input id="birth-time" name="birth-time" type="time" required />
+            </label>
+
+            <label class="bazi-field">
+              <span>当前关注点</span>
+              <select id="focus-area" name="focus-area">
+                <option value="career">事业节奏</option>
+                <option value="study">学习成长</option>
+                <option value="finance">财务决策</option>
+                <option value="relationship">关系互动</option>
+                <option value="wellbeing">身心状态</option>
+              </select>
+            </label>
+
+            <label class="bazi-field">
+              <span>希望强化的方向</span>
+              <select id="tone" name="tone">
+                <option value="steady">稳住节奏</option>
+                <option value="bold">更敢行动</option>
+                <option value="clear">更重清晰判断</option>
+                <option value="soft">更重关系柔和</option>
+              </select>
+            </label>
+
+            <div class="bazi-actions">
+              <button type="submit" class="bazi-button">生成解读</button>
+              <button type="reset" class="bazi-button bazi-button--ghost">清空</button>
+            </div>
+          </form>
+
+          <p class="bazi-note">
+            提示：按 <kbd>Tab</kbd> 可逐项切换输入，提交后结果区域会自动获得焦点。
+          </p>
+        </section>
+
+        <section
+          class="bazi-card bazi-card--result"
+          id="bazi-result"
+          tabindex="-1"
+          aria-live="polite"
+        >
+          <h2>结构化解读</h2>
+          <p class="bazi-placeholder" id="bazi-placeholder">
+            输入出生信息后，这里会生成五行偏向、性格侧重、行动建议与关系提醒。
+          </p>
+
+          <div class="bazi-summary" id="bazi-summary" hidden></div>
+
+          <div class="bazi-grid" id="bazi-grid" hidden>
+            <article class="bazi-panel">
+              <h3>五行偏向</h3>
+              <div id="bazi-balance"></div>
+            </article>
+            <article class="bazi-panel">
+              <h3>性格侧重</h3>
+              <div id="bazi-profile"></div>
+            </article>
+            <article class="bazi-panel">
+              <h3>行动建议</h3>
+              <div id="bazi-action"></div>
+            </article>
+            <article class="bazi-panel">
+              <h3>关系提醒</h3>
+              <div id="bazi-relationship"></div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="src/js/bazi-insights.js"></script>
+  </body>
+</html>
