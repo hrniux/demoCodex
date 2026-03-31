@@ -10,7 +10,7 @@
 |--------|------|------|------|
 | `tank-battle.html` | 17KB | 主游戏页面 | [打开游戏](./tank-battle.html) |
 | `tank-battle-achievements.html` | 8KB | 成就系统页面 | [查看成就](./tank-battle-achievements.html) |
-| `games-collection.html` | 11KB | 游戏合集主页 | [游戏合集](./games-collection.html) |
+| `index.html` | 11KB | 游戏合集主页 | [游戏合集](./index.html) |
 
 ### 💻 代码文件（2个）
 
@@ -60,7 +60,7 @@
 → 打开 [`tank-battle-achievements.html`](./tank-battle-achievements.html)
 
 ### 🎮 我想看所有游戏
-→ 打开 [`games-collection.html`](./games-collection.html)
+→ 打开 [`index.html`](./index.html)
 
 ## 📋 功能清单
 
@@ -386,7 +386,7 @@ CONFIG = {
 
 或者浏览：
 - 🏆 [查看成就](./tank-battle-achievements.html)
-- 🎮 [游戏合集](./games-collection.html)
+- 🎮 [游戏合集](./index.html)
 
 ---
 

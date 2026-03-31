@@ -384,7 +384,7 @@ Dragon (自信)
 
 ### 资源
 - 📖 [完整技术文档](./DAILY_INSIGHTS_README.md)
-- 🎮 [游戏合集](./games-collection.html)
+- 🎮 [游戏合集](./index.html)
 - 📚 [项目协作指南](./CLAUDE.md)
 
 ### 问题解决

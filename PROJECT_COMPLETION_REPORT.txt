@@ -14,7 +14,7 @@
 🎮 游戏文件（3个）
    ✅ tank-battle.html (17KB) - 主游戏页面
    ✅ tank-battle-achievements.html (8KB) - 成就系统
-   ✅ games-collection.html (11KB) - 游戏合集
+   ✅ index.html (11KB) - 游戏合集
 
 💻 代码文件（2个）
    ✅ src/js/tank-game/game-enhanced.js (40KB, 1500行)
@@ -200,7 +200,7 @@ AI系统：
    open tank-battle-achievements.html
 
 4. 浏览游戏合集：
-   open games-collection.html
+   open index.html
 
 ═══════════════════════════════════════════════════════════════
 

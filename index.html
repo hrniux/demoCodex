@@ -1,50 +1,711 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
+<head>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="DemoCodex Stick-Fighter: HTML5 canvas-based fighting game demo" />
-    <title>DemoCodex Stick-Fighter</title>
-    <link rel="preconnect" href="self" />
-    <link rel="stylesheet" href="src/css/styles.css" />
-  </head>
-  <body>
-    <main class="game" aria-label="Stick figure fighting game">
-      <section class="game__canvas-wrap">
-        <canvas id="game" width="960" height="540" role="img" aria-label="游戏画面：火柴人对战，带有平台与场景"></canvas>
-      </section>
+    <title>DemoCodex 游戏合集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      <section class="hud" aria-live="polite" aria-atomic="true">
-        <div class="hud__row">
-          <div class="hud__bar hud__bar--hp" id="hud-hp" aria-label="玩家生命条" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
-          <div class="hud__bar hud__bar--stamina" id="hud-stamina" aria-label="玩家体力条" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
-          <div class="hud__bar hud__bar--energy" id="hud-energy" aria-label="玩家能量条" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #141827 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b35, #f7931e, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #a0aec0;
+            font-weight: 300;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-bottom: 64px;
+        }
+
+        .game-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: linear-gradient(135deg, #1c2333 0%, #141827 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 107, 53, 0.5);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-banner {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .game-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(200%);
+                opacity: 0;
+            }
+        }
+
+        .game-banner.tank {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        }
+
+        .game-banner.snake {
+            background: linear-gradient(135deg, #06ffa5 0%, #00b277 100%);
+        }
+
+        .game-banner.dino {
+            background: linear-gradient(135deg, #4ecdc4 0%, #2a9d8f 100%);
+        }
+
+        .game-banner.arsenal {
+            background: linear-gradient(135deg, #718dff 0%, #4361ee 100%);
+        }
+
+        .game-banner.museum {
+            background: linear-gradient(135deg, #ffd60a 0%, #e85d04 100%);
+        }
+
+        .game-banner.stellar {
+            background: linear-gradient(135deg, #38bdf8 0%, #8b5cf6 100%);
+        }
+
+        .game-banner.echo {
+            background: linear-gradient(135deg, #fbbf24 0%, #f472b6 100%);
+        }
+
+        .game-banner.heist {
+            background: linear-gradient(135deg, #34d399 0%, #f59e0b 100%);
+        }
+
+        .game-banner.orbit {
+            background: linear-gradient(135deg, #67e8f9 0%, #a78bfa 100%);
+        }
+
+        .game-banner.tide {
+            background: linear-gradient(135deg, #38bdf8 0%, #fb923c 100%);
+        }
+
+        .game-banner.cavern {
+            background: linear-gradient(135deg, #2ee6c6 0%, #ff8a3d 100%);
+        }
+
+        .game-banner.forge {
+            background: linear-gradient(135deg, #22d3ee 0%, #fbbf24 100%);
+        }
+
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 32px;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .game-description {
+            font-size: 1rem;
+            color: #a0aec0;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .game-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .feature-tag {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #4ecdc4;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ff6b35;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .play-button {
+            display: block;
+            width: 100%;
+            margin-top: auto;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .play-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+        }
+
+        .featured {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 0;
+            transform: translateZ(0);
+        }
+
+        .featured .game-banner {
+            height: 100%;
+        }
+
+        .featured .game-content {
+            display: flex;
+            flex-direction: column;
+            padding: 48px;
+        }
+
+        .featured .game-title {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .featured .game-description {
+            font-size: 1.2rem;
+            margin-bottom: 32px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured {
+                grid-template-columns: 1fr;
+            }
+
+            .featured .game-banner {
+                height: 200px;
+            }
+
+            .featured .game-content {
+                padding: 32px;
+            }
+
+            .featured .game-title {
+                font-size: 2rem;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 64px;
+            padding: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1 class="title">DemoCodex 游戏合集</h1>
+        <p class="subtitle">精品HTML5游戏 · 纯原生JavaScript · 零依赖</p>
+    </div>
+
+    <div class="games-grid">
+        <!-- Daily Insights - 新品推荐 -->
+        <div class="game-card featured" onclick="location.href='daily-insights.html'">
+            <div class="game-banner" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);">
+                <span>✨</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 全新发布</span>
+                <h2 class="game-title">Daily Insights · 每日洞见</h2>
+                <p class="game-description">
+                    融合中国生肖、西方星座和二十四节气的个性化指导系统。
+                    面向海外用户，提供可执行的每日建议，覆盖事业、学业、财富、感情、健康、心态6大领域。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">🌟 个性化</span>
+                    <span class="feature-tag">🎯 可执行建议</span>
+                    <span class="feature-tag">🌏 文化融合</span>
+                    <span class="feature-tag">✨ 每日更新</span>
+                    <span class="feature-tag">🔮 古老智慧</span>
+                    <span class="feature-tag">🌈 现代科技</span>
+                </div>
+                <div class="game-stats">
+                    <div class="stat">
+                        <div class="stat-value">3,456</div>
+                        <div class="stat-label">独特组合</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">关注领域</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">建议模板/领域</div>
+                    </div>
+                </div>
+                <a href="daily-insights.html" class="play-button" onclick="event.stopPropagation()">✨ 获取洞见</a>
+            </div>
         </div>
-        <div class="hud__skills" id="hud-skills" aria-label="技能冷却"></div>
-        <div class="hud__tips" id="hud-tips"></div>
-      </section>
 
-      <section class="controls" aria-label="控制说明">
-        <div class="controls__row">
-          <span>移动: A/D D或B ←/→</span>
-          <span>跳跃: W/空格 (两段)</span>
-          <span>闪避: Shift</span>
-          <span>格挡: K(按住)</span>
-          <span>普攻: J</span>
+        <!-- 坦克大战 -->
+        <div class="game-card featured" onclick="location.href='tank-battle-pixel.html'">
+            <div class="game-banner tank">
+                <span>🎮</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">⭐ 全新发布</span>
+                <h2 class="game-title">钢铁前线 · 像素坦克大战</h2>
+                <p class="game-description">
+                    回归简约街机本质的坦克大战版本。像素风主战场、纯原生 JavaScript、
+                    基地防守与轻量 AI，同样能打出足够紧张的战斗节奏。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">🎯 基地防守</span>
+                    <span class="feature-tag">🧱 可破坏地形</span>
+                    <span class="feature-tag">👾 像素风格</span>
+                    <span class="feature-tag">🤖 轻量 AI</span>
+                    <span class="feature-tag">⌨️ 键盘即玩</span>
+                    <span class="feature-tag">🪶 简洁实现</span>
+                </div>
+                <div class="game-stats">
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">核心战场</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">60 FPS</div>
+                        <div class="stat-label">流畅运行</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">外部依赖</div>
+                    </div>
+                </div>
+                <a href="tank-battle-pixel.html" class="play-button" onclick="event.stopPropagation()">🎮 开始游戏</a>
+            </div>
         </div>
-        <div class="controls__row">
-          <span>技能: 1-风, 2-土, 3-水, 4-火, 5-雷</span>
-          <span>暂停: P</span>
-          <span>静音: M</span>
-          <span>重开: R</span>
+
+        <!-- 贪吃蛇游戏 -->
+        <div class="game-card" onclick="location.href='snake_game.html'">
+            <div class="game-banner snake">
+                <span>🐍</span>
+            </div>
+            <div class="game-content">
+                <h2 class="game-title">贪吃蛇</h2>
+                <p class="game-description">
+                    经典贪吃蛇游戏，简洁优雅的设计，流畅的操作体验。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">经典玩法</span>
+                    <span class="feature-tag">高分记录</span>
+                </div>
+                <a href="snake_game.html" class="play-button" onclick="event.stopPropagation()">🎮 开始游戏</a>
+            </div>
         </div>
-      </section>
 
-      <button class="hud__btn" id="btn-pause" aria-pressed="false" aria-label="暂停或继续">暂停</button>
-      <button class="hud__btn" id="btn-mute" aria-pressed="false" aria-label="静音或开启音频">静音</button>
-    </main>
+        <!-- 恐龙百科 -->
+        <div class="game-card" onclick="location.href='dino-pixel-encyclopedia.html'">
+            <div class="game-banner dino">
+                <span>🦖</span>
+            </div>
+            <div class="game-content">
+                <h2 class="game-title">恐龙像素百科</h2>
+                <p class="game-description">
+                    互动式恐龙百科全书，精美的像素艺术，丰富的恐龙知识。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">像素风格</span>
+                    <span class="feature-tag">知识学习</span>
+                </div>
+                <a href="dino-pixel-encyclopedia.html" class="play-button" onclick="event.stopPropagation()">📖 浏览百科</a>
+            </div>
+        </div>
 
-    <script type="module" src="src/js/main.js"></script>
-  </body>
-  </html>
+        <!-- 像素武器库 -->
+        <div class="game-card" onclick="location.href='armory-pixel-arsenal.html'">
+            <div class="game-banner arsenal">
+                <span>🔫</span>
+            </div>
+            <div class="game-content">
+                <h2 class="game-title">像素武器库</h2>
+                <p class="game-description">
+                    展示各种像素风格武器，炫酷的视觉效果，详细的武器信息。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">像素艺术</span>
+                    <span class="feature-tag">武器展示</span>
+                </div>
+                <a href="armory-pixel-arsenal.html" class="play-button" onclick="event.stopPropagation()">⚔️ 查看武器</a>
+            </div>
+        </div>
 
+        <!-- 恐龙博物馆 -->
+        <div class="game-card" onclick="location.href='dinosaur_museum.html'">
+            <div class="game-banner museum">
+                <span>🏛️</span>
+            </div>
+            <div class="game-content">
+                <h2 class="game-title">恐龙博物馆</h2>
+                <p class="game-description">
+                    虚拟恐龙博物馆，沉浸式的展览体验，学习古生物知识。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">3D展示</span>
+                    <span class="feature-tag">教育内容</span>
+                </div>
+                <a href="dinosaur_museum.html" class="play-button" onclick="event.stopPropagation()">🦕 参观博物馆</a>
+            </div>
+        </div>
+
+        <!-- 星环逃逸 -->
+        <div class="game-card" onclick="location.href='stellar-escape.html'">
+            <div class="game-banner stellar">
+                <span>☄️</span>
+            </div>
+            <div class="game-content">
+                <h2 class="game-title">星环逃逸</h2>
+                <p class="game-description">
+                    在逐渐失控的陨石风暴中存活下来。护盾能硬吃风险弹道，冲刺能切开死线，晶体则决定你能坚持多久。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">生存街机</span>
+                    <span class="feature-tag">护盾与冲刺</span>
+                    <span class="feature-tag">高分追逐</span>
+                </div>
+                <a href="stellar-escape.html" class="play-button" onclick="event.stopPropagation()">☄️ 进入战区</a>
+            </div>
+        </div>
+
+        <!-- 回声矩阵 -->
+        <div class="game-card" onclick="location.href='echo-matrix.html'">
+            <div class="game-banner echo">
+                <span>🧠</span>
+            </div>
+            <div class="game-content">
+                <h2 class="game-title">回声矩阵</h2>
+                <p class="game-description">
+                    记忆和节奏混合在一起的霓虹挑战。每轮多一个步骤，同时还要在限时内完成整段输入。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">记忆挑战</span>
+                    <span class="feature-tag">限时压力</span>
+                    <span class="feature-tag">连击计分</span>
+                </div>
+                <a href="echo-matrix.html" class="play-button" onclick="event.stopPropagation()">🧠 开始演算</a>
+            </div>
+        </div>
+
+        <!-- 霓虹潜行 -->
+        <div class="game-card" onclick="location.href='neon-heist.html'">
+            <div class="game-banner heist">
+                <span>🕶️</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">霓虹潜行</h2>
+                <p class="game-description">
+                    回合制潜入小品。每移动一步，巡逻无人机也会同步推进一步，必须在有限生命内拿齐核心，并用 EMP 与诱饵算准撤离窗口。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">潜行解谜</span>
+                    <span class="feature-tag">回合推进</span>
+                    <span class="feature-tag">EMP 冻结</span>
+                    <span class="feature-tag">诱饵错位</span>
+                </div>
+                <a href="neon-heist.html" class="play-button" onclick="event.stopPropagation()">🕶️ 开始潜入</a>
+            </div>
+        </div>
+
+        <!-- 轨道营救 -->
+        <div class="game-card" onclick="location.href='orbit-rescue.html'">
+            <div class="game-banner orbit">
+                <span>🛰️</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">轨道营救</h2>
+                <p class="game-description">
+                    在不断旋转的碎片环带之间抢回救生舱。每动一步，所有环带也会同步换位，还得把停滞脉冲留给最危险的返航窗口。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">轨道谜局</span>
+                    <span class="feature-tag">回合推进</span>
+                    <span class="feature-tag">脉冲冻结</span>
+                    <span class="feature-tag">救援撤离</span>
+                </div>
+                <a href="orbit-rescue.html" class="play-button" onclick="event.stopPropagation()">🛰️ 开始回收</a>
+            </div>
+        </div>
+
+        <!-- 潮汐信使 -->
+        <div class="game-card" onclick="location.href='tide-courier.html'">
+            <div class="game-banner tide">
+                <span>⛵</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">潮汐信使</h2>
+                <p class="game-description">
+                    港湾潮道会在每回合同步拖拽小艇和驳船。你得抢回漂流货箱，踩到换流浮标后反转整片水道，再从灯塔码头完成极限投递。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">潮道漂移</span>
+                    <span class="feature-tag">回合策略</span>
+                    <span class="feature-tag">换流反转</span>
+                    <span class="feature-tag">港湾投递</span>
+                </div>
+                <a href="tide-courier.html" class="play-button" onclick="event.stopPropagation()">⛵ 开始出航</a>
+            </div>
+        </div>
+
+        <!-- 晶洞爆破 -->
+        <div class="game-card" onclick="location.href='cavern-blast.html'">
+            <div class="game-banner cavern">
+                <span>🧨</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">晶洞爆破</h2>
+                <p class="game-description">
+                    像素风回合制爆破地城。你要一边埋雷、一边引怪，把碎岩炸成通路，把追击虫群炸成积分，再带着 3 枚晶体冲向升降台。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">像素爆破</span>
+                    <span class="feature-tag">地城走位</span>
+                    <span class="feature-tag">雷芯节奏</span>
+                    <span class="feature-tag">虫群追击</span>
+                </div>
+                <a href="cavern-blast.html" class="play-button" onclick="event.stopPropagation()">🧨 下井开炸</a>
+            </div>
+        </div>
+
+        <!-- 磁场工坊 -->
+        <div class="game-card" onclick="location.href='magnet-forge.html'">
+            <div class="game-banner forge">
+                <span>🧲</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">磁场工坊</h2>
+                <p class="game-description">
+                    像素风磁力推箱谜局。你既要顶着磁芯电池找角度，也要用脉冲把远处磁芯拖近一格，再赶在巡检火花贴身前点亮 3 座反应座。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">磁力推箱</span>
+                    <span class="feature-tag">像素工坊</span>
+                    <span class="feature-tag">脉冲牵引</span>
+                    <span class="feature-tag">巡检追击</span>
+                </div>
+                <a href="magnet-forge.html" class="play-button" onclick="event.stopPropagation()">🧲 启动工坊</a>
+            </div>
+        </div>
+
+        <!-- 俄罗斯方块 -->
+        <div class="game-card" onclick="location.href='tetris.html'">
+            <div class="game-banner" style="background: linear-gradient(135deg, #00e5ff 0%, #7c4dff 100%);">
+                <span>🧱</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">俄罗斯方块</h2>
+                <p class="game-description">
+                    经典俄罗斯方块，7种标准方块、幽灵提示、逐级加速，支持键盘和触屏操控。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">经典玩法</span>
+                    <span class="feature-tag">逐级加速</span>
+                    <span class="feature-tag">高分记录</span>
+                </div>
+                <a href="tetris.html" class="play-button" onclick="event.stopPropagation()">🧱 开始游戏</a>
+            </div>
+        </div>
+
+        <!-- 扫雷 -->
+        <div class="game-card" onclick="location.href='minesweeper.html'">
+            <div class="game-banner" style="background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);">
+                <span>💣</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">扫雷</h2>
+                <p class="game-description">
+                    经典扫雷游戏，三种难度等级，首次点击安全机制，最佳时间记录。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">三种难度</span>
+                    <span class="feature-tag">安全首击</span>
+                    <span class="feature-tag">计时排名</span>
+                </div>
+                <a href="minesweeper.html" class="play-button" onclick="event.stopPropagation()">💣 开始游戏</a>
+            </div>
+        </div>
+
+        <!-- 2048 -->
+        <div class="game-card" onclick="location.href='2048.html'">
+            <div class="game-banner" style="background: linear-gradient(135deg, #edc22e 0%, #f59563 100%);">
+                <span>🔢</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">2048</h2>
+                <p class="game-description">
+                    经典滑块益智游戏，合并数字方块达到2048。支持键盘和触摸滑动操作。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">益智策略</span>
+                    <span class="feature-tag">触摸操作</span>
+                    <span class="feature-tag">最佳分数</span>
+                </div>
+                <a href="2048.html" class="play-button" onclick="event.stopPropagation()">🔢 开始游戏</a>
+            </div>
+        </div>
+
+        <!-- 像素飞鸟 -->
+        <div class="game-card" onclick="location.href='flappy-bird.html'">
+            <div class="game-banner" style="background: linear-gradient(135deg, #facc15 0%, #f97316 100%);">
+                <span>🐦</span>
+            </div>
+            <div class="game-content">
+                <span class="badge">🆕 新增</span>
+                <h2 class="game-title">像素飞鸟</h2>
+                <p class="game-description">
+                    经典飞翔闯关游戏，点击或按空格控制小鸟穿越管道，看你能飞多远。
+                </p>
+                <div class="game-features">
+                    <span class="feature-tag">一键操作</span>
+                    <span class="feature-tag">无限关卡</span>
+                    <span class="feature-tag">高分记录</span>
+                </div>
+                <a href="flappy-bird.html" class="play-button" onclick="event.stopPropagation()">🐦 开始飞翔</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>
+            <strong>DemoCodex</strong> - 精品HTML5游戏合集<br>
+            纯原生JavaScript · 零外部依赖 · 开源免费<br>
+            <a href="https://github.com/hrniux/demoCodex" style="color: #4ecdc4; text-decoration: none;">GitHub</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

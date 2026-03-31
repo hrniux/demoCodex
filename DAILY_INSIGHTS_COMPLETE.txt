@@ -329,7 +329,7 @@ Daily Insights 是一个：
 • 快速指南：DAILY_INSIGHTS_QUICKSTART.md
 • 项目总结：本文件
 • 应用入口：daily-insights.html
-• 游戏合集：games-collection.html
+• 游戏合集：index.html
 
 ═══════════════════════════════════════════════════════════════
 

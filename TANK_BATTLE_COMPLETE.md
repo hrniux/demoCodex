@@ -11,7 +11,7 @@
 #### 1. 游戏文件
 - ✅ `tank-battle.html` - 主游戏页面（17KB, 600行）
 - ✅ `tank-battle-achievements.html` - 成就系统页面（8KB, 250行）
-- ✅ `games-collection.html` - 游戏合集主页（11KB）
+- ✅ `index.html` - 游戏合集主页（11KB）
 
 #### 2. 核心代码
 - ✅ `src/js/tank-game/game-enhanced.js` - 游戏引擎（45KB, 1500行）
@@ -143,7 +143,7 @@ python3 -m http.server 8000
 直接在浏览器中打开 `tank-battle.html` 文件
 
 ### 方式3：游戏合集
-访问 `games-collection.html` 查看所有游戏
+访问 `index.html` 查看所有游戏
 
 ## 📱 浏览器支持
 
@@ -208,7 +208,7 @@ python3 -m http.server 8000
 demoCodex/
 ├── tank-battle.html                    # 主游戏
 ├── tank-battle-achievements.html       # 成就页面
-├── games-collection.html              # 游戏合集
+├── index.html              # 游戏合集
 ├── TANK_BATTLE_README.md              # 技术文档
 ├── TANK_BATTLE_QUICKSTART.md          # 快速启动
 ├── TANK_BATTLE_SUMMARY.md             # 项目总结
@@ -361,7 +361,7 @@ const CONFIG = {
 
 - 🎮 [开始游戏](./tank-battle.html)
 - 🏆 [查看成就](./tank-battle-achievements.html)
-- 🎯 [游戏合集](./games-collection.html)
+- 🎯 [游戏合集](./index.html)
 - 📖 [技术文档](./TANK_BATTLE_README.md)
 - 🚀 [快速启动](./TANK_BATTLE_QUICKSTART.md)
 - 📊 [项目总结](./TANK_BATTLE_SUMMARY.md)
