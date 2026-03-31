@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="磁场工坊：像素风磁力推箱策略游戏，用推箱和磁脉冲把磁芯电池送入反应座，再躲开巡检火花撤离。"
+    />
+    <title>磁场工坊 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23071318'/%3E%3Crect x='12' y='18' width='16' height='28' fill='%23fbbf24'/%3E%3Crect x='36' y='18' width='16' height='28' fill='%2322d3ee'/%3E%3Crect x='28' y='26' width='8' height='12' fill='%23e2e8f0'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/magnet-forge.css" />
+  </head>
+  <body class="forge-page">
+    <main class="forge-shell">
+      <header class="forge-hero">
+        <a class="forge-hero__back" href="games-collection.html">返回合集</a>
+        <div class="forge-hero__title-wrap">
+          <p class="forge-hero__eyebrow">Magnetic Shift Puzzle</p>
+          <h1 class="forge-hero__title">磁场工坊</h1>
+          <p class="forge-hero__lead">
+            在 9x9 像素工坊里，不只是推箱子。你要用方向键顶着磁芯电池找角度，再用 `Q`
+            拉出磁脉冲，把远处电池拖近一格，趁巡检火花还没追上前，把 3 座反应座全部点亮。
+          </p>
+        </div>
+        <div class="forge-hero__actions">
+          <button class="forge-hero__cta" id="forge-start" type="button">启动工坊</button>
+          <button class="forge-hero__cta forge-hero__cta--ghost" id="forge-reset" type="button">
+            重置车间
+          </button>
+        </div>
+      </header>
+
+      <section class="forge-layout">
+        <section class="forge-panel forge-panel--primary" aria-label="磁场工坊主区域">
+          <div class="forge-stats">
+            <article class="forge-stat">
+              <span class="forge-stat__label">层数</span>
+              <strong class="forge-stat__value" id="forge-floor">1</strong>
+            </article>
+            <article class="forge-stat">
+              <span class="forge-stat__label">得分</span>
+              <strong class="forge-stat__value" id="forge-score">0</strong>
+            </article>
+            <article class="forge-stat">
+              <span class="forge-stat__label">护盾</span>
+              <strong class="forge-stat__value" id="forge-hull">3</strong>
+            </article>
+            <article class="forge-stat">
+              <span class="forge-stat__label">反应座</span>
+              <strong class="forge-stat__value" id="forge-powered">0 / 3</strong>
+            </article>
+            <article class="forge-stat">
+              <span class="forge-stat__label">磁脉冲</span>
+              <strong class="forge-stat__value" id="forge-pulse">就绪</strong>
+            </article>
+            <article class="forge-stat">
+              <span class="forge-stat__label">纪录</span>
+              <strong class="forge-stat__value" id="forge-best">0</strong>
+            </article>
+          </div>
+
+          <div class="forge-board-shell">
+            <canvas
+              id="forge-canvas"
+              width="810"
+              height="810"
+              role="img"
+              aria-label="磁场工坊像素棋盘：玩家推动磁芯电池、启动反应座并躲开巡检火花"
+            ></canvas>
+            <div class="forge-overlay is-visible" id="forge-overlay" aria-live="polite">
+              <p class="forge-overlay__kicker">开局提示</p>
+              <h2 class="forge-overlay__title" id="forge-overlay-title">按开始或 Enter 启动工坊</h2>
+              <p class="forge-overlay__body" id="forge-overlay-body">
+                方向键推动磁芯，空格等待，Q 释放磁脉冲，把远处的磁芯拖近一格。
+              </p>
+            </div>
+          </div>
+
+          <section class="forge-pad" aria-label="触摸控制面板">
+            <button class="forge-pad__button forge-pad__button--up" data-action="up" type="button">上</button>
+            <button class="forge-pad__button forge-pad__button--left" data-action="left" type="button">
+              左
+            </button>
+            <button class="forge-pad__button forge-pad__button--wait" data-action="wait" type="button">
+              等待
+            </button>
+            <button class="forge-pad__button forge-pad__button--right" data-action="right" type="button">
+              右
+            </button>
+            <button class="forge-pad__button forge-pad__button--down" data-action="down" type="button">
+              下
+            </button>
+            <button class="forge-pad__button forge-pad__button--pulse" data-action="pulse" type="button">
+              脉冲
+            </button>
+          </section>
+        </section>
+
+        <aside class="forge-panel forge-panel--side" aria-label="规则与工坊情报">
+          <section class="forge-sidecard">
+            <h2 class="forge-sidecard__title">任务简报</h2>
+            <p class="forge-sidecard__body" id="forge-status">
+              先把 3 枚磁芯电池送进反应座，再冲向升降梯。
+            </p>
+            <p class="forge-sidecard__body forge-sidecard__body--muted" id="forge-objective">
+              磁脉冲会把同排或同列、视线畅通的磁芯拖近一格。
+            </p>
+          </section>
+
+          <section class="forge-sidecard">
+            <h2 class="forge-sidecard__title">玩法说明</h2>
+            <ul class="forge-rules">
+              <li>用方向键推动磁芯电池，电池一旦进入反应座就会锁定并供电。</li>
+              <li>按 `Q` 释放磁脉冲，可把同排或同列的远处磁芯拖近一格。</li>
+              <li>巡检火花每回合都会朝你逼近一步，但也会被磁芯撞碎。</li>
+              <li>点亮 3 座反应座后，右上角升降梯才会打开。</li>
+            </ul>
+          </section>
+
+          <section class="forge-sidecard">
+            <h2 class="forge-sidecard__title">控制方式</h2>
+            <ul class="forge-rules">
+              <li>`WASD` / 方向键：移动并推动磁芯</li>
+              <li>`Space`：原地等待一拍</li>
+              <li>`Q`：释放磁脉冲</li>
+              <li>`Enter`：开始当前层</li>
+              <li>`R`：重置整局</li>
+            </ul>
+          </section>
+
+          <section class="forge-sidecard">
+            <h2 class="forge-sidecard__title">行动面板</h2>
+            <div class="forge-actions">
+              <button class="forge-action" id="forge-wait" type="button">等待一拍</button>
+              <button class="forge-action" id="forge-pulse-action" type="button">释放脉冲</button>
+              <button class="forge-action forge-action--ghost" id="forge-restart" type="button">
+                重新装配
+              </button>
+            </div>
+          </section>
+
+          <section class="forge-sidecard">
+            <h2 class="forge-sidecard__title">工坊遥测</h2>
+            <dl class="forge-metrics">
+              <div class="forge-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="forge-turns">0</dd>
+              </div>
+              <div class="forge-metrics__row">
+                <dt>巡检火花</dt>
+                <dd id="forge-enemies">0</dd>
+              </div>
+              <div class="forge-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="forge-best-floor">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="forge-sidecard">
+            <h2 class="forge-sidecard__title">行动日志</h2>
+            <ul class="forge-feed" id="forge-feed" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+
+      <p id="forge-autotest" hidden></p>
+    </main>
+
+    <script type="module" src="src/js/magnet-forge.js"></script>
+  </body>
+</html>

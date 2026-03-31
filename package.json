@@ -4,7 +4,7 @@
   "description": "DemoCodex HTML game collection",
   "private": true,
   "scripts": {
-    "test": "npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic",
+    "test": "npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic",
     "test:browser": "node scripts/test-browser-suite.mjs",
     "test:full": "npm test && npm run test:browser",
     "test:neon-heist:logic": "node -e \"const mod=require('./src/js/neon-heist.js'); const result=mod.runSelfCheck(40); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
@@ -14,7 +14,9 @@
     "test:tide-courier:logic": "node -e \"const mod=require('./src/js/tide-courier.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:tide-courier:browser": "node scripts/test-tide-courier-browser.mjs",
     "test:cavern-blast:logic": "node -e \"const mod=require('./src/js/cavern-blast.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:cavern-blast:browser": "node scripts/test-cavern-blast-browser.mjs"
+    "test:cavern-blast:browser": "node scripts/test-cavern-blast-browser.mjs",
+    "test:magnet-forge:logic": "node -e \"const mod=require('./src/js/magnet-forge.js'); const result=mod.runSelfCheck(6); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:magnet-forge:browser": "node scripts/test-magnet-forge-browser.mjs"
   },
   "repository": {
     "type": "git",
