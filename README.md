@@ -1,11 +1,59 @@
 # DemoCodex
 
+<p align="center">
+  <img src="./assets/images/github-social-preview.png" alt="DemoCodex social preview" width="100%" />
+</p>
+
+<p align="center">
+  <strong>33 playable browser-native mini games and interactive experiments.</strong><br />
+  Built with vanilla JavaScript, Canvas, and zero framework overhead.
+</p>
+
+<p align="center">
+  <img alt="Playable pages" src="https://img.shields.io/badge/playable_pages-33-0ea5e9?style=for-the-badge" />
+  <img alt="Curated picks" src="https://img.shields.io/badge/curated_picks-27-22c55e?style=for-the-badge" />
+  <img alt="Tech stack" src="https://img.shields.io/badge/vanilla_js-canvas-f59e0b?style=for-the-badge" />
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-111827?style=for-the-badge" />
+</p>
+
+<p align="center">
+  <a href="./index.html"><strong>Open the collection</strong></a> ·
+  <a href="./CONTRIBUTING.md"><strong>Contribute a new idea</strong></a> ·
+  <a href="./.github/project-about.md"><strong>GitHub About copy</strong></a>
+</p>
+
 > 一个以原生 Web 技术构建的小游戏与互动实验合集。  
 > A curated collection of browser-native mini games, pixel-art experiments, and interactive demos.
 
-[打开合集入口](./index.html) | [仓库地址](https://github.com/hrniux/demoCodex) | [GitHub About 文案](./.github/project-about.md)
-
 DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 33 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 27 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+
+如果这个仓库给你带来一个可复用的玩法灵感、一个值得拆解的页面结构，或者只是给你 5 分钟好玩的浏览器时光，欢迎直接点个 Star。
+
+## Why People Star This Repo
+
+- Instant payoff: 绝大多数页面不需要构建，拉下来就能打开试玩。
+- Wide taste range: 同一个仓库里既有像素策略、经典益智，也有知识型互动与创意实验页。
+- Strong source value: 大量页面已经拆成 `HTML + src/css + src/js` 的可复用结构，适合直接参考实现。
+- Honest craft: 仓库保留了主推页面、实验页和历史版本，方便对照思路演进，而不是只堆结果截图。
+
+## Start With These
+
+| 页面 | 类型 | 为什么先看它 |
+| --- | --- | --- |
+| [`neon-heist.html`](./neon-heist.html) | 潜行解谜 | 回合推进 + 诱饵错位 + EMP 节奏，最适合展示“机制设计感”。 |
+| [`orbit-rescue.html`](./orbit-rescue.html) | 轨道策略 | 环带换位与停滞脉冲结合，单局节奏很紧。 |
+| [`magnet-forge.html`](./magnet-forge.html) | 像素策略 | 磁力推箱、追击火花和供电目标组合得很完整。 |
+| [`cavern-blast.html`](./cavern-blast.html) | 像素爆破 | 爆炸时序、碎岩清障和虫群追击非常适合被围观。 |
+| [`mind-lab.html`](./mind-lab.html) | 交互测试 | 不只是游戏，展示了仓库在“轻量互动网页”上的另一条路线。 |
+| [`compound_interest.html`](./compound_interest.html) | 可视化实验 | 复利主题页把图表、故事线和滚雪球演示做成了一个完整案例。 |
+
+## Fast Facts
+
+- `33` 个可直接运行的 HTML 页面
+- `27` 个首页主推入口
+- `69` 个 `src/js` / `src/css` 文件
+- `npm run check:manifest` 会对 README 声明、首页入口数和仓库真实页面数做一致性校验
+- `npm run test:browser` 使用本机 `Google Chrome` 跑统一浏览器回归，不回退到 Playwright bundled browser
 
 ## 项目亮点
 
@@ -137,4 +185,4 @@ npm run test:browser
 
 ## GitHub About
 
-仓库 About 的推荐描述、主题标签与主页建议已经整理在 [`./.github/project-about.md`](./.github/project-about.md)。如果你启用了 GitHub Pages，可以直接按该文件中的建议补上项目主页。
+仓库 About 的推荐描述、主题标签、社交预览素材建议和 GitHub Pages 配置建议已经整理在 [`./.github/project-about.md`](./.github/project-about.md)。如果你启用了 GitHub Pages，可以直接按该文件中的建议补上项目主页。
