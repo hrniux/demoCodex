@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复利的力量 — 巴菲特 & 芒格的财富密码</title>
+    <meta name="description" content="交互式演示复利的力量，理解巴菲特和查理芒格推崇的长期投资哲学">
+    <meta name="theme-color" content="#0a0e17">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='0.9em' font-size='52'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Serif+SC:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-gold: #f59e0b;
+            --accent-gold-light: #fbbf24;
+            --accent-green: #10b981;
+            --accent-green-light: #34d399;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --gradient-gold: linear-gradient(135deg, #f59e0b, #d97706);
+            --gradient-green: linear-gradient(135deg, #10b981, #059669);
+            --shadow-glow: 0 0 40px rgba(245, 158, 11, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Serif SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .bg-particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16, 185, 129, 0.06), transparent);
+        }
+
+        .bg-particles::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.15), transparent),
+                radial-gradient(1px 1px at 30% 60%, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(1.5px 1.5px at 70% 30%, rgba(245, 158, 11, 0.2), transparent),
+                radial-gradient(1px 1px at 90% 80%, rgba(255, 255, 255, 0.12), transparent),
+                radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.08), transparent);
+            animation: twinkle 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* ===== LAYOUT ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            backdrop-filter: blur(18px);
+            background: rgba(10, 14, 23, 0.78);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .topbar__inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .topbar__home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .topbar__home:hover {
+            color: var(--accent-gold-light);
+        }
+
+        .topbar__note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: calc(100vh - 61px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 24px;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 100px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--accent-gold-light);
+            font-size: 0.82rem;
+            font-weight: 500;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.5);
+            }
+        }
+
+        .hero h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .hero h1 .gold {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p.subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .hero .scroll-cta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .hero .scroll-cta:hover {
+            color: var(--accent-gold-light);
+        }
+
+        .scroll-arrow {
+            animation: bounce-down 2s infinite;
+            font-size: 1.4rem;
+        }
+
+        @keyframes bounce-down {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(8px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== SECTION ===== */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1rem;
+        }
+
+        /* ===== GLASS CARD ===== */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        /* ===== QUOTE SECTION ===== */
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .quote-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            font-size: 6rem;
+            font-family: 'Noto Serif SC', serif;
+            color: rgba(245, 158, 11, 0.08);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .quote-card blockquote {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.8;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-card .author {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        /* ===== INTERACTIVE CALCULATOR ===== */
+        .calc-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .calc-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls-card {
+            position: sticky;
+            top: 24px;
+        }
+
+        .control-group {
+            margin-bottom: 24px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .control-group label .value-display {
+            color: var(--accent-gold-light);
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            background: linear-gradient(to right, var(--accent-gold) 0%, var(--accent-gold) var(--fill, 50%), rgba(255, 255, 255, 0.1) var(--fill, 50%));
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            border: 3px solid var(--bg-primary);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+            cursor: grab;
+            transition: transform 0.2s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.15);
+            cursor: grabbing;
+        }
+
+        /* ===== STATS ROW ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        .stat-item .stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .stat-item .stat-value.gold {
+            color: var(--accent-gold-light);
+        }
+
+        .stat-item .stat-value.green {
+            color: var(--accent-green-light);
+        }
+
+        .stat-item .stat-value.blue {
+            color: var(--accent-blue);
+        }
+
+        /* ===== CHART ===== */
+        .chart-wrapper {
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            border: 1px solid var(--border-glass);
+            padding: 24px;
+            height: 420px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* ===== SNOWBALL ANIMATION ===== */
+        .snowball-section {
+            text-align: center;
+            padding: 100px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .snowball-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4vw;
+            height: 350px;
+            margin-top: 48px;
+            position: relative;
+        }
+
+        .snowball-year {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .snowball {
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #fef3c7, #f59e0b 40%, #b45309);
+            box-shadow: 0 4px 30px rgba(245, 158, 11, 0.25), inset 0 -4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.6s, height 0.6s;
+            position: relative;
+        }
+
+        .snowball::after {
+            content: '';
+            position: absolute;
+            top: 18%;
+            left: 22%;
+            width: 20%;
+            height: 14%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            filter: blur(2px);
+        }
+
+        .snowball-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .snowball-amount {
+            font-size: 0.85rem;
+            color: var(--accent-gold-light);
+            font-weight: 700;
+        }
+
+        /* ===== COMPARISON TABLE ===== */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .comparison-card {
+            text-align: center;
+        }
+
+        .comparison-card .icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .comparison-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .comparison-card .big-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin: 12px 0;
+        }
+
+        .comparison-card .detail {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ===== TIMELINE / MILESTONES ===== */
+        .timeline {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent-gold), var(--accent-green));
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            position: relative;
+            padding-left: 52px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 12px;
+            top: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            border: 3px solid var(--bg-primary);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .timeline-content h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .timeline-content p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .timeline-content .highlight {
+            color: var(--accent-gold-light);
+            font-weight: 700;
+        }
+
+        /* ===== BUFFETT STORY ===== */
+        .story-card {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(16, 185, 129, 0.03));
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+
+        .story-card h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            color: var(--accent-gold-light);
+        }
+
+        .story-card p {
+            color: var(--text-secondary);
+            line-height: 1.9;
+            font-size: 0.95rem;
+        }
+
+        .story-card .em {
+            color: var(--accent-gold-light);
+            font-weight: 600;
+        }
+
+        /* ===== PENNY DOUBLING ===== */
+        .penny-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .penny-cell {
+            padding: 10px 8px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s;
+        }
+
+        .penny-cell.active {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .penny-cell .day {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .penny-cell .amount {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent-gold-light);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 48px 24px;
+            border-top: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        footer .footer-quote {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        /* ===== REVEAL ANIMATION ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .topbar__inner {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .topbar__note {
+                text-align: left;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 320px;
+            }
+
+            .snowball-container {
+                height: 250px;
+                gap: 6vw;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+
+            section {
+                padding: 60px 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-particles"></div>
+    <header class="topbar">
+        <div class="topbar__inner">
+            <a class="topbar__home" href="index.html">← 返回 DemoCodex 首页</a>
+            <p class="topbar__note">实验页面 · 使用 Google Fonts 与 Chart.js CDN</p>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="hero-badge"><span class="dot"></span>沃伦·巴菲特 & 查理·芒格</div>
+        <h1><span class="gold">复利</span>的力量</h1>
+        <p class="subtitle">
+            "人生就像滚雪球。重要的是找到足够湿的雪和足够长的坡。"<br>
+            <span style="color: var(--accent-gold); font-size: 0.88rem;">—— 沃伦·巴菲特</span>
+        </p>
+        <button class="scroll-cta" type="button"
+            onclick="document.getElementById('quotes').scrollIntoView({behavior:'smooth'})"
+            aria-label="滚动到大师的智慧部分">
+            <span>向下探索复利之美</span>
+            <span class="scroll-arrow">↓</span>
+        </button>
+    </section>
+
+    <!-- ===== QUOTES ===== -->
+    <section id="quotes">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>大师的智慧</h2>
+                <p>巴菲特与芒格用一生践行复利法则</p>
+            </div>
+            <div class="quotes-grid">
+                <div class="card quote-card reveal">
+                    <blockquote>复利是世界第八大奇迹。理解它的人赚取它，不理解的人为它付出代价。</blockquote>
+                    <span class="author">—— 常被引用（归于爱因斯坦）</span>
+                </div>
+                <div class="card quote-card reveal">
+                    <blockquote>对于耐心的投资者来说，时间是最好的朋友。复利如同种一棵橡树——你今天遮荫，因为有人在多年前种下了它。</blockquote>
+                    <span class="author">—— 沃伦·巴菲特</span>
+                </div>
+                <div class="card quote-card reveal">
+                    <blockquote>遵守纪律、保持耐心、坚持长期投资——复利的第一条规则是，除非万不得已，永远不要中断它。</blockquote>
+                    <span class="author">—— 查理·芒格</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PENNY DOUBLING ===== -->
+    <section id="penny">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>🪙 一分钱翻倍的奇迹</h2>
+                <p>如果每天翻倍，一分钱在 30 天后会变成多少？</p>
+            </div>
+            <div class="card reveal" style="max-width:800px; margin:0 auto;">
+                <div class="penny-grid" id="pennyGrid"></div>
+                <div style="text-align:center; margin-top:24px;">
+                    <button id="pennyBtn" onclick="animatePenny()" style="
+          padding: 12px 32px; border-radius: 100px; border: none;
+          background: var(--gradient-gold); color: #000; font-weight: 700;
+          font-size: 0.95rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+          box-shadow: 0 4px 20px rgba(245,158,11,0.3);
+        ">▶ 开始翻倍</button>
+                    <p style="margin-top:12px;font-size:0.82rem;color:var(--text-muted);">最终：<strong
+                            style="color:var(--accent-gold-light);" id="pennyResult">¥0.01 → ?</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SNOWBALL ===== -->
+    <section id="snowball" class="snowball-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>⛄ 滚雪球效应</h2>
+                <p>每年 10% 的收益率，看你的 ¥10,000 如何成长</p>
+            </div>
+            <div class="snowball-container reveal" id="snowballContainer"></div>
+        </div>
+    </section>
+
+    <!-- ===== INTERACTIVE CALCULATOR ===== -->
+    <section id="calculator">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>📊 复利计算器</h2>
+                <p>调整参数，亲眼见证时间与复利的魔力</p>
+            </div>
+            <div class="calc-layout reveal">
+                <!-- Controls -->
+                <div class="card controls-card">
+                    <div class="control-group">
+                        <label>初始投资 <span class="value-display" id="initDisplay">¥10,000</span></label>
+                        <input type="range" id="initInvest" min="1000" max="1000000" step="1000" value="10000">
+                    </div>
+                    <div class="control-group">
+                        <label>每月追加 <span class="value-display" id="monthlyDisplay">¥1,000</span></label>
+                        <input type="range" id="monthlyInvest" min="0" max="50000" step="500" value="1000">
+                    </div>
+                    <div class="control-group">
+                        <label>年化收益率 <span class="value-display" id="rateDisplay">10%</span></label>
+                        <input type="range" id="annualRate" min="1" max="30" step="0.5" value="10">
+                    </div>
+                    <div class="control-group">
+                        <label>投资年限 <span class="value-display" id="yearsDisplay">30 年</span></label>
+                        <input type="range" id="investYears" min="1" max="50" step="1" value="30">
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-label">总投入</div>
+                            <div class="stat-value blue" id="totalInput">—</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">复利终值</div>
+                            <div class="stat-value gold" id="totalCompound">—</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">利息收益</div>
+                            <div class="stat-value green" id="totalInterest">—</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center;">
+                        <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">收益倍数</div>
+                        <div style="font-size:2rem; font-weight:900; color:var(--accent-gold-light);" id="multiplier">—
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div>
+                    <div class="chart-wrapper">
+                        <canvas id="compoundChart" role="img" aria-label="复利、本金和单利增长对比图表"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="chart-legend-item"><span class="legend-dot"
+                                style="background:var(--accent-blue);"></span>总投入本金</div>
+                        <div class="chart-legend-item"><span class="legend-dot"
+                                style="background:var(--accent-gold);"></span>复利增长</div>
+                        <div class="chart-legend-item"><span class="legend-dot"
+                                style="background:rgba(255,255,255,0.15);"></span>单利增长(对比)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== COMPARISON ===== -->
+    <section id="comparison">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>⚡ 投入 ¥10,000 · 年化 10% · 不同年限</h2>
+                <p>时间是复利最强大的催化剂</p>
+            </div>
+            <div class="comparison-grid">
+                <div class="card comparison-card reveal">
+                    <div class="icon">🌱</div>
+                    <h3>10 年</h3>
+                    <div class="big-number" style="color:var(--accent-blue);">¥25,937</div>
+                    <div class="detail">收益 ¥15,937<br>增长 <strong>1.6 倍</strong></div>
+                </div>
+                <div class="card comparison-card reveal">
+                    <div class="icon">🌳</div>
+                    <h3>20 年</h3>
+                    <div class="big-number" style="color:var(--accent-green-light);">¥67,275</div>
+                    <div class="detail">收益 ¥57,275<br>增长 <strong>5.7 倍</strong></div>
+                </div>
+                <div class="card comparison-card reveal">
+                    <div class="icon">🏔️</div>
+                    <h3>30 年</h3>
+                    <div class="big-number" style="color:var(--accent-gold-light);">¥174,494</div>
+                    <div class="detail">收益 ¥164,494<br>增长 <strong>16.4 倍</strong></div>
+                </div>
+                <div class="card comparison-card reveal">
+                    <div class="icon">🚀</div>
+                    <h3>50 年</h3>
+                    <div class="big-number" style="color:var(--accent-purple);">¥1,173,909</div>
+                    <div class="detail">收益 ¥1,163,909<br>增长 <strong>116.4 倍</strong></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BUFFETT TIMELINE ===== -->
+    <section id="story">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>📈 巴菲特的财富时间线</h2>
+                <p>99% 的财富在 50 岁之后获得——这就是复利</p>
+            </div>
+            <div class="timeline reveal">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3>11 岁 · 1941 年</h3>
+                        <p>购入人生第一支股票，初始资金约 <span class="highlight">$114</span></p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"
+                        style="background:var(--accent-blue);box-shadow:0 0 12px rgba(59,130,246,0.4);"></div>
+                    <div class="timeline-content">
+                        <h3>21 岁 · 1951 年</h3>
+                        <p>净资产达到 <span class="highlight">$20,000</span>（约 ¥14 万）</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"
+                        style="background:var(--accent-green);box-shadow:0 0 12px rgba(16,185,129,0.4);"></div>
+                    <div class="timeline-content">
+                        <h3>30 岁 · 1960 年</h3>
+                        <p>净资产达到 <span class="highlight">$100 万</span>——复利开始加速</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"
+                        style="background:var(--accent-purple);box-shadow:0 0 12px rgba(139,92,246,0.4);"></div>
+                    <div class="timeline-content">
+                        <h3>52 岁 · 1982 年</h3>
+                        <p>净资产达到 <span class="highlight">$3.76 亿</span>——雪球已然巨大</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"
+                        style="background:var(--accent-gold);box-shadow:0 0 12px rgba(245,158,11,0.4);"></div>
+                    <div class="timeline-content">
+                        <h3>66 岁 · 1996 年</h3>
+                        <p>净资产达到 <span class="highlight">$170 亿</span>——指数级爆发</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"
+                        style="background:var(--accent-red);box-shadow:0 0 12px rgba(239,68,68,0.4);"></div>
+                    <div class="timeline-content">
+                        <h3>93 岁 · 2023 年</h3>
+                        <p>净资产超过 <span class="highlight">$1,200 亿</span>——财富的 99% 在 50 岁后获得</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="story-card card reveal" style="margin-top:48px;">
+                <h3>为什么是「99% 在 50 岁后」？</h3>
+                <p>
+                    巴菲特 30 岁时拥有 100 万美元。若按年化 ~20% 计算，<br>
+                    前 20 年（30→50 岁）：<span class="em">$100 万 → $3,800 万</span><br>
+                    后 43 年（50→93 岁）：<span class="em">$3,800 万 → $1,200+ 亿</span><br><br>
+                    复利曲线的「弯道」在后半段——<span class="em">耐心就是超级力量</span>。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <p class="footer-quote">"如果你不愿意持有一只股票十年，那么你连十分钟都不要持有。"</p>
+            <p>复利的力量 · 交互式演示 · Inspired by Buffett & Munger</p>
+        </div>
+    </footer>
+
+    <!-- ===== CHART.JS CDN ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        // ===== PENNY DOUBLING =====
+        function initPennyGrid() {
+            const grid = document.getElementById('pennyGrid');
+            grid.innerHTML = '';
+            for (let d = 1; d <= 30; d++) {
+                const cell = document.createElement('div');
+                cell.classList.add('penny-cell');
+                cell.id = 'penny-' + d;
+                cell.innerHTML = `<div class="day">第 ${d} 天</div><div class="amount">—</div>`;
+                grid.appendChild(cell);
+            }
+        }
+        initPennyGrid();
+
+        function animatePenny() {
+            const btn = document.getElementById('pennyBtn');
+            btn.disabled = true; btn.textContent = '计算中...';
+            initPennyGrid();
+            let d = 1;
+            const interval = setInterval(() => {
+                const val = 0.01 * Math.pow(2, d - 1);
+                const cell = document.getElementById('penny-' + d);
+                cell.classList.add('active');
+                cell.querySelector('.amount').textContent = val >= 10000 ? '¥' + (val / 10000).toFixed(val >= 100000 ? 0 : 2) + '万' : '¥' + val.toFixed(2);
+                if (d === 30) {
+                    clearInterval(interval);
+                    document.getElementById('pennyResult').textContent = '¥0.01 → ¥' + (val / 10000).toFixed(0) + '万 (¥' + val.toLocaleString() + ')';
+                    btn.disabled = false; btn.textContent = '▶ 重新开始';
+                }
+                d++;
+            }, 120);
+        }
+
+        // ===== SNOWBALL =====
+        function renderSnowball() {
+            const c = document.getElementById('snowballContainer');
+            c.innerHTML = '';
+            const years = [0, 5, 10, 15, 20, 25, 30];
+            const maxVal = 10000 * Math.pow(1.1, 30);
+            years.forEach(y => {
+                const val = 10000 * Math.pow(1.1, y);
+                const ratio = val / maxVal;
+                const size = Math.max(24, ratio * 200);
+                const div = document.createElement('div');
+                div.className = 'snowball-year';
+                div.innerHTML = `
+      <div class="snowball" style="width:${size}px;height:${size}px;"></div>
+      <div class="snowball-label">第 ${y} 年</div>
+      <div class="snowball-amount">¥${Math.round(val).toLocaleString()}</div>
+    `;
+                c.appendChild(div);
+            });
+        }
+        renderSnowball();
+
+        // ===== COMPOUND CHART =====
+        let chartInstance = null;
+        function formatCNY(v) {
+            if (v >= 1e8) return (v / 1e8).toFixed(1) + '亿';
+            if (v >= 1e4) return (v / 1e4).toFixed(v >= 1e6 ? 0 : 1) + '万';
+            return v.toLocaleString();
+        }
+
+        function updateSliderFill(slider) {
+            const pct = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.setProperty('--fill', pct + '%');
+        }
+
+        function calcAndDraw() {
+            const P = +document.getElementById('initInvest').value;
+            const M = +document.getElementById('monthlyInvest').value;
+            const r = +document.getElementById('annualRate').value / 100;
+            const Y = +document.getElementById('investYears').value;
+
+            // Update displays
+            document.getElementById('initDisplay').textContent = '¥' + P.toLocaleString();
+            document.getElementById('monthlyDisplay').textContent = '¥' + M.toLocaleString();
+            document.getElementById('rateDisplay').textContent = (r * 100).toFixed(1) + '%';
+            document.getElementById('yearsDisplay').textContent = Y + ' 年';
+
+            document.querySelectorAll('input[type=range]').forEach(updateSliderFill);
+
+            // Calculate
+            const labels = [];
+            const compoundData = [];
+            const inputData = [];
+            const simpleData = [];
+
+            for (let y = 0; y <= Y; y++) {
+                labels.push('第' + y + '年');
+                const totalIn = P + M * 12 * y;
+                inputData.push(totalIn);
+
+                // Compound
+                let compound = P * Math.pow(1 + r, y);
+                if (M > 0 && y > 0) {
+                    const mRate = r / 12;
+                    compound += M * ((Math.pow(1 + mRate, y * 12) - 1) / mRate);
+                }
+                compoundData.push(Math.round(compound));
+
+                // Simple
+                const simple = P * (1 + r * y) + M * 12 * y;
+                simpleData.push(Math.round(simple));
+            }
+
+            const totalIn = inputData[inputData.length - 1];
+            const totalComp = compoundData[compoundData.length - 1];
+
+            document.getElementById('totalInput').textContent = formatCNY(totalIn);
+            document.getElementById('totalCompound').textContent = formatCNY(totalComp);
+            document.getElementById('totalInterest').textContent = formatCNY(totalComp - totalIn);
+            document.getElementById('multiplier').textContent = (totalComp / totalIn).toFixed(1) + 'x';
+
+            // Draw Chart
+            const ctx = document.getElementById('compoundChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: '复利增长',
+                            data: compoundData,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245,158,11,0.08)',
+                            fill: true,
+                            borderWidth: 2.5,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: '#f59e0b',
+                            tension: 0.35,
+                        },
+                        {
+                            label: '总投入本金',
+                            data: inputData,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59,130,246,0.06)',
+                            fill: true,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointHoverBackgroundColor: '#3b82f6',
+                            tension: 0,
+                            borderDash: [6, 3],
+                        },
+                        {
+                            label: '单利增长',
+                            data: simpleData,
+                            borderColor: 'rgba(255,255,255,0.18)',
+                            backgroundColor: 'transparent',
+                            fill: false,
+                            borderWidth: 1.5,
+                            pointRadius: 0,
+                            pointHoverRadius: 3,
+                            tension: 0,
+                            borderDash: [4, 4],
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(10,14,23,0.9)',
+                            borderColor: 'rgba(245,158,11,0.3)',
+                            borderWidth: 1,
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#94a3b8',
+                            padding: 12,
+                            callbacks: {
+                                label: ctx => ctx.dataset.label + ': ¥' + ctx.parsed.y.toLocaleString(),
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#64748b', font: { size: 11 }, maxTicksLimit: 10 },
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            border: { color: 'rgba(255,255,255,0.06)' },
+                        },
+                        y: {
+                            ticks: {
+                                color: '#64748b', font: { size: 11 },
+                                callback: v => '¥' + formatCNY(v),
+                            },
+                            grid: { color: 'rgba(255,255,255,0.04)' },
+                            border: { color: 'rgba(255,255,255,0.06)' },
+                        }
+                    }
+                }
+            });
+        }
+
+        // Bind controls
+        ['initInvest', 'monthlyInvest', 'annualRate', 'investYears'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calcAndDraw);
+        });
+        calcAndDraw();
+
+        // ===== SCROLL REVEAL =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+
+</html>

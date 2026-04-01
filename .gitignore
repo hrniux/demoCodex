@@ -1,4 +1,9 @@
 .DS_Store
+.AppleDouble
+._*
+.Spotlight-V100/
+.Trashes/
+Thumbs.db
 .idea/
 node_modules/
 output/

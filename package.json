@@ -4,7 +4,8 @@
   "description": "DemoCodex HTML game collection",
   "private": true,
   "scripts": {
-    "test": "npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic",
+    "check:manifest": "node scripts/check-demo-manifest.mjs",
+    "test": "npm run check:manifest && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic",
     "test:browser": "node scripts/test-browser-suite.mjs",
     "test:full": "npm test && npm run test:browser",
     "test:neon-heist:logic": "node -e \"const mod=require('./src/js/neon-heist.js'); const result=mod.runSelfCheck(40); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",

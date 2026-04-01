@@ -5,7 +5,7 @@
 
 [打开合集入口](./index.html) | [仓库地址](https://github.com/hrniux/demoCodex) | [GitHub About 文案](./.github/project-about.md)
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 32 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 27 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 33 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 27 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 
 ## 项目亮点
 
@@ -41,12 +41,14 @@ python3 -m http.server 8000
 
 ```bash
 npm install
+npm run check:manifest
 npm test
 npm run test:browser
 ```
 
 补充说明：
 
+- `npm run check:manifest` 会核对仓库 HTML 总数、`index.html` 主推卡片数量，以及 README 中声明的页面数是否一致。
 - `npm test` 运行当前内建的逻辑自检，现已覆盖现有主推策略页与新增的 8 个像素小游戏。
 - `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的主推像素游戏浏览器回归。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
@@ -92,6 +94,7 @@ npm run test:browser
 | 页面 | 定位 |
 | --- | --- |
 | `physics_playground.html` | 物理概念展示型页面，使用多个 Canvas 小实验解释基础现象。 |
+| `compound_interest.html` | 复利主题的交互式可视化实验页，结合 Chart.js 图表、时间线与滚雪球演示解释长期投资中的复利效应。 |
 | `voxelcraft.html` | 基于 `three.js` 的单文件体素世界实验，是仓库中少数依赖外部 CDN 的页面。 |
 | `tank-battle.html` | 功能更重的坦克大战历史版本，保留作参考实现。 |
 | `tank-battle-achievements.html` | 坦克大战成就展示页，与历史版本配套。 |
@@ -101,7 +104,7 @@ npm run test:browser
 - 渲染方式：Canvas 2D 是主要交互载体，部分页面采用像素风绘制和 `requestAnimationFrame` 循环。
 - 代码组织：仓库同时存在单文件原型页与按 `src/css`、`src/js` 拆分的模块化页面。
 - 状态持久化：贪吃蛇、2048、扫雷、俄罗斯方块、回声矩阵、星环逃逸、霓虹潜行、轨道营救、潮汐信使、晶洞爆破、磁场工坊、余烬搬运、裂轨列调、符文守卫、像素果园、信号冲刺、金库推箱、彗灯拾星、霜轨货运、像素坦克等页面都使用了浏览器本地存储。
-- 依赖策略：除 `voxelcraft.html` 和个别字体资源外，整体坚持轻依赖甚至零依赖。
+- 依赖策略：除 `voxelcraft.html`、`compound_interest.html` 和个别字体资源外，整体坚持轻依赖甚至零依赖。
 
 ## 目录结构
 
