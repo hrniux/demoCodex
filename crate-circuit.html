@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="箱线回路：像素风机房调度小游戏，把电路箱推上节点，断流火花并从闸门中撤离。"
+    />
+    <title>箱线回路 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230d1b1f'/%3E%3Crect x='14' y='14' width='36' height='36' fill='%2306b6d4'/%3E%3Crect x='24' y='24' width='16' height='16' fill='%23f97316'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/crate-circuit.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Factory Grid</p>
+          <h1 class="pixel-title">箱线回路</h1>
+          <p class="pixel-lead">
+            机房里的箱体是电路开关，节点一旦接通就能恢复整段供电。你要把每个箱体推到位，再趁回路稳定时穿过右下闸门。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">开始接线</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置机房</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">关卡</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">目标</span><strong class="pixel-stat__value" id="stat-target">0 / 3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">技能</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="箱线回路棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">机房简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入机房</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                推动箱体点亮节点，空格稳线，Q 释放断流，把周围的火花暂时冻结。
+              </p>
+            </div>
+          </div>
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">等</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">断流</button>
+          </section>
+        </section>
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">先把 3 个电路箱推上节点，再走向右下闸门。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              箱体会锁住节点，断流则能让火花安静两拍。
+            </p>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>推动电路箱，别把自己卡死在通道里。</li>
+              <li>节点全部接通后，闸门会开启。</li>
+              <li>Q 释放断流，压住附近火花。</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动</li>
+              <li>Space：原地等待</li>
+              <li>Q：释放断流</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">断流</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div>
+              <div class="pixel-metrics__row"><dt>危险源</dt><dd id="metric-danger">0</dd></div>
+              <div class="pixel-metrics__row"><dt>最佳关卡</dt><dd id="metric-best-stage">0</dd></div>
+            </dl>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/crate-circuit.js"></script>
+  </body>
+</html>

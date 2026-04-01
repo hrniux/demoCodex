@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="中继冲刺：在滑行信道里收集节点、冻结干扰并冲回终端塔。"
+    />
+    <title>中继冲刺 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2303111f'/%3E%3Crect x='16' y='16' width='32' height='32' fill='%2322d3ee'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/relay-rush.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Relay Rush</p>
+          <h1 class="pixel-title">中继冲刺</h1>
+          <p class="pixel-lead">
+            信道会把你一路推向前方，漂移干扰也会紧跟不放。收齐中继节点，借助稳频波冻结追击，再一口气滑回终端塔。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">开始冲刺</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置信道</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">日次</span>
+              <strong class="pixel-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">得分</span>
+              <strong class="pixel-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">护盾</span>
+              <strong class="pixel-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">中继</span>
+              <strong class="pixel-stat__value" id="stat-target">0 / 6</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">稳频</span>
+              <strong class="pixel-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">纪录</span>
+              <strong class="pixel-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas
+              class="pixel-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="中继冲刺信道棋盘"
+            ></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">信道简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入中继冲刺</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                方向键会一路滑到停点，空格缓冲一拍，Q 发出稳频波冻结干扰两拍。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">缓冲</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">
+              稳频
+            </button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">收集 6 个中继节点，再滑回终端塔。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              稳频波能让追击干扰短暂停住，适合在长滑道上抢回节奏。
+            </p>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>收齐中继节点后，终端塔才会亮起。</li>
+              <li>方向键会沿信道滑到停点。</li>
+              <li>稳频波能冻结干扰两拍。</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：滑行</li>
+              <li>Space：缓冲</li>
+              <li>Q：稳频波</li>
+              <li>Enter：开始</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">缓冲</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">稳频波</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>干扰数量</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>最佳日次</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/relay-rush.js"></script>
+  </body>
+</html>

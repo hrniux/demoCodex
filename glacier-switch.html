@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="冰川换轨：在打滑的换轨台上把冰芯箱送进切换槽，用雪楔掀开裂缝，再从右上缆车口撤离。" />
+    <title>冰川换轨 | DemoCodex</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23061118'/%3E%3Cpath d='M18 44h28L32 18Z' fill='%2367e8f9'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="src/css/glacier-switch.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Glacier Switch</p>
+          <h1 class="pixel-title">冰川换轨</h1>
+          <p class="pixel-lead">雪谷换轨台已经被整片冰面冻住，人物和冰芯箱都会一路滑到底。你得借挡板和雪楔改出角度，把三只冰芯箱送进切换槽，再冲向缆车口。</p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">切换轨道</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置冰台</button>
+        </div>
+      </header>
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">冰台</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">切换槽</span><strong class="pixel-stat__value" id="stat-target">0 / 3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">雪楔</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="冰川换轨棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">冰台简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入换轨区</h2>
+              <p class="pixel-overlay__body" id="overlay-body">方向键滑行，空格等待，Q 释放雪楔，把近身裂缝清掉一格。</p>
+            </div>
+          </div>
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">等</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">雪楔</button>
+          </section>
+        </section>
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">任务状态</h2><p class="pixel-sidecard__body" id="status-text">把 3 只冰芯箱送进切换槽，再滑向右上缆车口。</p><p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">滑行会一路到底，冰芯箱也一样；先想好停点再出手。</p></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">玩法说明</h2><ul class="pixel-rules"><li>人物和冰芯箱都会持续滑行。</li><li>冰芯箱进槽后会锁定。</li><li>雪楔能清掉近身裂缝一格。</li></ul></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">控制方式</h2><ul class="pixel-rules"><li>WASD / 方向键：滑行</li><li>Space：等待</li><li>Q：释放雪楔</li><li>Enter：开始</li><li>R：重置</li></ul></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">行动面板</h2><div class="pixel-mini-actions"><button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button><button class="pixel-button pixel-button--accent" id="action-skill" type="button">雪楔</button><button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button></div></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">遥测</h2><dl class="pixel-metrics"><div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div><div class="pixel-metrics__row"><dt>裂缝数</dt><dd id="metric-danger">0</dd></div><div class="pixel-metrics__row"><dt>最佳冰台</dt><dd id="metric-best-stage">0</dd></div></dl></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">行动日志</h2><ul class="pixel-feed" id="feed-list"></ul></section>
+        </aside>
+      </section>
+    </main>
+    <script src="src/js/grid-arcade-core.js"></script><script src="src/js/pixel-page-runtime.js"></script><script src="src/js/glacier-switch.js"></script>
+  </body>
+</html>

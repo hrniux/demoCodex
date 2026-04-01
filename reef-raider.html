@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="海岭夺潮：像素潜海打捞小游戏，沿着海床收集遗物、冻结漩涡潮流并从右下出口撤离。"
+    />
+    <title>海岭夺潮 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23040f1b'/%3E%3Cpath d='M12 38 C18 18, 46 18, 52 38 C44 32, 20 32, 12 38 Z' fill='%234fd1c5'/%3E%3Ccircle cx='32' cy='26' r='7' fill='%2360a5fa'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/reef-raider.css" />
+  </head>
+  <body class="reef-page">
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Reef Raider</p>
+          <h1 class="pixel-title">海岭夺潮</h1>
+          <p class="pixel-lead">
+            沉到海床后，每一步都会搅动潮汐巡游。打捞 6 枚遗物，借声呐脉冲冻结附近漩涡，再沿着右下出口安全上浮。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">开始下潜</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置航线</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">区段</span>
+              <strong class="pixel-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">得分</span>
+              <strong class="pixel-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">氧气</span>
+              <strong class="pixel-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">遗物</span>
+              <strong class="pixel-stat__value" id="stat-target">0 / 6</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">声呐</span>
+              <strong class="pixel-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">纪录</span>
+              <strong class="pixel-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas
+              class="pixel-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="海岭夺潮游戏棋盘"
+            ></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">海床简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入海床</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                方向键或 WASD 游动，空格保持漂停，Q 释放声呐脉冲冻结附近潮流。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">漂停</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">声呐</button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">先打捞 6 枚遗物，再沿着右下出口上浮。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              声呐脉冲会冻结附近潮流两回合，适合用来抢走被漩涡盯上的通路。
+            </p>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>每走一步，海床上的漩涡也会同步追近。</li>
+              <li>收集遗物后得分提升，集齐 6 枚后出口才会解锁。</li>
+              <li>Q 释放声呐脉冲，可让附近潮流停滞两回合。</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动</li>
+              <li>Space：原地漂停</li>
+              <li>Q：释放声呐脉冲</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">漂停</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">声呐</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>潮流数量</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>最佳区段</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/reef-raider.js"></script>
+  </body>
+</html>

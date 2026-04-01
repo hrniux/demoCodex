@@ -1,0 +1,14 @@
+@import url('./pixel-page-base.css');
+
+:root {
+  --page-bg: #03111f;
+  --page-panel: rgba(7, 18, 34, 0.92);
+  --page-panel-strong: rgba(4, 11, 22, 0.97);
+  --page-line: rgba(34, 211, 238, 0.18);
+  --page-text: #e5f6ff;
+  --page-muted: #9cb8d0;
+  --page-accent: #22d3ee;
+  --page-accent-2: #a78bfa;
+  --page-accent-3: #34d399;
+  --page-danger: #fb7185;
+}

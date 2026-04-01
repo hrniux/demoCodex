@@ -1,0 +1,22 @@
+@import url('./pixel-page-base.css');
+
+:root {
+  --page-bg: #150a07;
+  --page-panel: rgba(28, 11, 8, 0.95);
+  --page-panel-strong: rgba(18, 8, 6, 0.97);
+  --page-line: rgba(251, 146, 60, 0.18);
+  --page-text: #fff2e8;
+  --page-muted: #c2a79a;
+  --page-accent: #f59e0b;
+  --page-accent-2: #fb7185;
+  --page-accent-3: #fbbf24;
+  --page-danger: #ef4444;
+}
+
+body.forge-page {
+  background:
+    radial-gradient(circle at 16% 16%, rgba(245, 158, 11, 0.18), transparent 22%),
+    radial-gradient(circle at 82% 14%, rgba(251, 113, 133, 0.2), transparent 22%),
+    radial-gradient(circle at 50% 90%, rgba(251, 191, 36, 0.12), transparent 28%),
+    linear-gradient(180deg, #150a07 0%, #1c0d09 46%, #070403 100%);
+}

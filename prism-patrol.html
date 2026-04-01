@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="棱镜巡路：在折射回廊里点亮散落棱镜，用锁光脉冲冻结暗影，再踏入折跃门撤离。" />
+    <title>棱镜巡路 | DemoCodex</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080c16'/%3E%3Cpath d='M16 44 32 16l16 28Z' fill='%23a78bfa'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="src/css/prism-patrol.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Prism Patrol</p>
+          <h1 class="pixel-title">棱镜巡路</h1>
+          <p class="pixel-lead">折射回廊里的棱镜一块块熄灭，暗影正沿光脉涌进中庭。你要边跑边点亮棱镜，用锁光脉冲拖住最危险的一回合，再冲向折跃门。</p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">点亮回廊</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置棱镜</button>
+        </div>
+      </header>
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">回廊</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">棱镜</span><strong class="pixel-stat__value" id="stat-target">0 / 5</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">锁光</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="棱镜巡路棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">回廊简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入折射区</h2>
+              <p class="pixel-overlay__body" id="overlay-body">方向键移动，空格等待，Q 释放锁光脉冲，让暗影停一回合。</p>
+            </div>
+          </div>
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">等</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">锁光</button>
+          </section>
+        </section>
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">任务状态</h2><p class="pixel-sidecard__body" id="status-text">点亮 5 块棱镜，再冲向右上折跃门。</p><p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">锁光适合在狭窄折返路段里拖住暗影。</p></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">玩法说明</h2><ul class="pixel-rules"><li>踩到棱镜会自动点亮。</li><li>暗影会持续朝你逼近。</li><li>全部点亮后折跃门才会开启。</li></ul></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">控制方式</h2><ul class="pixel-rules"><li>WASD / 方向键：移动</li><li>Space：等待</li><li>Q：锁光脉冲</li><li>Enter：开始</li><li>R：重置</li></ul></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">行动面板</h2><div class="pixel-mini-actions"><button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button><button class="pixel-button pixel-button--accent" id="action-skill" type="button">锁光</button><button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button></div></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">遥测</h2><dl class="pixel-metrics"><div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div><div class="pixel-metrics__row"><dt>暗影数</dt><dd id="metric-danger">0</dd></div><div class="pixel-metrics__row"><dt>最佳回廊</dt><dd id="metric-best-stage">0</dd></div></dl></section>
+          <section class="pixel-sidecard"><h2 class="pixel-sidecard__title">行动日志</h2><ul class="pixel-feed" id="feed-list"></ul></section>
+        </aside>
+      </section>
+    </main>
+    <script src="src/js/grid-arcade-core.js"></script><script src="src/js/pixel-page-runtime.js"></script><script src="src/js/prism-patrol.js"></script>
+  </body>
+</html>
