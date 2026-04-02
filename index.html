@@ -18,33 +18,104 @@
 <body>
   <main class="menu-shell">
     <header class="menu-hero">
-      <p class="menu-hero__eyebrow">DemoCodex</p>
-      <h1 class="menu-hero__title">游戏合集与互动实验</h1>
-      <p class="menu-hero__subtitle" id="menu-subtitle">
-        精品 HTML5 游戏 · 纯原生 JavaScript · 零依赖
-      </p>
-      <div class="menu-hero__meta" aria-label="页面概览">
-        <div class="menu-pill">
-          <strong id="menu-total">37</strong>
-          <span>个主推作品</span>
+      <div class="menu-hero__layout">
+        <div class="menu-hero__content">
+          <p class="menu-hero__eyebrow">DemoCodex</p>
+          <h1 class="menu-hero__title">下一页就开玩</h1>
+          <p class="menu-hero__subtitle" id="menu-subtitle">
+            37 个精选页面，覆盖像素策略、经典街机、互动内容与展示型实验。
+          </p>
+          <div class="menu-hero__meta" aria-label="页面概览">
+            <div class="menu-pill">
+              <strong id="menu-total">37</strong>
+              <span>个主推作品</span>
+            </div>
+            <div class="menu-pill">
+              <strong id="menu-featured">2</strong>
+              <span>个重点推荐</span>
+            </div>
+            <div class="menu-pill">
+              <strong id="menu-visible">37</strong>
+              <span>个当前结果</span>
+            </div>
+          </div>
+          <div class="menu-hero__actions">
+            <button class="menu-action menu-action--primary" id="menu-random-pick" type="button">
+              随机挑一页
+            </button>
+            <button class="menu-action menu-action--ghost" id="menu-reset" type="button">
+              清空筛选
+            </button>
+          </div>
         </div>
-        <div class="menu-pill">
-          <strong id="menu-featured">2</strong>
-          <span>个重点推荐</span>
-        </div>
-        <div class="menu-pill">
-          <strong>100%</strong>
-          <span>原生前端</span>
-        </div>
+
+        <aside class="menu-spotlight" aria-labelledby="menu-spotlight-title">
+          <p class="menu-spotlight__eyebrow" id="menu-spotlight-label">今日推荐</p>
+          <h2 class="menu-spotlight__title" id="menu-spotlight-title">磁场工坊</h2>
+          <p class="menu-spotlight__description" id="menu-spotlight-description">
+            像素风磁力推箱谜局。你既要顶着磁芯电池找角度，也要用脉冲把远处磁芯拖近一格，再赶在巡检火花贴身前点亮 3 座反应座。
+          </p>
+          <div class="menu-spotlight__tags" id="menu-spotlight-tags" aria-label="推荐关键词"></div>
+          <p class="menu-spotlight__meta" id="menu-spotlight-meta">策略谜局 · 4 到 10 分钟 · 紧张但清晰</p>
+          <a class="menu-spotlight__link" id="menu-spotlight-link" href="magnet-forge.html">🧲 启动工坊</a>
+        </aside>
       </div>
     </header>
 
+    <section class="menu-toolbar" aria-labelledby="menu-browse-title">
+      <div class="menu-toolbar__heading">
+        <p class="menu-toolbar__eyebrow">Browse Faster</p>
+        <h2 id="menu-browse-title">先筛选，再进入你现在最想玩的那一页</h2>
+      </div>
+
+      <div class="menu-toolbar__row">
+        <label class="menu-field menu-field--search" for="menu-search">
+          <span>快速搜索</span>
+          <input
+            id="menu-search"
+            name="menu-search"
+            type="search"
+            autocomplete="off"
+            placeholder="搜索玩法、题材、关键词或页面名"
+          />
+        </label>
+
+        <label class="menu-field menu-field--compact" for="menu-sort">
+          <span>排序方式</span>
+          <select id="menu-sort" name="menu-sort">
+            <option value="recommended">编辑推荐</option>
+            <option value="recent">最近打开</option>
+            <option value="quick">短平快优先</option>
+            <option value="name">按名称</option>
+          </select>
+        </label>
+
+        <button
+          class="menu-toggle"
+          id="menu-favorites-toggle"
+          type="button"
+          aria-pressed="false"
+        >
+          只看收藏
+        </button>
+      </div>
+
+      <div class="menu-chip-list" id="menu-category-chips" aria-label="作品分类"></div>
+
+      <div class="menu-results">
+        <p class="menu-results__summary" id="menu-results-summary">
+          显示 37 / 37 个作品。
+        </p>
+        <div class="menu-active-filters" id="menu-active-filters" aria-live="polite"></div>
+      </div>
+    </section>
+
     <section class="menu-section" aria-labelledby="menu-section-title">
       <div class="menu-section__header">
-        <p class="menu-section__eyebrow">Main Menu</p>
-        <h2 id="menu-section-title">点击卡片进入对应页面</h2>
+        <p class="menu-section__eyebrow">Curated Library</p>
+        <h2 id="menu-section-title">点击卡片，直接进入对应页面</h2>
         <p>
-          首页只承担导航职责，所有内容页都保持独立可打开、可直达。
+          首页承担导航与发现职责，所有内容页仍保持独立可打开、可直达。
         </p>
       </div>
       <div class="menu-grid" id="games-grid" aria-live="polite" aria-busy="true"></div>

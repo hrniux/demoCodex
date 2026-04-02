@@ -395,29 +395,362 @@
     },
   ];
 
-  const grid = document.getElementById("games-grid");
-  const totalEl = document.getElementById("menu-total");
-  const featuredEl = document.getElementById("menu-featured");
-  const subtitleEl = document.getElementById("menu-subtitle");
+  const STORAGE_KEYS = {
+    favorites: "democodex-menu-favorites",
+    recent: "democodex-menu-recent",
+  };
 
-  if (!grid || !totalEl || !featuredEl || !subtitleEl) {
+  const RECENT_LIMIT = 6;
+  const interactiveHrefs = new Set([
+    "daily-insights.html",
+    "bazi-insights.html",
+    "mind-lab.html",
+  ]);
+  const showcaseHrefs = new Set([
+    "dino-pixel-encyclopedia.html",
+    "armory-pixel-arsenal.html",
+    "dinosaur_museum.html",
+  ]);
+  const classicHrefs = new Set([
+    "snake_game.html",
+    "tetris.html",
+    "minesweeper.html",
+    "2048.html",
+    "flappy-bird.html",
+  ]);
+  const strategyHrefs = new Set([
+    "neon-heist.html",
+    "orbit-rescue.html",
+    "tide-courier.html",
+    "cavern-blast.html",
+    "magnet-forge.html",
+    "ember-shift.html",
+    "rail-rift.html",
+    "glyph-keeper.html",
+    "pixel-orchard.html",
+    "signal-sprint.html",
+    "vault-pusher.html",
+    "comet-lantern.html",
+    "frostbite-freight.html",
+    "solar-sentry.html",
+    "crate-circuit.html",
+    "reef-raider.html",
+    "forge-feint.html",
+    "prism-patrol.html",
+    "glacier-switch.html",
+    "thorn-trail.html",
+    "relay-rush.html",
+    "lumen-lift.html",
+    "quarry-quest.html",
+  ]);
+
+  const categoryCatalog = [
+    { id: "all", label: "全部作品", duration: "随时开玩", mood: "主入口视角" },
+    { id: "strategy", label: "策略谜局", duration: "4 到 10 分钟", mood: "紧张但清晰" },
+    { id: "arcade", label: "街机动作", duration: "2 到 8 分钟", mood: "节奏更快" },
+    { id: "classic", label: "经典复刻", duration: "3 到 12 分钟", mood: "熟悉即上手" },
+    { id: "interactive", label: "互动内容", duration: "3 到 6 分钟", mood: "轻量探索" },
+    { id: "showcase", label: "科普展示", duration: "2 到 5 分钟", mood: "适合慢慢看" },
+  ];
+
+  const categoryById = new Map(categoryCatalog.map((item) => [item.id, item]));
+  const preparedCards = cards.map((card, index) => prepareCard(card, index));
+  const featuredCount = preparedCards.filter((card) => card.featured).length;
+
+  const elements = {
+    grid: document.getElementById("games-grid"),
+    total: document.getElementById("menu-total"),
+    featured: document.getElementById("menu-featured"),
+    visible: document.getElementById("menu-visible"),
+    subtitle: document.getElementById("menu-subtitle"),
+    randomPick: document.getElementById("menu-random-pick"),
+    reset: document.getElementById("menu-reset"),
+    spotlightLabel: document.getElementById("menu-spotlight-label"),
+    spotlightTitle: document.getElementById("menu-spotlight-title"),
+    spotlightDescription: document.getElementById("menu-spotlight-description"),
+    spotlightTags: document.getElementById("menu-spotlight-tags"),
+    spotlightMeta: document.getElementById("menu-spotlight-meta"),
+    spotlightLink: document.getElementById("menu-spotlight-link"),
+    search: document.getElementById("menu-search"),
+    sort: document.getElementById("menu-sort"),
+    favoritesToggle: document.getElementById("menu-favorites-toggle"),
+    categoryChips: document.getElementById("menu-category-chips"),
+    resultsSummary: document.getElementById("menu-results-summary"),
+    activeFilters: document.getElementById("menu-active-filters"),
+  };
+
+  if (Object.values(elements).some((element) => !element)) {
     return;
   }
 
-  const featuredCount = cards.filter((card) => card.featured).length;
-  totalEl.textContent = String(cards.length);
-  featuredEl.textContent = String(featuredCount);
-  subtitleEl.textContent = `精品 HTML5 游戏 · 纯原生 JavaScript · 零依赖 · ${cards.length} 个主推作品`;
+  const state = {
+    query: "",
+    category: "all",
+    sort: "recommended",
+    onlyFavorites: false,
+    favorites: new Set(loadStoredList(STORAGE_KEYS.favorites)),
+    recent: loadStoredList(STORAGE_KEYS.recent),
+    spotlightHref: getDefaultSpotlight(preparedCards).href,
+    spotlightMode: "auto",
+  };
 
-  const fragment = document.createDocumentFragment();
+  bindEvents();
+  render();
 
-  for (const card of cards) {
+  function prepareCard(card, index) {
+    const categoryId = deriveCategoryId(card.href);
+    const categoryInfo = categoryById.get(categoryId);
+    const freshness = card.badge ? 1 : 0;
+    const searchText = normalizeText(
+      [card.title, card.description, card.cta, categoryInfo.label, ...card.features].join(" ")
+    );
+
+    return {
+      ...card,
+      index,
+      categoryId,
+      categoryLabel: categoryInfo.label,
+      durationLabel: categoryInfo.duration,
+      moodLabel: categoryInfo.mood,
+      durationWeight: getDurationWeight(categoryId),
+      freshness,
+      searchText,
+    };
+  }
+
+  function bindEvents() {
+    elements.search.addEventListener("input", (event) => {
+      state.query = event.target.value;
+      state.spotlightMode = "auto";
+      render();
+    });
+
+    elements.sort.addEventListener("change", (event) => {
+      state.sort = event.target.value;
+      state.spotlightMode = "auto";
+      render();
+    });
+
+    elements.favoritesToggle.addEventListener("click", () => {
+      state.onlyFavorites = !state.onlyFavorites;
+      state.spotlightMode = "auto";
+      render();
+    });
+
+    elements.randomPick.addEventListener("click", () => {
+      const visibleCards = getVisibleCards();
+      if (visibleCards.length === 0) {
+        return;
+      }
+
+      const nextCard = visibleCards[Math.floor(Math.random() * visibleCards.length)];
+      state.spotlightHref = nextCard.href;
+      state.spotlightMode = "random";
+      render();
+      elements.spotlightLink.focus();
+    });
+
+    elements.reset.addEventListener("click", () => {
+      resetFilters();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "/" && document.activeElement !== elements.search) {
+        event.preventDefault();
+        elements.search.focus();
+        elements.search.select();
+      }
+
+      if (event.key === "Escape" && document.activeElement === elements.search && state.query) {
+        event.preventDefault();
+        state.query = "";
+        elements.search.value = "";
+        render();
+      }
+    });
+  }
+
+  function render() {
+    const visibleCards = getVisibleCards();
+    syncControls();
+    renderHero(visibleCards);
+    renderCategories();
+    renderActiveFilters();
+    renderSpotlight(visibleCards);
+    renderGrid(visibleCards);
+  }
+
+  function syncControls() {
+    elements.search.value = state.query;
+    elements.sort.value = state.sort;
+    elements.favoritesToggle.setAttribute("aria-pressed", String(state.onlyFavorites));
+    elements.favoritesToggle.textContent = state.onlyFavorites ? "显示全部" : "只看收藏";
+    elements.reset.disabled = !hasActiveFilters();
+    elements.randomPick.disabled = getVisibleCards().length === 0;
+  }
+
+  function renderHero(visibleCards) {
+    elements.total.textContent = String(preparedCards.length);
+    elements.featured.textContent = String(featuredCount);
+    elements.visible.textContent = String(visibleCards.length);
+    elements.resultsSummary.textContent = buildSummary(visibleCards);
+    elements.subtitle.textContent = buildSubtitle(visibleCards);
+  }
+
+  function renderCategories() {
+    const fragment = document.createDocumentFragment();
+
+    for (const category of categoryCatalog) {
+      const button = document.createElement("button");
+      const count = countCardsForCategory(category.id);
+      button.className = "menu-chip";
+      button.type = "button";
+      button.setAttribute("aria-pressed", String(state.category === category.id));
+      button.disabled = count === 0;
+      button.addEventListener("click", () => {
+        state.category = category.id;
+        state.spotlightMode = "auto";
+        render();
+      });
+
+      const label = document.createElement("span");
+      label.textContent = category.label;
+
+      const badge = document.createElement("span");
+      badge.className = "menu-chip__count";
+      badge.textContent = String(count);
+
+      button.append(label, badge);
+      fragment.appendChild(button);
+    }
+
+    elements.categoryChips.replaceChildren(fragment);
+  }
+
+  function renderActiveFilters() {
+    const fragment = document.createDocumentFragment();
+    const activeBits = [];
+
+    if (state.category !== "all") {
+      activeBits.push(`分类：${categoryById.get(state.category).label}`);
+    }
+
+    if (state.query.trim()) {
+      activeBits.push(`搜索：${state.query.trim()}`);
+    }
+
+    if (state.onlyFavorites) {
+      activeBits.push("只看收藏");
+    }
+
+    if (state.sort !== "recommended") {
+      activeBits.push(`排序：${getSortLabel(state.sort)}`);
+    }
+
+    for (const bit of activeBits) {
+      const pill = document.createElement("span");
+      pill.className = "menu-filter-pill";
+      pill.textContent = bit;
+      fragment.appendChild(pill);
+    }
+
+    if (activeBits.length > 0) {
+      const clearButton = document.createElement("button");
+      clearButton.className = "menu-clear-filters";
+      clearButton.type = "button";
+      clearButton.textContent = "清空筛选";
+      clearButton.addEventListener("click", () => {
+        resetFilters();
+      });
+      fragment.appendChild(clearButton);
+    }
+
+    elements.activeFilters.replaceChildren(fragment);
+  }
+
+  function renderSpotlight(visibleCards) {
+    const spotlightCard = resolveSpotlightCard(visibleCards);
+
+    if (!spotlightCard) {
+      elements.spotlightLabel.textContent = "暂时没找到";
+      elements.spotlightTitle.textContent = "没有匹配结果";
+      elements.spotlightDescription.textContent = "换个关键词，或者清空筛选后再随机挑一页。";
+      elements.spotlightMeta.textContent = "试试：策略、经典、像素、测试、知识";
+      elements.spotlightTags.replaceChildren();
+      elements.spotlightLink.textContent = "回到全部作品";
+      elements.spotlightLink.href = "#menu-browse-title";
+      elements.spotlightLink.onclick = () => {
+        resetFilters();
+      };
+      return;
+    }
+
+    state.spotlightHref = spotlightCard.href;
+    elements.spotlightLabel.textContent = getSpotlightLabel(spotlightCard);
+    elements.spotlightTitle.textContent = spotlightCard.title;
+    elements.spotlightDescription.textContent = spotlightCard.description;
+    elements.spotlightMeta.textContent = `${spotlightCard.categoryLabel} · ${spotlightCard.durationLabel} · ${spotlightCard.moodLabel}`;
+    elements.spotlightLink.textContent = spotlightCard.cta;
+    elements.spotlightLink.href = spotlightCard.href;
+    elements.spotlightLink.onclick = () => {
+      recordVisit(spotlightCard.href);
+    };
+
+    const tags = spotlightCard.features.slice(0, 4).map((feature) => {
+      const tag = document.createElement("span");
+      tag.className = "menu-spotlight__tag";
+      tag.textContent = feature;
+      return tag;
+    });
+    elements.spotlightTags.replaceChildren(...tags);
+  }
+
+  function renderGrid(visibleCards) {
+    const fragment = document.createDocumentFragment();
+
+    if (visibleCards.length === 0) {
+      fragment.appendChild(createEmptyState());
+    } else {
+      visibleCards.forEach((card, index) => {
+        fragment.appendChild(createCard(card, index, shouldStretchCard(card)));
+      });
+    }
+
+    elements.grid.replaceChildren(fragment);
+    elements.grid.setAttribute("aria-busy", "false");
+  }
+
+  function createCard(card, index, featuredLayout) {
+    const article = document.createElement("article");
+    article.className = `menu-card${featuredLayout ? " menu-card--featured" : ""}${
+      card.href === state.spotlightHref ? " menu-card--spotlighted" : ""
+    }`;
+    article.style.setProperty("--card-start", card.theme[0]);
+    article.style.setProperty("--card-end", card.theme[1]);
+    article.style.setProperty("--card-delay", `${Math.min(index, 8) * 60}ms`);
+
+    const favoriteButton = document.createElement("button");
+    favoriteButton.className = "menu-card__favorite";
+    favoriteButton.type = "button";
+    favoriteButton.textContent = "★";
+    favoriteButton.setAttribute("aria-pressed", String(state.favorites.has(card.href)));
+    favoriteButton.setAttribute(
+      "aria-label",
+      state.favorites.has(card.href) ? `取消收藏 ${card.title}` : `收藏 ${card.title}`
+    );
+    favoriteButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleFavorite(card.href);
+    });
+
     const link = document.createElement("a");
-    link.className = card.featured ? "menu-card menu-card--featured" : "menu-card";
+    link.className = "menu-card__link";
     link.href = card.href;
-    link.setAttribute("aria-label", card.title);
-    link.style.setProperty("--card-start", card.theme[0]);
-    link.style.setProperty("--card-end", card.theme[1]);
+    link.setAttribute("aria-label", `${card.title}，${card.categoryLabel}`);
+    link.addEventListener("click", () => {
+      recordVisit(card.href);
+    });
 
     const banner = document.createElement("div");
     banner.className = "menu-card__banner";
@@ -427,22 +760,49 @@
     const content = document.createElement("div");
     content.className = "menu-card__content";
 
+    const topLine = document.createElement("div");
+    topLine.className = "menu-card__topline";
+
+    const category = document.createElement("span");
+    category.className = "menu-card__category";
+    category.textContent = card.categoryLabel;
+    topLine.appendChild(category);
+
     if (card.badge) {
       const badge = document.createElement("span");
       badge.className = "menu-card__badge";
       badge.textContent = card.badge;
-      content.appendChild(badge);
+      topLine.appendChild(badge);
+    }
+
+    if (state.recent.includes(card.href)) {
+      const signal = document.createElement("span");
+      signal.className = "menu-card__signal";
+      signal.textContent = "最近玩过";
+      topLine.appendChild(signal);
+    } else if (state.favorites.has(card.href)) {
+      const signal = document.createElement("span");
+      signal.className = "menu-card__signal";
+      signal.textContent = "已收藏";
+      topLine.appendChild(signal);
     }
 
     const title = document.createElement("h3");
     title.className = "menu-card__title";
     title.textContent = card.title;
-    content.appendChild(title);
 
     const description = document.createElement("p");
     description.className = "menu-card__description";
     description.textContent = card.description;
-    content.appendChild(description);
+
+    const micro = document.createElement("div");
+    micro.className = "menu-card__micro";
+    for (const text of [card.durationLabel, card.moodLabel, card.featured ? "精选路线" : "直接可玩"]) {
+      const item = document.createElement("span");
+      item.className = "menu-card__micro-item";
+      item.textContent = text;
+      micro.appendChild(item);
+    }
 
     const features = document.createElement("div");
     features.className = "menu-card__features";
@@ -452,7 +812,8 @@
       tag.textContent = feature;
       features.appendChild(tag);
     }
-    content.appendChild(features);
+
+    content.append(topLine, title, description, micro, features);
 
     if (Array.isArray(card.stats) && card.stats.length > 0) {
       const stats = document.createElement("dl");
@@ -483,9 +844,307 @@
     content.appendChild(cta);
 
     link.append(banner, content);
-    fragment.appendChild(link);
+    article.append(favoriteButton, link);
+    return article;
   }
 
-  grid.appendChild(fragment);
-  grid.setAttribute("aria-busy", "false");
+  function createEmptyState() {
+    const wrapper = document.createElement("div");
+    wrapper.className = "menu-empty";
+
+    const title = document.createElement("h3");
+    title.textContent = "这次筛得太狠了";
+
+    const description = document.createElement("p");
+    description.textContent =
+      "当前没有作品同时满足这些条件。试着减少关键词、切回全部分类，或者直接点一次“随机挑一页”。";
+
+    const button = document.createElement("button");
+    button.className = "menu-clear-filters";
+    button.type = "button";
+    button.textContent = "清空筛选";
+    button.addEventListener("click", () => {
+      resetFilters();
+    });
+
+    wrapper.append(title, description, button);
+    return wrapper;
+  }
+
+  function deriveCategoryId(href) {
+    if (interactiveHrefs.has(href)) {
+      return "interactive";
+    }
+
+    if (showcaseHrefs.has(href)) {
+      return "showcase";
+    }
+
+    if (classicHrefs.has(href)) {
+      return "classic";
+    }
+
+    if (strategyHrefs.has(href)) {
+      return "strategy";
+    }
+
+    return "arcade";
+  }
+
+  function getDurationWeight(categoryId) {
+    switch (categoryId) {
+      case "showcase":
+        return 2;
+      case "interactive":
+        return 3;
+      case "arcade":
+        return 4;
+      case "strategy":
+        return 5;
+      case "classic":
+        return 6;
+      default:
+        return 99;
+    }
+  }
+
+  function loadStoredList(key) {
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) {
+        return [];
+      }
+
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveStoredList(key, values) {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(values));
+    } catch {
+      // Ignore storage quota issues; the menu still works without persistence.
+    }
+  }
+
+  function normalizeText(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function getVisibleCards() {
+    const query = normalizeText(state.query);
+    const filteredCards = preparedCards.filter((card) => {
+      if (state.onlyFavorites && !state.favorites.has(card.href)) {
+        return false;
+      }
+
+      if (state.category !== "all" && card.categoryId !== state.category) {
+        return false;
+      }
+
+      if (query && !card.searchText.includes(query)) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return sortCards(filteredCards);
+  }
+
+  function sortCards(visibleCards) {
+    const nextCards = [...visibleCards];
+
+    switch (state.sort) {
+      case "recent":
+        nextCards.sort((a, b) => getRecentRank(a.href) - getRecentRank(b.href) || compareRecommended(a, b));
+        break;
+      case "quick":
+        nextCards.sort((a, b) => a.durationWeight - b.durationWeight || compareRecommended(a, b));
+        break;
+      case "name":
+        nextCards.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans-CN"));
+        break;
+      default:
+        nextCards.sort(compareRecommended);
+        break;
+    }
+
+    return nextCards;
+  }
+
+  function compareRecommended(a, b) {
+    return (
+      Number(b.featured) - Number(a.featured) ||
+      b.freshness - a.freshness ||
+      a.durationWeight - b.durationWeight ||
+      a.index - b.index
+    );
+  }
+
+  function getRecentRank(href) {
+    const index = state.recent.indexOf(href);
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+  }
+
+  function countCardsForCategory(categoryId) {
+    const query = normalizeText(state.query);
+
+    return preparedCards.filter((card) => {
+      if (state.onlyFavorites && !state.favorites.has(card.href)) {
+        return false;
+      }
+
+      if (categoryId !== "all" && card.categoryId !== categoryId) {
+        return false;
+      }
+
+      if (query && !card.searchText.includes(query)) {
+        return false;
+      }
+
+      return true;
+    }).length;
+  }
+
+  function buildSummary(visibleCards) {
+    const bits = [`显示 ${visibleCards.length} / ${preparedCards.length} 个作品`];
+
+    if (state.category !== "all") {
+      bits.push(categoryById.get(state.category).label);
+    }
+
+    if (state.query.trim()) {
+      bits.push(`命中“${state.query.trim()}”`);
+    }
+
+    if (state.onlyFavorites) {
+      bits.push(`收藏 ${state.favorites.size} 个`);
+    }
+
+    if (state.sort !== "recommended") {
+      bits.push(`按${getSortLabel(state.sort)}排序`);
+    }
+
+    return `${bits.join(" · ")}。`;
+  }
+
+  function buildSubtitle(visibleCards) {
+    if (visibleCards.length === 0) {
+      return "没有找到匹配项。换个关键词，或者清空筛选后重新开始。";
+    }
+
+    if (!hasActiveFilters()) {
+      return `${preparedCards.length} 个精选页面，覆盖像素策略、经典街机、互动内容与展示型实验。`;
+    }
+
+    const leadCard = visibleCards[0];
+    return `当前筛出 ${visibleCards.length} 个结果，第一推荐是「${leadCard.title}」，属于 ${leadCard.categoryLabel}，适合 ${leadCard.durationLabel} 的一轮体验。`;
+  }
+
+  function resolveSpotlightCard(visibleCards) {
+    if (visibleCards.length === 0) {
+      return null;
+    }
+
+    const current = visibleCards.find((card) => card.href === state.spotlightHref);
+    if (current) {
+      return current;
+    }
+
+    state.spotlightMode = "auto";
+
+    const fromRecent = visibleCards.find((card) => state.recent.includes(card.href));
+    if (fromRecent) {
+      return fromRecent;
+    }
+
+    return getDefaultSpotlight(visibleCards);
+  }
+
+  function getDefaultSpotlight(visibleCards) {
+    return visibleCards.find((card) => card.href === "magnet-forge.html") ||
+      visibleCards.find((card) => card.featured) ||
+      visibleCards[0];
+  }
+
+  function getSpotlightLabel(card) {
+    if (state.spotlightMode === "random") {
+      return "随机点名";
+    }
+
+    if (state.onlyFavorites && state.favorites.has(card.href)) {
+      return "你的收藏";
+    }
+
+    if (state.recent[0] === card.href) {
+      return "继续上次那页";
+    }
+
+    if (card.featured) {
+      return "编辑精选";
+    }
+
+    if (state.query.trim()) {
+      return "搜索结果中的高匹配项";
+    }
+
+    return "今日推荐";
+  }
+
+  function getSortLabel(sortId) {
+    switch (sortId) {
+      case "recent":
+        return "最近打开";
+      case "quick":
+        return "短平快优先";
+      case "name":
+        return "名称";
+      default:
+        return "编辑推荐";
+    }
+  }
+
+  function shouldStretchCard(card) {
+    return (
+      card.featured &&
+      state.category === "all" &&
+      !state.query.trim() &&
+      !state.onlyFavorites &&
+      state.sort === "recommended"
+    );
+  }
+
+  function toggleFavorite(href) {
+    if (state.favorites.has(href)) {
+      state.favorites.delete(href);
+    } else {
+      state.favorites.add(href);
+    }
+
+    saveStoredList(STORAGE_KEYS.favorites, [...state.favorites]);
+    render();
+  }
+
+  function recordVisit(href) {
+    state.recent = [href, ...state.recent.filter((item) => item !== href)].slice(0, RECENT_LIMIT);
+    saveStoredList(STORAGE_KEYS.recent, state.recent);
+  }
+
+  function resetFilters() {
+    state.query = "";
+    state.category = "all";
+    state.sort = "recommended";
+    state.onlyFavorites = false;
+    state.spotlightMode = "auto";
+    state.spotlightHref = getDefaultSpotlight(preparedCards).href;
+    render();
+  }
+
+  function hasActiveFilters() {
+    return state.category !== "all" || Boolean(state.query.trim()) || state.onlyFavorites || state.sort !== "recommended";
+  }
 })();
