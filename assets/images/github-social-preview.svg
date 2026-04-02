@@ -1,0 +1,106 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DemoCodex social preview</title>
+  <desc id="desc">A vibrant social preview card for DemoCodex, highlighting its playable browser-native mini games, curated picks, and product-style landing page.</desc>
+  <defs>
+    <linearGradient id="bg" x1="52" y1="24" x2="1220" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#081A2F"/>
+      <stop offset="0.48" stop-color="#0A1223"/>
+      <stop offset="1" stop-color="#060913"/>
+    </linearGradient>
+    <linearGradient id="heroType" x1="86" y1="164" x2="676" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7DD3FC"/>
+      <stop offset="0.45" stop-color="#B8E3FF"/>
+      <stop offset="0.72" stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(162 84) rotate(32) scale(340 220)">
+      <stop stop-color="#38BDF8" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="roseGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1124 498) rotate(149) scale(380 210)">
+      <stop stop-color="#FB7185" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FB7185" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softBlur" x="-120" y="-120" width="1520" height="880" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+    <filter id="shadow" x="36" y="38" width="1210" height="562" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="28" stdDeviation="34" flood-color="#020817" flood-opacity="0.44"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" rx="32" fill="url(#bg)"/>
+
+  <g filter="url(#softBlur)">
+    <ellipse cx="172" cy="88" rx="280" ry="182" fill="url(#cyanGlow)"/>
+    <ellipse cx="1124" cy="492" rx="262" ry="166" fill="url(#roseGlow)"/>
+  </g>
+
+  <g opacity="0.12">
+    <path d="M0 94H1280" stroke="#E5EEF9"/>
+    <path d="M0 176H1280" stroke="#E5EEF9"/>
+    <path d="M0 258H1280" stroke="#E5EEF9"/>
+    <path d="M0 340H1280" stroke="#E5EEF9"/>
+    <path d="M0 422H1280" stroke="#E5EEF9"/>
+    <path d="M0 504H1280" stroke="#E5EEF9"/>
+    <path d="M96 0V640" stroke="#E5EEF9"/>
+    <path d="M236 0V640" stroke="#E5EEF9"/>
+    <path d="M376 0V640" stroke="#E5EEF9"/>
+    <path d="M516 0V640" stroke="#E5EEF9"/>
+    <path d="M656 0V640" stroke="#E5EEF9"/>
+    <path d="M796 0V640" stroke="#E5EEF9"/>
+    <path d="M936 0V640" stroke="#E5EEF9"/>
+    <path d="M1076 0V640" stroke="#E5EEF9"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="44" y="42" width="1192" height="548" rx="34" fill="#081223" fill-opacity="0.94" stroke="#FFFFFF" stroke-opacity="0.1"/>
+    <rect x="70" y="68" width="1140" height="496" rx="28" fill="#131F35" fill-opacity="0.72" stroke="#FFFFFF" stroke-opacity="0.06"/>
+  </g>
+
+  <circle cx="108" cy="90" r="7" fill="#38BDF8"/>
+  <circle cx="130" cy="90" r="7" fill="#F59E0B"/>
+  <circle cx="152" cy="90" r="7" fill="#34D399"/>
+
+  <text x="106" y="136" fill="#7DD3FC" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="4.8">DEMOCODEX</text>
+  <text x="106" y="180" fill="#DCEBFA" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="2.2">PLAYABLE BROWSER-NATIVE MINI GAMES AND INTERACTIVE DEMOS</text>
+
+  <text x="106" y="268" fill="url(#heroType)" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="86" font-weight="800">43 playable</text>
+  <text x="106" y="344" fill="#EAF1FF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="70" font-weight="800">browser-native</text>
+  <text x="106" y="410" fill="#EAF1FF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="58" font-weight="800">mini games + demos</text>
+
+  <text x="106" y="468" fill="#BFD0E3" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="24" font-weight="500">
+    Open fast, play immediately, fork freely, and share it like a product.
+  </text>
+
+  <g>
+    <rect x="106" y="514" width="170" height="26" rx="13" fill="#38BDF8" fill-opacity="0.18"/>
+    <text x="128" y="532" fill="#D8F4FF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">37 curated picks</text>
+    <rect x="292" y="514" width="166" height="26" rx="13" fill="#34D399" fill-opacity="0.18"/>
+    <text x="317" y="532" fill="#D8FFEF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">0 build overhead</text>
+    <rect x="474" y="514" width="230" height="26" rx="13" fill="#F59E0B" fill-opacity="0.18"/>
+    <text x="500" y="532" fill="#FFE5BB" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">local Chrome regression flow</text>
+  </g>
+
+  <g>
+    <rect x="900" y="118" width="224" height="108" rx="24" fill="#0B1730" fill-opacity="0.9" stroke="#7DD3FC" stroke-opacity="0.24"/>
+    <text x="926" y="154" fill="#8FDBFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2.4">START HERE</text>
+    <text x="926" y="188" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="28" font-weight="800">live landing page</text>
+    <text x="926" y="208" fill="#BFD0E3" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="600">search, categories, spotlight</text>
+  </g>
+
+  <g>
+    <rect x="872" y="246" width="252" height="108" rx="24" fill="#0D1629" fill-opacity="0.92" stroke="#F59E0B" stroke-opacity="0.24"/>
+    <text x="898" y="282" fill="#FFD89A" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2.4">WHY IT GETS CLICKS</text>
+    <text x="898" y="316" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="28" font-weight="800">pixel tactics + variety</text>
+    <text x="898" y="336" fill="#BFD0E3" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="600">strategy, remakes, tools, experiments</text>
+  </g>
+
+  <g>
+    <rect x="844" y="382" width="280" height="128" rx="24" fill="#0A1626" fill-opacity="0.92" stroke="#34D399" stroke-opacity="0.24"/>
+    <text x="870" y="418" fill="#9FF6D3" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2.4">STANDOUT DROPS</text>
+    <text x="870" y="452" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800">Neon Heist · Orbit Rescue</text>
+    <text x="870" y="480" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="24" font-weight="800">Magnet Forge · Mind Lab</text>
+    <text x="870" y="502" fill="#BFD0E3" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="600">the four surfaces most likely to sell the repo</text>
+  </g>
+</svg>

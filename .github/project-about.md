@@ -36,6 +36,7 @@
 ## Social Preview 建议
 
 - 推荐上传文件：`assets/images/github-social-preview.png`
+- 源文件：`assets/images/github-social-preview.svg`
 - 用途：
   - 仓库分享链接预览图
   - X / Telegram / Slack / Discord 等外链卡片
