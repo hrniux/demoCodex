@@ -30,8 +30,7 @@
 
 ## Homepage 建议
 
-- 当前不要立刻填写 `Homepage`，因为 `https://hrniux.github.io/demoCodex/` 现在还是 `404`。
-- 仓库内已经补好 GitHub Pages workflow；启用 Pages 并成功发布后，推荐填写：
+- 当前公开 Homepage 已可直接填写并展示：
   - `https://hrniux.github.io/demoCodex/`
 
 ## Social Preview 建议
@@ -44,10 +43,10 @@
 
 ## 建议立刻在 GitHub 上手动设置的项目
 
-1. 把仓库 Description 更新成上面的英文版本。
-2. 把 Topics 替换成上面的新列表。
+1. 确认仓库 Description 保持为上面的英文版本。
+2. 确认 Topics 保持为上面的新列表。
 3. 上传 `assets/images/github-social-preview.png` 作为 Social preview。
-4. 启用 GitHub Pages，并确认 workflow 首次部署成功后再补 Homepage。
+4. 保持 Homepage 为 `https://hrniux.github.io/demoCodex/`。
 5. 把仓库 pin 到个人主页的置顶仓库区域。
 
 ## 备注
