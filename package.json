@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "check:manifest": "node scripts/check-demo-manifest.mjs",
-    "test": "npm run check:manifest && npm run test:solar-sentry:logic && npm run test:crate-circuit:logic && npm run test:reef-raider:logic && npm run test:forge-feint:logic && npm run test:prism-patrol:logic && npm run test:glacier-switch:logic && npm run test:thorn-trail:logic && npm run test:relay-rush:logic && npm run test:lumen-lift:logic && npm run test:quarry-quest:logic && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic",
+    "test": "npm run check:manifest && npm run test:solar-sentry:logic && npm run test:crate-circuit:logic && npm run test:reef-raider:logic && npm run test:forge-feint:logic && npm run test:prism-patrol:logic && npm run test:glacier-switch:logic && npm run test:thorn-trail:logic && npm run test:relay-rush:logic && npm run test:lumen-lift:logic && npm run test:quarry-quest:logic && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic && npm run test:moss-mission:logic && npm run test:kiln-caravan:logic && npm run test:dock-drift:logic",
     "test:browser": "node scripts/test-browser-suite.mjs",
     "test:full": "npm test && npm run test:browser",
     "test:solar-sentry:logic": "node -e \"const mod=require('./src/js/solar-sentry.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
@@ -53,7 +53,13 @@
     "test:comet-lantern:logic": "node -e \"const mod=require('./src/js/comet-lantern.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:comet-lantern:browser": "node scripts/test-comet-lantern-browser.mjs",
     "test:frostbite-freight:logic": "node -e \"const mod=require('./src/js/frostbite-freight.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:frostbite-freight:browser": "node scripts/test-frostbite-freight-browser.mjs"
+    "test:frostbite-freight:browser": "node scripts/test-frostbite-freight-browser.mjs",
+    "test:moss-mission:logic": "node -e \"const mod=require('./src/js/moss-mission.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:moss-mission:browser": "node scripts/test-moss-mission-browser.mjs",
+    "test:kiln-caravan:logic": "node -e \"const mod=require('./src/js/kiln-caravan.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:kiln-caravan:browser": "node scripts/test-kiln-caravan-browser.mjs",
+    "test:dock-drift:logic": "node -e \"const mod=require('./src/js/dock-drift.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:dock-drift:browser": "node scripts/test-dock-drift-browser.mjs"
   },
   "repository": {
     "type": "git",

@@ -28,6 +28,9 @@ const browserSuites = [
   { key: 'vaultPusher', script: 'scripts/test-vault-pusher-browser.mjs', captureEnv: 'VAULT_PUSHER_CAPTURE' },
   { key: 'cometLantern', script: 'scripts/test-comet-lantern-browser.mjs', captureEnv: 'COMET_LANTERN_CAPTURE' },
   { key: 'frostbiteFreight', script: 'scripts/test-frostbite-freight-browser.mjs', captureEnv: 'FROSTBITE_FREIGHT_CAPTURE' },
+  { key: 'mossMission', script: 'scripts/test-moss-mission-browser.mjs', captureEnv: 'MOSS_MISSION_CAPTURE' },
+  { key: 'kilnCaravan', script: 'scripts/test-kiln-caravan-browser.mjs', captureEnv: 'KILN_CARAVAN_CAPTURE' },
+  { key: 'dockDrift', script: 'scripts/test-dock-drift-browser.mjs', captureEnv: 'DOCK_DRIFT_CAPTURE' },
 ];
 
 function runNodeScript(scriptPath, extraEnv) {

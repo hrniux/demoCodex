@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <img alt="Playable pages" src="https://img.shields.io/badge/playable_pages-43-0ea5e9?style=for-the-badge" />
-  <img alt="Curated picks" src="https://img.shields.io/badge/curated_picks-37-22c55e?style=for-the-badge" />
+  <img alt="Playable pages" src="https://img.shields.io/badge/playable_pages-46-0ea5e9?style=for-the-badge" />
+  <img alt="Curated picks" src="https://img.shields.io/badge/curated_picks-40-22c55e?style=for-the-badge" />
   <img alt="Tech stack" src="https://img.shields.io/badge/vanilla_js-canvas-f59e0b?style=for-the-badge" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-111827?style=for-the-badge" />
 </p>
@@ -26,7 +26,7 @@
 > 一个以原生 Web 技术构建的小游戏与互动实验合集。  
 > A curated collection of browser-native mini games, pixel-art experiments, and interactive demos.
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 43 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 37 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 46 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 40 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 
 如果这个仓库给你带来一个可复用的玩法灵感、一个值得拆解的页面结构，或者只是给你 5 分钟好玩的浏览器时光，欢迎直接点个 Star。
 
@@ -194,7 +194,7 @@ npm run test:browser
 补充说明：
 
 - `npm run check:manifest` 会核对仓库 HTML 总数、`index.html` 主推卡片数量，以及 README 中声明的页面数是否一致。
-- `npm test` 运行当前内建的逻辑自检，现已覆盖 23 个主推策略 / 像素小游戏。
+- `npm test` 运行当前内建的逻辑自检，现已覆盖 26 个主推策略 / 像素小游戏。
 - `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的主推像素游戏浏览器回归。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
 - 仓库不会回退到 Playwright bundled browser，也不需要为本项目运行 `playwright install`。
@@ -220,6 +220,9 @@ npm run test:browser
 | 像素策略 | `comet-lantern.html` | 夜巡拾星小游戏，用闪灯脉冲震开黑影并回收彗尘。 |
 | 像素爆破 | `cavern-blast.html` | 像素风回合制爆破地城，围绕雷芯延时爆炸、碎岩清障与虫群追击展开。 |
 | 像素策略 | `frostbite-freight.html` | 冰面惯性货运谜局，利用滑行和制动器把货箱送进停靠位。 |
+| 像素策略 | `moss-mission.html` | 温室潜行路线题，收回露芽样本并用灯苞脉冲清掉孢子藤。 |
+| 像素策略 | `kiln-caravan.html` | 窑火推箱页，把陶坯车送上窑位后再借冷扇压住火星撤离。 |
+| 像素策略 | `dock-drift.html` | 顺潮滑行的码头推箱局，用抛锚压住浪线并把补给箱送进泊位。 |
 | 像素策略 | `solar-sentry.html` | 太阳阵列巡检关卡，回收光核后用日冕脉冲扫开碎片再撤离。 |
 | 像素策略 | `crate-circuit.html` | 机房接线推箱页，把电路箱送上节点后卡着断流窗口穿过闸门。 |
 | 像素策略 | `reef-raider.html` | 海床打捞路线题，收回遗物、冻结潮流，再从右下角出口带着成果撤走。 |
