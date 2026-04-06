@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Decision Compass 决策罗盘：基于紧急度、可逆性和把握度，给出可直接执行的行动建议。"
+    />
+    <meta name="theme-color" content="#0e1726" />
+    <title>Decision Compass 决策罗盘 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='35%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23f3c87a'/%3E%3Cstop offset='0.55' stop-color='%231e3555'/%3E%3Cstop offset='1' stop-color='%230b1220'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%2398f5ff' stroke-width='4'/%3E%3Cpath d='M32 14l7 18-7 18-7-18 7-18Z' fill='%23f7b267'/%3E%3Cpath d='M18 32h28' stroke='%2398f5ff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M32 18v28' stroke='%2398f5ff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/decision-compass.css" />
+  </head>
+  <body class="decision-page">
+    <main class="decision-shell">
+      <section class="decision-hero">
+        <a class="decision-back" href="index.html">返回首页</a>
+        <p class="decision-hero__eyebrow">Urgency · Reversibility · Confidence</p>
+        <h1 class="decision-hero__title">Decision Compass / 决策罗盘</h1>
+        <p class="decision-hero__lead">
+          输入紧急度、可逆性和把握度，罗盘会把问题翻成一条明确的行动线：
+          现在做、先试探、补信息，还是暂缓。
+        </p>
+      </section>
+
+      <section class="decision-layout" aria-label="决策罗盘工具">
+        <section class="decision-panel decision-panel--form">
+          <div class="decision-panel__header">
+            <h2>输入信息</h2>
+            <p>把决策约束说清楚，建议就会更干净。</p>
+          </div>
+
+          <form id="decision-form" class="decision-form">
+            <label class="decision-field">
+              <span>这件事叫什么</span>
+              <input
+                id="decision-title"
+                name="decision-title"
+                type="text"
+                placeholder="例如：是否今天上线、是否改方案、是否发起采购"
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="decision-field">
+              <span>紧急度</span>
+              <select id="decision-urgency" name="decision-urgency">
+                <option value="low">低，可以再观察</option>
+                <option value="medium" selected>中，需要尽快判断</option>
+                <option value="high">高，现在就要动</option>
+              </select>
+            </label>
+
+            <label class="decision-field">
+              <span>可逆性</span>
+              <select id="decision-reversibility" name="decision-reversibility">
+                <option value="reversible">高，可随时调整</option>
+                <option value="partial" selected>中，能调整但有成本</option>
+                <option value="hard">低，一旦做了很难回头</option>
+              </select>
+            </label>
+
+            <label class="decision-field">
+              <span>把握度</span>
+              <input id="decision-confidence" name="decision-confidence" type="number" min="0" max="100" step="1" value="68" />
+            </label>
+
+            <div class="decision-actions">
+              <button class="decision-button" type="submit">生成建议</button>
+              <button class="decision-button decision-button--ghost" id="decision-reset" type="reset">
+                重置默认值
+              </button>
+            </div>
+
+            <p class="decision-note">
+              提示：把握度越低，罗盘越倾向先做小验证；可逆性越低，越会放大谨慎权重。
+            </p>
+          </form>
+        </section>
+
+        <section
+          class="decision-panel decision-panel--result"
+          id="decision-result"
+          tabindex="-1"
+          aria-live="polite"
+        >
+          <div class="decision-panel__header">
+            <h2>罗盘结果</h2>
+            <p>结果不是空话，而是一条能直接照着执行的决策路径。</p>
+          </div>
+
+          <div class="decision-empty" id="decision-empty">
+            输入信息后，这里会展示推荐动作、风险提醒、下一步检查点和优先级评分。
+          </div>
+
+          <div class="decision-result" id="decision-result-body" hidden>
+            <div class="decision-result__summary">
+              <p class="decision-result__eyebrow" id="decision-mode"></p>
+              <h3 class="decision-result__title" id="decision-title-display"></h3>
+              <p class="decision-result__lead" id="decision-lead"></p>
+              <div class="decision-meta" id="decision-meta"></div>
+            </div>
+
+            <div class="decision-grid">
+              <article class="decision-card">
+                <h3>建议动作</h3>
+                <div id="decision-action"></div>
+              </article>
+
+              <article class="decision-card">
+                <h3>为什么</h3>
+                <div id="decision-reasons"></div>
+              </article>
+
+              <article class="decision-card">
+                <h3>检查点</h3>
+                <div id="decision-checkpoints"></div>
+              </article>
+
+              <article class="decision-card">
+                <h3>风险边界</h3>
+                <div id="decision-guardrail"></div>
+              </article>
+            </div>
+
+            <div class="decision-actions decision-actions--result">
+              <button class="decision-button" id="decision-regenerate" type="button">再生成一次</button>
+              <button class="decision-button decision-button--ghost" id="decision-clear" type="button">
+                清空结果
+              </button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="src/js/decision-compass.js"></script>
+  </body>
+</html>

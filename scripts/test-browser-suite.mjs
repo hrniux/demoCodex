@@ -36,6 +36,12 @@ const browserSuites = [
   { key: 'auroraBreach', script: 'scripts/test-aurora-breach-browser.mjs', captureEnv: 'AURORA_BREACH_CAPTURE' },
   { key: 'reefKeeper', script: 'scripts/test-reef-keeper-browser.mjs', captureEnv: 'REEF_KEEPER_CAPTURE' },
   { key: 'focusWeave', script: 'scripts/test-focus-weave-browser.mjs', captureEnv: 'FOCUS_WEAVE_CAPTURE' },
+  { key: 'orchidGuard', script: 'scripts/test-orchid-guard-browser.mjs', captureEnv: 'ORCHID_GUARD_CAPTURE' },
+  { key: 'signalDunes', script: 'scripts/test-signal-dunes-browser.mjs', captureEnv: 'SIGNAL_DUNES_CAPTURE' },
+  { key: 'voltPier', script: 'scripts/test-volt-pier-browser.mjs', captureEnv: 'VOLT_PIER_CAPTURE' },
+  { key: 'decisionCompass', script: 'scripts/test-decision-compass-browser.mjs', captureEnv: 'DECISION_COMPASS_CAPTURE' },
+  { key: 'meetingWeave', script: 'scripts/test-meeting-weave-browser.mjs', captureEnv: 'MEETING_WEAVE_CAPTURE' },
+  { key: 'priorityCanvas', script: 'scripts/test-priority-canvas-browser.mjs', captureEnv: 'PRIORITY_CANVAS_CAPTURE' },
 ];
 
 function runNodeScript(scriptPath, extraEnv) {

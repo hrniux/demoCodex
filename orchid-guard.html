@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="兰园守卫：像素风温室策略游戏，把花架推进花床基座，压住夜虫群并护送温室重新通电。"
+    />
+    <title>兰园守卫 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23081310'/%3E%3Crect x='12' y='11' width='40' height='42' rx='8' fill='%23112d20'/%3E%3Cpath d='M32 48c-6-1-12-7-12-15 0-7 5-11 11-11 3 0 5 1 7 3 2-2 4-3 7-3 6 0 11 4 11 11 0 8-6 14-12 15l-6 5z' fill='%23f472b6'/%3E%3Cpath d='M22 18h20v5H22z' fill='%2386efac'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/orchid-guard.css" />
+  </head>
+  <body class="orchid-page">
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回合集</a>
+        <div>
+          <p class="pixel-eyebrow">Greenhouse Sentinel</p>
+          <h1 class="pixel-title">兰园守卫</h1>
+          <p class="pixel-lead">
+            夜里会有虫群和冷雾钻进温室。你要把花架推上花床基座，点亮 3 处供养点，再从温室门撤离，把整片兰园稳住。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">开始守园</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置花圃</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">层数</span>
+              <strong class="pixel-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">得分</span>
+              <strong class="pixel-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">护盾</span>
+              <strong class="pixel-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">花架</span>
+              <strong class="pixel-stat__value" id="stat-target">0 / 3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">花雾</span>
+              <strong class="pixel-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">纪录</span>
+              <strong class="pixel-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas
+              class="pixel-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="兰园守卫棋盘"
+            ></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">温室简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入花圃</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                方向键推动花架，空格等待，Q 释放花雾，把近身虫群冻结两拍。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">等</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">
+              花雾
+            </button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">先把 3 盆花架推到花床基座，再摸到温室门。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              花雾会冻结身边的虫群两拍，适合穿过最窄的走廊。
+            </p>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>把花架推进发光的花床基座。</li>
+              <li>虫群会步步逼近，别让自己被围死。</li>
+              <li>Q 释放花雾，给自己争取两拍安全窗口。</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动并推箱</li>
+              <li>Space：等待一拍</li>
+              <li>Q：释放花雾</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">花雾</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>虫群数</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/orchid-guard.js"></script>
+  </body>
+</html>

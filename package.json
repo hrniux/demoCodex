@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "check:manifest": "node scripts/check-demo-manifest.mjs",
-    "test": "npm run check:manifest && npm run test:solar-sentry:logic && npm run test:crate-circuit:logic && npm run test:reef-raider:logic && npm run test:forge-feint:logic && npm run test:prism-patrol:logic && npm run test:glacier-switch:logic && npm run test:thorn-trail:logic && npm run test:relay-rush:logic && npm run test:lumen-lift:logic && npm run test:quarry-quest:logic && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic && npm run test:moss-mission:logic && npm run test:kiln-caravan:logic && npm run test:dock-drift:logic && npm run test:canopy-scout:logic && npm run test:amber-aisle:logic && npm run test:aurora-breach:logic && npm run test:reef-keeper:logic && npm run test:focus-weave:logic",
+    "test": "npm run check:manifest && npm run test:solar-sentry:logic && npm run test:crate-circuit:logic && npm run test:reef-raider:logic && npm run test:forge-feint:logic && npm run test:prism-patrol:logic && npm run test:glacier-switch:logic && npm run test:thorn-trail:logic && npm run test:relay-rush:logic && npm run test:lumen-lift:logic && npm run test:quarry-quest:logic && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic && npm run test:moss-mission:logic && npm run test:kiln-caravan:logic && npm run test:dock-drift:logic && npm run test:canopy-scout:logic && npm run test:amber-aisle:logic && npm run test:aurora-breach:logic && npm run test:reef-keeper:logic && npm run test:focus-weave:logic && npm run test:orchid-guard:logic && npm run test:signal-dunes:logic && npm run test:volt-pier:logic && npm run test:decision-compass:logic && npm run test:meeting-weave:logic && npm run test:priority-canvas:logic",
     "test:browser": "node scripts/test-browser-suite.mjs",
     "test:full": "npm test && npm run test:browser",
     "test:solar-sentry:logic": "node -e \"const mod=require('./src/js/solar-sentry.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
@@ -69,7 +69,19 @@
     "test:reef-keeper:logic": "node -e \"const mod=require('./src/js/reef-keeper.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:reef-keeper:browser": "node scripts/test-reef-keeper-browser.mjs",
     "test:focus-weave:logic": "node -e \"const mod=require('./src/js/focus-weave.js'); const result=mod.runSelfCheck(); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:focus-weave:browser": "node scripts/test-focus-weave-browser.mjs"
+    "test:focus-weave:browser": "node scripts/test-focus-weave-browser.mjs",
+    "test:orchid-guard:logic": "node -e \"const mod=require('./src/js/orchid-guard.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:orchid-guard:browser": "node scripts/test-orchid-guard-browser.mjs",
+    "test:signal-dunes:logic": "node -e \"const mod=require('./src/js/signal-dunes.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:signal-dunes:browser": "node scripts/test-signal-dunes-browser.mjs",
+    "test:volt-pier:logic": "node -e \"const mod=require('./src/js/volt-pier.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:volt-pier:browser": "node scripts/test-volt-pier-browser.mjs",
+    "test:decision-compass:logic": "node -e \"const mod=require('./src/js/decision-compass.js'); const result=mod.runSelfCheck(); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:decision-compass:browser": "node scripts/test-decision-compass-browser.mjs",
+    "test:meeting-weave:logic": "node -e \"const mod=require('./src/js/meeting-weave.js'); const result=mod.runSelfCheck(); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:meeting-weave:browser": "node scripts/test-meeting-weave-browser.mjs",
+    "test:priority-canvas:logic": "node -e \"const mod=require('./src/js/priority-canvas.js'); const result=mod.runSelfCheck(); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:priority-canvas:browser": "node scripts/test-priority-canvas-browser.mjs"
   },
   "repository": {
     "type": "git",

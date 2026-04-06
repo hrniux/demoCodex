@@ -4,7 +4,6 @@ import { chromium } from 'playwright';
 import {
   buildTestUrl,
   maybeCaptureScreenshot,
-  openStartedPage,
   readRenderState,
   trackPageErrors,
 } from './browser-test-helpers.mjs';
@@ -84,7 +83,90 @@ async function applyScenario(page, { globalName, setup }) {
   );
 }
 
+async function readInternalSnapshot(page, globalName) {
+  return page.evaluate((target) => {
+    const game = window[target];
+    return {
+      freezeTurns: game.state.freezeTurns,
+      overlayVisible: game.refs.overlay.classList.contains('is-visible'),
+      overlayTitle: game.refs.overlayTitle.textContent,
+    };
+  }, globalName);
+}
+
+function assertSnapshotMatches(current, baseline) {
+  assert.equal(current.floor, baseline.floor);
+  assert.equal(current.score, baseline.score);
+  assert.equal(current.hull, baseline.hull);
+  assert.equal(current.progress, baseline.progress);
+  assert.equal(current.turns, baseline.turns);
+  assert.equal(current.specialCooldown, baseline.specialCooldown);
+  assert.equal(current.exit.unlocked, baseline.exit.unlocked);
+  assert.deepEqual(current.player, baseline.player);
+  assert.deepEqual(current.items, baseline.items);
+  assert.deepEqual(current.hazards, baseline.hazards);
+  assert.deepEqual(current.boxes, baseline.boxes);
+}
+
+async function assertBootFlow(page, startSelector, globalName) {
+  const idleState = await readRenderState(page);
+  const idleInternal = await readInternalSnapshot(page, globalName);
+  assert.equal(idleState.mode, 'idle');
+
+  assert.equal(idleInternal.overlayVisible, true);
+
+  await page.click(startSelector);
+  await page.waitForTimeout(60);
+
+  const activeState = await readRenderState(page);
+  const activeInternal = await readInternalSnapshot(page, globalName);
+  assert.equal(activeState.mode, 'active');
+  assert.equal(activeInternal.overlayVisible, false);
+
+  await page.keyboard.press('KeyR');
+  await page.waitForTimeout(60);
+
+  const resetState = await readRenderState(page);
+  const resetInternal = await readInternalSnapshot(page, globalName);
+  assert.equal(resetState.mode, 'idle');
+  assertSnapshotMatches(resetState, idleState);
+  assert.equal(resetInternal.freezeTurns, idleInternal.freezeTurns);
+  assert.equal(resetInternal.overlayVisible, true);
+
+  await page.click(startSelector);
+  await page.waitForTimeout(60);
+
+  const restartedState = await readRenderState(page);
+  const restartedInternal = await readInternalSnapshot(page, globalName);
+  assert.equal(restartedState.mode, 'active');
+  assertSnapshotMatches(restartedState, activeState);
+  assert.equal(restartedInternal.freezeTurns, activeInternal.freezeTurns);
+  assert.equal(restartedInternal.overlayVisible, false);
+
+  return {
+    idleState,
+    idleInternal,
+    activeState,
+    activeInternal,
+  };
+}
+
+async function assertGameOverRecovery(page, baseline, globalName) {
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(60);
+
+  const restartedState = await readRenderState(page);
+  const restartedInternal = await readInternalSnapshot(page, globalName);
+  assert.equal(restartedState.mode, 'active');
+  assertSnapshotMatches(restartedState, baseline.activeState);
+  assert.equal(restartedInternal.freezeTurns, baseline.activeInternal.freezeTurns);
+  assert.equal(restartedInternal.overlayVisible, false);
+}
+
 function assertState(state, expected) {
+  if (expected.mode !== undefined) {
+    assert.equal(state.mode, expected.mode);
+  }
   if (expected.player) {
     assert.deepEqual(state.player, expected.player);
   }
@@ -127,6 +209,8 @@ async function assertInternal(page, globalName, expected) {
     return {
       freezeTurns: game.state.freezeTurns,
       hazards: game.state.hazards.length,
+      overlayVisible: game.refs.overlay.classList.contains('is-visible'),
+      overlayTitle: game.refs.overlayTitle.textContent,
     };
   }, globalName);
 
@@ -135,6 +219,12 @@ async function assertInternal(page, globalName, expected) {
   }
   if (expected.hazards !== undefined) {
     assert.equal(payload.hazards, expected.hazards);
+  }
+  if (expected.overlayVisible !== undefined) {
+    assert.equal(payload.overlayVisible, expected.overlayVisible);
+  }
+  if (expected.overlayTitle !== undefined) {
+    assert.equal(payload.overlayTitle, expected.overlayTitle);
   }
 }
 
@@ -156,11 +246,9 @@ export async function runGridArcadeBrowserTest(config) {
     const results = {};
 
     for (const scenario of config.scenarios) {
-      await openStartedPage(page, {
-        url: testUrl,
-        startSelector: '#game-start',
-        delayMs: 320,
-      });
+      await page.goto(testUrl, { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(320);
+      const baseline = await assertBootFlow(page, '#game-start', config.globalName);
       await applyScenario(page, {
         globalName: config.globalName,
         setup: scenario.setup,
@@ -174,6 +262,9 @@ export async function runGridArcadeBrowserTest(config) {
       const state = await readRenderState(page);
       assertState(state, scenario.expect);
       await assertInternal(page, config.globalName, scenario.internalExpect);
+      if (scenario.postGameoverRestart) {
+        await assertGameOverRecovery(page, baseline, config.globalName);
+      }
 
       const screenshot = await maybeCaptureScreenshot(
         page,
