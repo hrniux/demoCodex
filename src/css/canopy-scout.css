@@ -1,0 +1,7 @@
+@import url('./pixel-page-base.css');
+
+:root {
+  --page-accent: #84cc16;
+  --page-accent-2: #bef264;
+  --page-danger: #f97316;
+}

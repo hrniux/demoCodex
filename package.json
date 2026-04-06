@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "check:manifest": "node scripts/check-demo-manifest.mjs",
-    "test": "npm run check:manifest && npm run test:solar-sentry:logic && npm run test:crate-circuit:logic && npm run test:reef-raider:logic && npm run test:forge-feint:logic && npm run test:prism-patrol:logic && npm run test:glacier-switch:logic && npm run test:thorn-trail:logic && npm run test:relay-rush:logic && npm run test:lumen-lift:logic && npm run test:quarry-quest:logic && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic && npm run test:moss-mission:logic && npm run test:kiln-caravan:logic && npm run test:dock-drift:logic",
+    "test": "npm run check:manifest && npm run test:solar-sentry:logic && npm run test:crate-circuit:logic && npm run test:reef-raider:logic && npm run test:forge-feint:logic && npm run test:prism-patrol:logic && npm run test:glacier-switch:logic && npm run test:thorn-trail:logic && npm run test:relay-rush:logic && npm run test:lumen-lift:logic && npm run test:quarry-quest:logic && npm run test:neon-heist:logic && npm run test:orbit-rescue:logic && npm run test:tide-courier:logic && npm run test:cavern-blast:logic && npm run test:magnet-forge:logic && npm run test:ember-shift:logic && npm run test:rail-rift:logic && npm run test:glyph-keeper:logic && npm run test:pixel-orchard:logic && npm run test:signal-sprint:logic && npm run test:vault-pusher:logic && npm run test:comet-lantern:logic && npm run test:frostbite-freight:logic && npm run test:moss-mission:logic && npm run test:kiln-caravan:logic && npm run test:dock-drift:logic && npm run test:canopy-scout:logic && npm run test:amber-aisle:logic && npm run test:aurora-breach:logic",
     "test:browser": "node scripts/test-browser-suite.mjs",
     "test:full": "npm test && npm run test:browser",
     "test:solar-sentry:logic": "node -e \"const mod=require('./src/js/solar-sentry.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
@@ -59,7 +59,13 @@
     "test:kiln-caravan:logic": "node -e \"const mod=require('./src/js/kiln-caravan.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:kiln-caravan:browser": "node scripts/test-kiln-caravan-browser.mjs",
     "test:dock-drift:logic": "node -e \"const mod=require('./src/js/dock-drift.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
-    "test:dock-drift:browser": "node scripts/test-dock-drift-browser.mjs"
+    "test:dock-drift:browser": "node scripts/test-dock-drift-browser.mjs",
+    "test:canopy-scout:logic": "node -e \"const mod=require('./src/js/canopy-scout.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:canopy-scout:browser": "node scripts/test-canopy-scout-browser.mjs",
+    "test:amber-aisle:logic": "node -e \"const mod=require('./src/js/amber-aisle.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:amber-aisle:browser": "node scripts/test-amber-aisle-browser.mjs",
+    "test:aurora-breach:logic": "node -e \"const mod=require('./src/js/aurora-breach.js'); const result=mod.runSelfCheck(4); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
+    "test:aurora-breach:browser": "node scripts/test-aurora-breach-browser.mjs"
   },
   "repository": {
     "type": "git",

@@ -31,6 +31,9 @@ const browserSuites = [
   { key: 'mossMission', script: 'scripts/test-moss-mission-browser.mjs', captureEnv: 'MOSS_MISSION_CAPTURE' },
   { key: 'kilnCaravan', script: 'scripts/test-kiln-caravan-browser.mjs', captureEnv: 'KILN_CARAVAN_CAPTURE' },
   { key: 'dockDrift', script: 'scripts/test-dock-drift-browser.mjs', captureEnv: 'DOCK_DRIFT_CAPTURE' },
+  { key: 'canopyScout', script: 'scripts/test-canopy-scout-browser.mjs', captureEnv: 'CANOPY_SCOUT_CAPTURE' },
+  { key: 'amberAisle', script: 'scripts/test-amber-aisle-browser.mjs', captureEnv: 'AMBER_AISLE_CAPTURE' },
+  { key: 'auroraBreach', script: 'scripts/test-aurora-breach-browser.mjs', captureEnv: 'AURORA_BREACH_CAPTURE' },
 ];
 
 function runNodeScript(scriptPath, extraEnv) {
