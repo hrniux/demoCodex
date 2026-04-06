@@ -757,6 +757,81 @@ const PRESETS = {
       },
     ],
   },
+  'reef-keeper': {
+    envName: 'REEF_KEEPER_TEST_URL',
+    pathname: '/reef-keeper.html',
+    globalName: 'reefKeeperGame',
+    captureEnv: 'REEF_KEEPER_CAPTURE',
+    screenshotDir: 'output/reef-keeper-browser',
+    scenarios: [
+      {
+        name: 'progress',
+        screenshot: 'progress.png',
+        setup: goalProgressSetup({
+          goal: { x: 3, y: 1 },
+          box: { x: 2, y: 1 },
+          player: { x: 1, y: 1 },
+        }),
+        actions: ['ArrowRight'],
+        expect: {
+          player: { x: 2, y: 1 },
+          progress: 1,
+          score: 90,
+          boxes: [{ x: 3, y: 1, locked: true }],
+          hazardsLength: 0,
+          exitUnlocked: false,
+        },
+      },
+      {
+        name: 'special',
+        screenshot: 'special.png',
+        setup: freezeSetup({}),
+        actions: ['KeyQ'],
+        expect: { specialCooldown: 3, hazardsLength: 1, score: 0 },
+        internalExpect: { freezeTurns: 1 },
+      },
+      {
+        name: 'extraction',
+        screenshot: 'extract.png',
+        setup: {
+          layout: {
+            start: { x: 0, y: 0 },
+            exit: { x: 6, y: 6 },
+            walls: [],
+            goals: [
+              { x: 1, y: 1 },
+              { x: 2, y: 1 },
+              { x: 3, y: 1 },
+              { x: 4, y: 1 },
+            ],
+          },
+          state: {
+            mode: 'active',
+            floor: 1,
+            player: { x: 5, y: 6 },
+            boxes: [
+              { x: 1, y: 1, locked: true },
+              { x: 2, y: 1, locked: true },
+              { x: 3, y: 1, locked: true },
+              { x: 4, y: 1, locked: true },
+            ],
+            hazards: [],
+            items: [],
+            progress: 4,
+            turns: 5,
+            score: 180,
+            hull: 2,
+            specialCooldown: 0,
+            freezeTurns: 0,
+            exitUnlocked: true,
+            lastAbility: [],
+          },
+        },
+        actions: ['ArrowRight'],
+        expect: { floor: 2, score: 440, hull: 2, progress: 0, exitUnlocked: false },
+      },
+    ],
+  },
 };
 
 export async function runNamedGridArcadeBrowserTest(name) {

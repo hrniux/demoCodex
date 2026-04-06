@@ -34,6 +34,8 @@ const browserSuites = [
   { key: 'canopyScout', script: 'scripts/test-canopy-scout-browser.mjs', captureEnv: 'CANOPY_SCOUT_CAPTURE' },
   { key: 'amberAisle', script: 'scripts/test-amber-aisle-browser.mjs', captureEnv: 'AMBER_AISLE_CAPTURE' },
   { key: 'auroraBreach', script: 'scripts/test-aurora-breach-browser.mjs', captureEnv: 'AURORA_BREACH_CAPTURE' },
+  { key: 'reefKeeper', script: 'scripts/test-reef-keeper-browser.mjs', captureEnv: 'REEF_KEEPER_CAPTURE' },
+  { key: 'focusWeave', script: 'scripts/test-focus-weave-browser.mjs', captureEnv: 'FOCUS_WEAVE_CAPTURE' },
 ];
 
 function runNodeScript(scriptPath, extraEnv) {

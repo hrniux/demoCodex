@@ -293,6 +293,16 @@
       cta: "🌌 冲出风暴",
     },
     {
+      title: "礁环守卫",
+      href: "reef-keeper.html",
+      icon: "🛡️",
+      badge: "🆕 新增",
+      theme: ["#5eead4", "#60a5fa"],
+      description: "守礁推箱局。把 4 个珊瑚环压上潮锚，潮钟负责冻结近处海流，帮你抢到最后的站位。",
+      features: ["守礁推箱", "潮钟冻结", "窄道卡位"],
+      cta: "🛡️ 守住礁环",
+    },
+    {
       title: "太阳哨站",
       href: "solar-sentry.html",
       icon: "☀️",
@@ -414,6 +424,16 @@
       cta: "🧩 开始测试",
     },
     {
+      title: "Focus Weave 专注编排器",
+      href: "focus-weave.html",
+      icon: "🧵",
+      badge: "🆕 新应用",
+      theme: ["#73f0ff", "#f7b267"],
+      description: "根据时间、能量、任务类型和打断强度，生成一份可直接执行的短时专注编排。",
+      features: ["时间轴建议", "防失焦规则", "一键再生成"],
+      cta: "🧵 生成编排",
+    },
+    {
       title: "俄罗斯方块",
       href: "tetris.html",
       icon: "🧱",
@@ -465,6 +485,7 @@
     "daily-insights.html",
     "bazi-insights.html",
     "mind-lab.html",
+    "focus-weave.html",
   ]);
   const showcaseHrefs = new Set([
     "dino-pixel-encyclopedia.html",
@@ -498,6 +519,7 @@
     "canopy-scout.html",
     "amber-aisle.html",
     "aurora-breach.html",
+    "reef-keeper.html",
     "solar-sentry.html",
     "crate-circuit.html",
     "reef-raider.html",

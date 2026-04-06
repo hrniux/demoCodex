@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Focus Weave 专注编排器：根据时间、能量和任务类型，生成一份可立即执行的短时专注建议。"
+    />
+    <meta name="theme-color" content="#08111d" />
+    <title>Focus Weave 专注编排器 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23081a29'/%3E%3Cstop offset='1' stop-color='%23162c4a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M11 20h42M11 32h42M11 44h42' stroke='%2378f0ff' stroke-width='4' stroke-linecap='round' opacity='.8'/%3E%3Cpath d='M18 12l28 40M46 12L18 52' stroke='%23f7b267' stroke-width='4' stroke-linecap='round' opacity='.9'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/focus-weave.css" />
+  </head>
+  <body class="focus-page">
+    <main class="focus-shell">
+      <section class="focus-hero">
+        <a class="focus-back" href="index.html">返回首页</a>
+        <p class="focus-hero__eyebrow">Focus · Weave · Plan</p>
+        <h1 class="focus-hero__title">Focus Weave / 专注编排器</h1>
+        <p class="focus-hero__lead">
+          输入开始时间、当前能量和任务类型，系统会给出一份可以直接照着执行的短时专注编排：
+          先做什么、做多久、什么时候休息、什么时候收口。
+        </p>
+      </section>
+
+      <section class="focus-layout" aria-label="专注编排工具">
+        <section class="focus-panel focus-panel--form">
+          <div class="focus-panel__header">
+            <h2>输入信息</h2>
+            <p>把这些信息说清楚，计划就能落地。</p>
+          </div>
+
+          <form id="focus-form" class="focus-form">
+            <label class="focus-field">
+              <span>本次要推进的事</span>
+              <input
+                id="focus-title"
+                name="focus-title"
+                type="text"
+                placeholder="例如：写周报、修复登录页、整理方案"
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="focus-field">
+              <span>开始时间</span>
+              <input id="focus-start" name="focus-start" type="time" step="60" required />
+            </label>
+
+            <label class="focus-field">
+              <span>当前能量</span>
+              <select id="focus-energy" name="focus-energy">
+                <option value="low">偏低，先稳住</option>
+                <option value="steady" selected>稳定，可持续</option>
+                <option value="high">充沛，适合深挖</option>
+              </select>
+            </label>
+
+            <label class="focus-field">
+              <span>任务类型</span>
+              <select id="focus-task" name="focus-task">
+                <option value="deep-work" selected>深度工作</option>
+                <option value="coding">编码实现</option>
+                <option value="writing">写作整理</option>
+                <option value="planning">规划拆解</option>
+                <option value="admin">事务清理</option>
+                <option value="meeting-prep">会议准备</option>
+                <option value="creative">创意发散</option>
+                <option value="review">复盘审阅</option>
+              </select>
+            </label>
+
+            <label class="focus-field">
+              <span>可用分钟</span>
+              <select id="focus-duration" name="focus-duration">
+                <option value="25">25 分钟</option>
+                <option value="40">40 分钟</option>
+                <option value="50" selected>50 分钟</option>
+                <option value="75">75 分钟</option>
+                <option value="90">90 分钟</option>
+              </select>
+            </label>
+
+            <label class="focus-field">
+              <span>打断强度</span>
+              <select id="focus-interruption" name="focus-interruption">
+                <option value="low">低，基本安静</option>
+                <option value="medium" selected>中，偶尔会被打断</option>
+                <option value="high">高，需要刻意防护</option>
+              </select>
+            </label>
+
+            <div class="focus-actions">
+              <button class="focus-button" type="submit">生成编排</button>
+              <button class="focus-button focus-button--ghost" id="focus-reset" type="reset">
+                重置为默认
+              </button>
+            </div>
+
+            <p class="focus-note">
+              提示：结果会根据开始时间换算成实际时间轴，按 <kbd>Enter</kbd> 也可以直接生成。
+            </p>
+          </form>
+        </section>
+
+        <section
+          class="focus-panel focus-panel--result"
+          id="focus-result"
+          tabindex="-1"
+          aria-live="polite"
+        >
+          <div class="focus-panel__header">
+            <h2>编排结果</h2>
+            <p>这不是空泛建议，而是一份可执行的短时专注脚本。</p>
+          </div>
+
+          <div class="focus-empty" id="focus-empty">
+            输入信息后，这里会生成一份包含节奏、时间轴、注意事项和收尾动作的专注编排。
+          </div>
+
+          <div class="focus-result" id="focus-result-body" hidden>
+            <div class="focus-result__summary">
+              <p class="focus-result__eyebrow" id="focus-mode"></p>
+              <h3 class="focus-result__title" id="focus-title-display"></h3>
+              <p class="focus-result__lead" id="focus-lead"></p>
+
+              <div class="focus-meta" id="focus-meta"></div>
+            </div>
+
+            <div class="focus-grid">
+              <article class="focus-card">
+                <h3>推荐节奏</h3>
+                <div id="focus-rhythm"></div>
+              </article>
+
+              <article class="focus-card">
+                <h3>为什么这样排</h3>
+                <div id="focus-reasons"></div>
+              </article>
+
+              <article class="focus-card focus-card--wide">
+                <h3>时间轴</h3>
+                <ol class="focus-timeline" id="focus-timeline"></ol>
+              </article>
+
+              <article class="focus-card">
+                <h3>执行清单</h3>
+                <div id="focus-checklist"></div>
+              </article>
+
+              <article class="focus-card">
+                <h3>防失焦规则</h3>
+                <div id="focus-guardrails"></div>
+              </article>
+            </div>
+
+            <div class="focus-actions focus-actions--result">
+              <button class="focus-button" id="focus-regenerate" type="button">再生成建议</button>
+              <button class="focus-button focus-button--ghost" id="focus-clear" type="button">
+                清空结果
+              </button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="src/js/focus-weave.js"></script>
+  </body>
+</html>

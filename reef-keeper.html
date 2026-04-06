@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="礁环守卫：像素策略守礁小游戏，推动珊瑚环封住潮锚、冻结游影，并从右下海门撤离。"
+    />
+    <title>礁环守卫 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23041622'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%2394f3d5' stroke-width='6'/%3E%3Cpath d='M20 36 C24 22, 40 22, 44 36 C40 32, 24 32, 20 36 Z' fill='%23f59e0b'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/reef-keeper.css" />
+  </head>
+  <body class="reef-keeper-page">
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Reef Keeper</p>
+          <h1 class="pixel-title">礁环守卫</h1>
+          <p class="pixel-lead">
+            把珊瑚环推到潮锚上，重建护礁屏障，再从右下海门撤离。潮影会追着你的脚步，潮钟则能让近处海流停顿两个回合。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">开始守礁</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置礁图</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">潮层</span>
+              <strong class="pixel-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">守护分</span>
+              <strong class="pixel-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">珊盾</span>
+              <strong class="pixel-stat__value" id="stat-life">4</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">礁环</span>
+              <strong class="pixel-stat__value" id="stat-target">0 / 4</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">潮钟</span>
+              <strong class="pixel-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">纪录</span>
+              <strong class="pixel-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas
+              class="pixel-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="礁环守卫游戏棋盘"
+            ></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">潮汐简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入礁图</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                方向键或 WASD 推动珊瑚环，空格原地待命，Q 敲响潮钟冻结近处海流。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">待命</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">
+              潮钟
+            </button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">先把 4 个珊瑚环推到潮锚上，再从右下海门撤离。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              潮钟会让近处海流停顿两个回合，足够你把最后一个礁环推到位。
+            </p>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>珊瑚环压到潮锚后会锁定，集齐 4 个就能打开海门。</li>
+              <li>每回合结束后，深海游影会继续贴近你的位置。</li>
+              <li>Q 敲响潮钟，可冻结近处海流两个回合，适合在窄道里抢位。</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动</li>
+              <li>Space：原地待命</li>
+              <li>Q：敲响潮钟</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">待命</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">潮钟</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>潮流数量</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>最佳潮层</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/reef-keeper.js"></script>
+  </body>
+</html>
