@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="裂隙中继滑行回收：沿能量滑道滑到停点，借传送门换位回收裂隙芯片，并用相位清场抢出脱身窗口。"
+    />
+    <title>裂隙中继 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23050916'/%3E%3Cpath d='M12 17 L28 10 L22 31 L35 24 L28 53 L45 29 L33 33 L39 14 Z' fill='%2367e8f9'/%3E%3Ccircle cx='47' cy='17' r='7' fill='%23f97316'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/rift-relay.css" />
+  </head>
+  <body class="rift-page">
+    <main class="rift-shell">
+      <header class="rift-hero">
+        <a class="rift-back" href="index.html">返回合集</a>
+        <div>
+          <p class="rift-eyebrow">Rift Relay</p>
+          <h1 class="rift-title">裂隙中继</h1>
+          <p class="rift-lead">
+            冰冷的中继站轨道已经碎成裂隙滑道。你要用滑行停点卡在门口，用成对裂口换位，回收全部中继芯片，再沿出口撤离。
+          </p>
+        </div>
+        <div class="rift-actions">
+          <button class="rift-cta" id="app-start" type="button">启动中继</button>
+          <button class="rift-cta rift-cta--ghost" id="app-reset" type="button">重置裂隙</button>
+        </div>
+      </header>
+
+      <section class="rift-layout">
+        <section class="rift-panel rift-panel--primary" aria-label="裂隙中继主区域">
+          <div class="rift-stats">
+            <article class="rift-stat">
+              <span class="rift-stat__label">层数</span>
+              <strong class="rift-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="rift-stat">
+              <span class="rift-stat__label">得分</span>
+              <strong class="rift-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="rift-stat">
+              <span class="rift-stat__label">护盾</span>
+              <strong class="rift-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="rift-stat">
+              <span class="rift-stat__label">芯片</span>
+              <strong class="rift-stat__value" id="stat-target">0 / 4</strong>
+            </article>
+            <article class="rift-stat">
+              <span class="rift-stat__label">相位清场</span>
+              <strong class="rift-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="rift-stat">
+              <span class="rift-stat__label">纪录</span>
+              <strong class="rift-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="rift-board-shell">
+            <canvas
+              class="rift-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="裂隙中继棋盘：滑行、传送门与回收芯片组成的策略网格"
+            ></canvas>
+            <div class="rift-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="rift-overlay__kicker">中继简报</p>
+              <h2 class="rift-overlay__title" id="overlay-title">按开始或 Enter 进入中继站</h2>
+              <p class="rift-overlay__body" id="overlay-body">
+                方向键会沿轨道一路滑到停点。空格原地校准，Q 释放相位清场，清掉近身故障体。
+              </p>
+            </div>
+          </div>
+
+          <section class="rift-pad pixel-pad" aria-label="方向控制">
+            <button class="rift-pad__button" data-action="up" type="button">上</button>
+            <button class="rift-pad__button" data-action="left" type="button">左</button>
+            <button class="rift-pad__button" data-action="wait" type="button">稳位</button>
+            <button class="rift-pad__button" data-action="right" type="button">右</button>
+            <button class="rift-pad__button" data-action="down" type="button">下</button>
+            <button class="rift-pad__button rift-pad__button--accent" data-action="skill" type="button">
+              清场
+            </button>
+          </section>
+        </section>
+
+        <aside class="rift-panel rift-panel--side" aria-label="裂隙中继规则与状态">
+          <section class="rift-card">
+            <h2 class="rift-card__title">任务状态</h2>
+            <p class="rift-card__body" id="status-text">先回收 4 枚裂隙芯片，再从出口撤离。</p>
+            <p class="rift-card__body rift-card__body--hint" id="objective-text">
+              滑行会持续到停点，传送门常常不是路线终点，而是下一段路线的起点。
+            </p>
+          </section>
+
+          <section class="rift-card">
+            <h2 class="rift-card__title">战术重点</h2>
+            <ul class="rift-rules">
+              <li>利用墙和门廊制造停点，才能稳定吃到传送门出口。</li>
+              <li>故障体会追压走廊，必要时用清场能力抢出一步。</li>
+              <li>每层至少要完成一次“停点滑行 + 换位回收”的组合。</li>
+            </ul>
+          </section>
+
+          <section class="rift-card">
+            <h2 class="rift-card__title">控制方式</h2>
+            <ul class="rift-rules">
+              <li>WASD / 方向键：滑行移动</li>
+              <li>Space：等待一拍</li>
+              <li>Q：相位清场</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+
+          <section class="rift-card">
+            <h2 class="rift-card__title">行动面板</h2>
+            <div class="rift-mini-actions">
+              <button class="rift-button rift-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="rift-button rift-button--accent" id="action-skill" type="button">清场</button>
+              <button class="rift-button rift-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="rift-card">
+            <h2 class="rift-card__title">遥测</h2>
+            <dl class="rift-metrics">
+              <div class="rift-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="rift-metrics__row">
+                <dt>故障体</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="rift-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="rift-card">
+            <h2 class="rift-card__title">行动日志</h2>
+            <ul class="rift-feed" id="feed-list" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/rift-relay.js"></script>
+  </body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="风暴锁港攻坚：踩开闸控、穿越传送航道、推进货箱占领闸位，再从风暴中撤离。"
+    />
+    <title>风暴锁港 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2307121d'/%3E%3Cpath d='M13 41 C20 27 32 18 49 15 L42 28 L53 28 L31 48 L36 35 L22 35 Z' fill='%2367e8f9'/%3E%3Crect x='10' y='44' width='44' height='8' rx='4' fill='%23fbbf24'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/storm-lock.css" />
+  </head>
+  <body class="storm-page">
+    <main class="storm-shell">
+      <header class="storm-hero">
+        <a class="storm-back" href="index.html">返回合集</a>
+        <div>
+          <p class="storm-eyebrow">Storm Lock</p>
+          <h1 class="storm-title">风暴锁港</h1>
+          <p class="storm-lead">
+            风暴灌进港内侧后，所有作业都变成了攻坚。先踩开闸控，借跃迁航道换边，再把重箱推进闸位，最后顶着扩散浪涌撤离。
+          </p>
+        </div>
+        <div class="storm-actions">
+          <button class="storm-cta" id="app-start" type="button">接管港口</button>
+          <button class="storm-cta storm-cta--ghost" id="app-reset" type="button">重置战区</button>
+        </div>
+      </header>
+
+      <section class="storm-layout">
+        <section class="storm-panel storm-panel--primary" aria-label="风暴锁港主区域">
+          <div class="storm-stats">
+            <article class="storm-stat">
+              <span class="storm-stat__label">层数</span>
+              <strong class="storm-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="storm-stat">
+              <span class="storm-stat__label">得分</span>
+              <strong class="storm-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="storm-stat">
+              <span class="storm-stat__label">护盾</span>
+              <strong class="storm-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="storm-stat">
+              <span class="storm-stat__label">闸位</span>
+              <strong class="storm-stat__value" id="stat-target">0 / 3</strong>
+            </article>
+            <article class="storm-stat">
+              <span class="storm-stat__label">静电停摆</span>
+              <strong class="storm-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="storm-stat">
+              <span class="storm-stat__label">纪录</span>
+              <strong class="storm-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="storm-board-shell">
+            <canvas
+              class="storm-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="风暴锁港棋盘：开门、换边、推箱与扩散威胁组成的战术网格"
+            ></canvas>
+            <div class="storm-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="storm-overlay__kicker">锁港简报</p>
+              <h2 class="storm-overlay__title" id="overlay-title">按开始或 Enter 接管港闸</h2>
+              <p class="storm-overlay__body" id="overlay-body">
+                先踩开关打开闸门，再利用航道裂口换边，最后把重箱推入目标位。Q 可冻结浪涌两拍。
+              </p>
+            </div>
+          </div>
+
+          <section class="storm-pad pixel-pad" aria-label="方向控制">
+            <button class="storm-pad__button" data-action="up" type="button">上</button>
+            <button class="storm-pad__button" data-action="left" type="button">左</button>
+            <button class="storm-pad__button" data-action="wait" type="button">巡防</button>
+            <button class="storm-pad__button" data-action="right" type="button">右</button>
+            <button class="storm-pad__button" data-action="down" type="button">下</button>
+            <button class="storm-pad__button storm-pad__button--accent" data-action="skill" type="button">
+              停摆
+            </button>
+          </section>
+        </section>
+
+        <aside class="storm-panel storm-panel--side" aria-label="风暴锁港规则与状态">
+          <section class="storm-card">
+            <h2 class="storm-card__title">任务状态</h2>
+            <p class="storm-card__body" id="status-text">先开门换边，再把 3 个重箱推进闸位。</p>
+            <p class="storm-card__body storm-card__body--hint" id="objective-text">
+              浪涌会扩散，拖得越久，港口越难收回。
+            </p>
+          </section>
+
+          <section class="storm-card">
+            <h2 class="storm-card__title">战术链路</h2>
+            <ul class="storm-rules">
+              <li>先踩开关永久开门，打通内外港连接。</li>
+              <li>传送航道负责换边与抢位，不只是捷径。</li>
+              <li>推箱前要先预留撤离路线，否则扩散浪涌会把你锁死。</li>
+            </ul>
+          </section>
+
+          <section class="storm-card">
+            <h2 class="storm-card__title">控制方式</h2>
+            <ul class="storm-rules">
+              <li>WASD / 方向键：移动与推箱</li>
+              <li>Space：等待一拍</li>
+              <li>Q：静电停摆</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+
+          <section class="storm-card">
+            <h2 class="storm-card__title">行动面板</h2>
+            <div class="storm-mini-actions">
+              <button class="storm-button storm-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="storm-button storm-button--accent" id="action-skill" type="button">停摆</button>
+              <button class="storm-button storm-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="storm-card">
+            <h2 class="storm-card__title">遥测</h2>
+            <dl class="storm-metrics">
+              <div class="storm-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="storm-metrics__row">
+                <dt>浪涌数</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="storm-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="storm-card">
+            <h2 class="storm-card__title">行动日志</h2>
+            <ul class="storm-feed" id="feed-list" aria-live="polite"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/storm-lock.js"></script>
+  </body>
+</html>

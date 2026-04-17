@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="断路车场：像素风策略推箱游戏，先踩开关抬起闸门，再把断路箱推上车位并穿过失控扩散的电弧撤离。"
+    />
+    <title>断路车场 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1017'/%3E%3Cpath d='M10 47h44v7H10z' fill='%2334434f'/%3E%3Cpath d='M16 18h10v12H16zM38 18h10v12H38zM27 22h10v4H27z' fill='%23fb923c'/%3E%3Cpath d='M18 36h28l-4 7H22z' fill='%23facc15'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/breaker-yard.css" />
+  </head>
+  <body class="breaker-page">
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回合集</a>
+        <div>
+          <p class="pixel-eyebrow">Breaker Yard Logistics</p>
+          <h1 class="pixel-title">断路车场</h1>
+          <p class="pixel-lead">
+            失控电弧已经爬满整片车场。你要先踩下总闸开关抬起钢门，再把断路箱推入检修位，最后沿维修线撤出现场。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">接管车场</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置班次</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">层数</span>
+              <strong class="pixel-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">得分</span>
+              <strong class="pixel-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">护甲</span>
+              <strong class="pixel-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">检修位</span>
+              <strong class="pixel-stat__value" id="stat-target">0 / 3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">压制</span>
+              <strong class="pixel-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">纪录</span>
+              <strong class="pixel-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas
+              class="pixel-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="断路车场棋盘"
+            ></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">车场调度</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入断路车场</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                先去踩 `S/D` 闸门链路里的开关，再把断路箱推进检修位。Q 可短暂冻结扩散中的电弧。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">等</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">
+              压制
+            </button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">当前任务</h2>
+            <p class="pixel-sidecard__body" id="status-text">先踩总闸开关，再把 3 个断路箱推上检修位。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              闸门打开后不会再关闭，但电弧会持续扩散，别在窄道里拖太久。
+            </p>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">节奏提示</h2>
+            <ul class="pixel-rules">
+              <li>第一段先找开关，闸门抬起后路线会彻底改写。</li>
+              <li>第二段再推箱占位，扩散电弧会逼你加快手脚。</li>
+              <li>出口只有在所有检修位完成后才通车。</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动并推箱</li>
+              <li>Space：原地等待一拍</li>
+              <li>Q：放出压制脉冲，冻结电弧</li>
+              <li>Enter：开始当前层</li>
+              <li>R：整层重开</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">压制脉冲</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">现场遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>电弧数</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">班次日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/breaker-yard.js"></script>
+  </body>
+</html>

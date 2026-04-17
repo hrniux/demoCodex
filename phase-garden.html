@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="相位花园回收：像素风策略回收游戏，穿越相位花圃、打开闸门、清扫失控孢体并把回收样本带离温室。"
+    />
+    <title>相位花园回收 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23080f16'/%3E%3Crect x='10' y='10' width='44' height='44' rx='10' fill='%230e1824'/%3E%3Ccircle cx='22' cy='22' r='7' fill='%236ee7f9'/%3E%3Ccircle cx='42' cy='22' r='7' fill='%23f472b6'/%3E%3Cpath d='M16 42c6-8 12-12 16-12s10 4 16 12' fill='none' stroke='%23a3e635' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/phase-garden.css" />
+  </head>
+  <body class="phase-page">
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回合集</a>
+        <div>
+          <p class="pixel-eyebrow">Phase Garden Recovery</p>
+          <h1 class="pixel-title">相位花园回收</h1>
+          <p class="pixel-lead">
+            失控花圃把回收样本散到了不同相位层。你要借传送门改线、踩开闸门、在孢体包围前清出安全窗口，再把所有样本沿撤离井带出。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">进入花圃</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置花圃</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">层数</span>
+              <strong class="pixel-stat__value" id="stat-stage">1</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">得分</span>
+              <strong class="pixel-stat__value" id="stat-score">0</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">护盾</span>
+              <strong class="pixel-stat__value" id="stat-life">3</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">样本</span>
+              <strong class="pixel-stat__value" id="stat-target">0 / 5</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">净场</span>
+              <strong class="pixel-stat__value" id="stat-skill">就绪</strong>
+            </article>
+            <article class="pixel-stat">
+              <span class="pixel-stat__label">纪录</span>
+              <strong class="pixel-stat__value" id="stat-best">0</strong>
+            </article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas
+              class="pixel-canvas"
+              id="pixel-canvas"
+              width="840"
+              height="840"
+              role="img"
+              aria-label="相位花园回收棋盘"
+            ></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">花圃调度</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 进入回收区</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                方向键移动，空格稳场，Q 释放净场脉冲。先借相位门绕路，再收完样本撤离。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">稳</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">
+              净场
+            </button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">先回收 5 份样本，并用相位门穿过被闸门切开的花圃。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              净场脉冲会清掉近身孢体，但要把冷却留给最窄的口子。
+            </p>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">回收逻辑</h2>
+            <ul class="pixel-rules">
+              <li>先踩开关打开整层花圃闸门。</li>
+              <li>相位门会把你直接送到镜像花廊另一端。</li>
+              <li>样本收满后，回到撤离井完成转运。</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动</li>
+              <li>Space：等待一拍</li>
+              <li>Q：释放净场脉冲</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">稳场</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">净场</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">监测面板</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row">
+                <dt>当前回合</dt>
+                <dd id="metric-turn">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>孢体数</dt>
+                <dd id="metric-danger">0</dd>
+              </div>
+              <div class="pixel-metrics__row">
+                <dt>最佳层数</dt>
+                <dd id="metric-best-stage">0</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/phase-garden.js"></script>
+  </body>
+</html>

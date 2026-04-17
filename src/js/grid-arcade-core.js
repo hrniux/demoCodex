@@ -61,7 +61,12 @@
       hazards: cloneActors(state.hazards),
       boxes: cloneActors(state.boxes),
       lastAbility: state.lastAbility.map((item) => ({ ...item })),
+      gatesOpen: Boolean(state.gatesOpen),
     };
+  }
+
+  function isTeleportToken(token) {
+    return token >= '1' && token <= '9';
   }
 
   function moveCell(cell, action) {
@@ -84,6 +89,10 @@
     const hazards = [];
     const goals = [];
     const boxes = [];
+    const switches = [];
+    const gates = [];
+    const teleporters = [];
+    const teleportGroups = new Map();
     let start = null;
     let exit = null;
     let nextItemId = 0;
@@ -116,6 +125,12 @@
             boxes.push({ id: nextBoxId, x, y, locked: false });
             nextBoxId += 1;
             break;
+          case 's':
+            switches.push({ id: switches.length, x, y });
+            break;
+          case 'd':
+            gates.push({ id: gates.length, x, y });
+            break;
           case 'S':
             start = point;
             break;
@@ -123,6 +138,13 @@
             exit = point;
             break;
           default:
+            if (isTeleportToken(token)) {
+              teleporters.push({ id: token, x, y });
+              if (!teleportGroups.has(token)) {
+                teleportGroups.set(token, []);
+              }
+              teleportGroups.get(token).push(point);
+            }
             break;
         }
       });
@@ -140,6 +162,9 @@
       ...hazards.map(cellKey),
       ...goals.map(cellKey),
       ...boxes.map(cellKey),
+      ...switches.map(cellKey),
+      ...gates.map(cellKey),
+      ...teleporters.map(cellKey),
     ]);
 
     if (config.extraHazards) {
@@ -156,6 +181,15 @@
       }
     }
 
+    const teleportMap = new Map();
+    teleportGroups.forEach((cells, token) => {
+      if (cells.length !== 2) {
+        throw new Error(`Teleporter ${token} must appear exactly twice in ${config.name}`);
+      }
+      teleportMap.set(cellKey(cells[0]), cloneCell(cells[1]));
+      teleportMap.set(cellKey(cells[1]), cloneCell(cells[0]));
+    });
+
     return {
       size,
       walls,
@@ -164,6 +198,12 @@
       goals,
       goalKeys: new Set(goals.map(cellKey)),
       boxes,
+      switches,
+      switchKeys: new Set(switches.map(cellKey)),
+      gates,
+      gateKeys: new Set(gates.map(cellKey)),
+      teleporters,
+      teleportMap,
       start,
       exit,
     };
@@ -184,6 +224,7 @@
       specialCooldown: 0,
       freezeTurns: 0,
       exitUnlocked: false,
+      gatesOpen: Boolean(options.gatesOpen),
       lastAbility: [],
     };
   }
@@ -195,6 +236,23 @@
 
   function hasWall(layout, cell) {
     return layout.walls.has(cellKey(cell));
+  }
+
+  function hasClosedGate(layout, state, cell) {
+    return !state.gatesOpen && layout.gateKeys.has(cellKey(cell));
+  }
+
+  function hasBlockingTile(layout, state, cell) {
+    return hasWall(layout, cell) || hasClosedGate(layout, state, cell);
+  }
+
+  function getTeleportDestination(layout, cell) {
+    if (!layout.teleportMap) {
+      return null;
+    }
+
+    const destination = layout.teleportMap.get(cellKey(cell));
+    return destination ? cloneCell(destination) : null;
   }
 
   function hasActiveItem(state, cell) {
@@ -292,11 +350,76 @@
 
   function canPushBox(config, layout, state, boxIndex, destination) {
     const box = state.boxes[boxIndex];
-    if (box.locked || !inBounds(destination, layout.size) || hasWall(layout, destination)) {
+    if (box.locked || !inBounds(destination, layout.size) || hasBlockingTile(layout, state, destination)) {
       return false;
     }
 
     return !state.boxes.some((item) => item.id !== box.id && sameCell(item, destination));
+  }
+
+  function triggerSwitch(config, layout, state, outcome) {
+    if (state.gatesOpen || layout.switches.length === 0) {
+      return;
+    }
+
+    if (!layout.switchKeys.has(cellKey(state.player))) {
+      return;
+    }
+
+    state.gatesOpen = true;
+    state.score += config.scoreSwitch || 0;
+    outcome.triggeredSwitch = true;
+  }
+
+  function resolvePlayerTeleport(layout, state, outcome) {
+    const destination = getTeleportDestination(layout, state.player);
+    if (!destination) {
+      return;
+    }
+
+    if (hasBlockingTile(layout, state, destination) || hasBox(state, destination) || hasHazard(state, destination)) {
+      return;
+    }
+
+    state.player = destination;
+    outcome.teleported = true;
+  }
+
+  function resolveSlideTeleport(layout, state, cell, usedTeleports) {
+    const entryKey = cellKey(cell);
+    if (usedTeleports.has(entryKey)) {
+      return cell;
+    }
+
+    const destination = getTeleportDestination(layout, cell);
+    if (!destination) {
+      return cell;
+    }
+
+    if (hasBlockingTile(layout, state, destination) || hasBox(state, destination) || hasHazard(state, destination)) {
+      return cell;
+    }
+
+    usedTeleports.add(entryKey);
+    usedTeleports.add(cellKey(destination));
+    return destination;
+  }
+
+  function resolveHazardTeleport(layout, state, hazard, occupiedKeys) {
+    const destination = getTeleportDestination(layout, hazard);
+    if (!destination) {
+      return hazard;
+    }
+
+    if (
+      hasBlockingTile(layout, state, destination) ||
+      hasBox(state, destination) ||
+      occupiedKeys.has(cellKey(destination))
+    ) {
+      return hazard;
+    }
+
+    return destination;
   }
 
   function movePlayerWithSlide(config, layout, state, action, outcome) {
@@ -306,7 +429,7 @@
     }
 
     const first = { x: state.player.x + delta.x, y: state.player.y + delta.y };
-    if (!inBounds(first, layout.size) || hasWall(layout, first)) {
+    if (!inBounds(first, layout.size) || hasBlockingTile(layout, state, first)) {
       outcome.invalid = true;
       outcome.message = '冰轨前方没有可滑行的空间。';
       return false;
@@ -324,7 +447,7 @@
       let nextBox = { x: boxCursor.x + delta.x, y: boxCursor.y + delta.y };
       while (
         inBounds(nextBox, layout.size) &&
-        !hasWall(layout, nextBox) &&
+        !hasBlockingTile(layout, state, nextBox) &&
         !state.boxes.some((item) => item.id !== state.boxes[boxIndex].id && sameCell(item, nextBox))
       ) {
         boxCursor = nextBox;
@@ -345,10 +468,11 @@
 
     let cursor = cloneCell(state.player);
     let moved = false;
+    const usedTeleports = new Set();
 
     for (;;) {
       const next = { x: cursor.x + delta.x, y: cursor.y + delta.y };
-      if (!inBounds(next, layout.size) || hasWall(layout, next)) {
+      if (!inBounds(next, layout.size) || hasBlockingTile(layout, state, next)) {
         break;
       }
       if (hasBox(state, next)) {
@@ -356,6 +480,11 @@
       }
       cursor = next;
       moved = true;
+      const teleportedCursor = resolveSlideTeleport(layout, state, cursor, usedTeleports);
+      if (!sameCell(teleportedCursor, cursor)) {
+        cursor = teleportedCursor;
+        outcome.teleported = true;
+      }
       if (hasHazard(state, cursor) || hasActiveItem(state, cursor) || sameCell(cursor, layout.exit)) {
         break;
       }
@@ -377,7 +506,7 @@
     }
 
     const destination = moveCell(state.player, action);
-    if (!destination || !inBounds(destination, layout.size) || hasWall(layout, destination)) {
+    if (!destination || !inBounds(destination, layout.size) || hasBlockingTile(layout, state, destination)) {
       outcome.invalid = true;
       outcome.message = '前方被挡住了。';
       return false;
@@ -408,6 +537,7 @@
     }
 
     state.player = destination;
+    resolvePlayerTeleport(layout, state, outcome);
     return true;
   }
 
@@ -421,7 +551,7 @@
       const key = cellKey(candidate);
       if (
         !inBounds(candidate, layout.size) ||
-        hasWall(layout, candidate) ||
+        hasBlockingTile(layout, state, candidate) ||
         hasBox(state, candidate) ||
         occupiedKeys.has(key)
       ) {
@@ -450,7 +580,7 @@
       const candidate = { x: source.x + delta.x, y: source.y + delta.y };
       if (
         inBounds(candidate, layout.size) &&
-        !hasWall(layout, candidate) &&
+        !hasBlockingTile(layout, state, candidate) &&
         !hasBox(state, candidate) &&
         !hasHazard(state, candidate) &&
         !sameCell(candidate, layout.exit)
@@ -473,7 +603,8 @@
       for (let rest = index + 1; rest < state.hazards.length; rest += 1) {
         occupiedKeys.add(cellKey(state.hazards[rest]));
       }
-      nextPositions.push(pickHazardStep(layout, state, hazard, state.player, occupiedKeys));
+      const next = pickHazardStep(layout, state, hazard, state.player, occupiedKeys);
+      nextPositions.push(resolveHazardTeleport(layout, state, next, occupiedKeys));
     });
 
     state.hazards = nextPositions.map((hazard, index) => ({ id: index, x: hazard.x, y: hazard.y }));
@@ -503,6 +634,8 @@
       invalid: false,
       progressed: 0,
       clearedHazards: 0,
+      triggeredSwitch: false,
+      teleported: false,
       extracted: false,
       hit: false,
       gameOver: false,
@@ -530,6 +663,7 @@
     state.turns += 1;
     outcome.changed = true;
 
+    triggerSwitch(config, layout, state, outcome);
     collectItems(config, layout, state, outcome);
     syncGoals(config, layout, state, outcome);
 
@@ -553,10 +687,14 @@
 
     if (state.exitUnlocked) {
       outcome.message = config.copy.unlocked;
+    } else if (outcome.triggeredSwitch) {
+      outcome.message = config.copy.switch || config.copy.live;
     } else if (outcome.progressed > 0) {
       outcome.message = config.copy.progress;
     } else if (outcome.clearedHazards > 0) {
       outcome.message = config.copy.special;
+    } else if (outcome.teleported) {
+      outcome.message = config.copy.teleport || config.copy.live;
     } else if (action === 'ability') {
       outcome.message = config.copy.special;
     } else {
@@ -988,6 +1126,21 @@
         this.drawRect(goal, palette.goal, 10);
       });
 
+      this.layout.switches.forEach((tile) => {
+        this.drawRect(tile, palette.switch || palette.special, 14);
+        this.drawRect(tile, palette.bg, 24);
+      });
+
+      this.layout.teleporters.forEach((tile) => {
+        this.drawRect(tile, palette.teleport || palette.goal, 12);
+        this.drawRect(tile, palette.bg, 22);
+        this.drawRect(tile, palette.teleport || palette.goal, 28);
+      });
+
+      this.layout.gates.forEach((tile) => {
+        this.drawRect(tile, this.state.gatesOpen ? (palette.gateOpen || palette.exitOn) : (palette.gateClosed || palette.wall), 8);
+      });
+
       this.drawRect(this.layout.exit, this.state.exitUnlocked ? palette.exitOn : palette.exitOff, 12);
 
       this.state.items.forEach((item) => {
@@ -1021,6 +1174,10 @@
         items: this.state.items.filter((item) => item.active).map((item) => ({ x: item.x, y: item.y })),
         hazards: this.state.hazards.map((hazard) => ({ x: hazard.x, y: hazard.y })),
         boxes: this.state.boxes.map((box) => ({ x: box.x, y: box.y, locked: box.locked })),
+        switches: this.layout.switches.map((tile) => ({ x: tile.x, y: tile.y })),
+        gates: this.layout.gates.map((tile) => ({ x: tile.x, y: tile.y })),
+        teleporters: this.layout.teleporters.map((tile) => ({ id: tile.id, x: tile.x, y: tile.y })),
+        gatesOpen: this.state.gatesOpen,
         exit: {
           x: this.layout.exit.x,
           y: this.layout.exit.y,

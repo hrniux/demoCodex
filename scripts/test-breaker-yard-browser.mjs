@@ -1,0 +1,185 @@
+import { runGridArcadeBrowserTest } from './test-grid-arcade-browser.mjs';
+
+const CONFIG = {
+  envName: 'BREAKER_YARD_TEST_URL',
+  pathname: '/breaker-yard.html',
+  globalName: 'breakerYardGame',
+  captureEnv: 'BREAKER_YARD_CAPTURE',
+  screenshotDir: 'output/breaker-yard-browser',
+  scenarios: [
+    {
+      name: 'switch',
+      screenshot: 'switch.png',
+      setup: {
+        layout: {
+          start: { x: 1, y: 2 },
+          exit: { x: 6, y: 2 },
+          walls: [],
+          goals: [],
+          switches: [{ x: 1, y: 1 }],
+          gates: [{ x: 3, y: 1 }],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 1, y: 2 },
+          boxes: [],
+          hazards: [],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 0,
+          hull: 3,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: false,
+          lastAbility: [],
+        },
+        status: '测试踩开关开门',
+      },
+      actions: ['ArrowUp'],
+      expect: {
+        player: { x: 1, y: 1 },
+        gatesOpen: true,
+        score: 45,
+        hazardsLength: 0,
+        exitUnlocked: false,
+      },
+    },
+    {
+      name: 'progress',
+      screenshot: 'progress.png',
+      setup: {
+        layout: {
+          start: { x: 0, y: 0 },
+          exit: { x: 6, y: 6 },
+          walls: [],
+          goals: [{ x: 5, y: 1 }],
+          switches: [{ x: 1, y: 1 }],
+          gates: [{ x: 3, y: 1 }],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 3, y: 1 },
+          boxes: [{ x: 4, y: 1, locked: false }],
+          hazards: [],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 45,
+          hull: 3,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: true,
+          lastAbility: [],
+        },
+        status: '测试推进检修位',
+      },
+      actions: ['ArrowRight'],
+      expect: {
+        player: { x: 4, y: 1 },
+        progress: 1,
+        score: 155,
+        boxes: [{ x: 5, y: 1, locked: true }],
+        hazardsLength: 0,
+        exitUnlocked: false,
+      },
+    },
+    {
+      name: 'special',
+      screenshot: 'special.png',
+      setup: {
+        layout: {
+          start: { x: 0, y: 0 },
+          exit: { x: 6, y: 6 },
+          walls: [],
+          goals: [],
+          switches: [],
+          gates: [],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 2, y: 2 },
+          boxes: [],
+          hazards: [{ x: 2, y: 1 }],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 0,
+          hull: 3,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: true,
+          lastAbility: [],
+        },
+        status: '测试压制脉冲',
+      },
+      actions: ['KeyQ'],
+      expect: { specialCooldown: 4, hazardsLength: 1, score: 0 },
+      internalExpect: { freezeTurns: 1 },
+    },
+    {
+      name: 'gameover',
+      screenshot: 'gameover.png',
+      setup: {
+        layout: {
+          start: { x: 0, y: 0 },
+          exit: { x: 6, y: 6 },
+          walls: [],
+          goals: [],
+          switches: [],
+          gates: [],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 2, y: 2 },
+          boxes: [],
+          hazards: [{ x: 2, y: 1 }],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 0,
+          hull: 1,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: true,
+          lastAbility: [],
+        },
+        status: '测试失败重开',
+      },
+      actions: ['Space'],
+      expect: { mode: 'gameover', player: { x: 0, y: 0 }, hull: 0, score: 0 },
+      internalExpect: { overlayVisible: true, overlayTitle: '车场失守' },
+      postGameoverRestart: true,
+    },
+  ],
+};
+
+async function main() {
+  const result = await runGridArcadeBrowserTest(CONFIG);
+  console.log(
+    JSON.stringify(
+      {
+        ok: result.ok,
+        url: result.url,
+        browser: result.browser,
+        screenshots: result.screenshots,
+        scenarios: result.scenarios,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

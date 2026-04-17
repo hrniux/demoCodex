@@ -28,6 +28,29 @@ async function applyScenario(page, { globalName, setup }) {
         }));
       }
 
+      function buildTeleportMap(teleporters) {
+        const grouped = new Map();
+        const map = new Map();
+
+        for (const teleporter of teleporters || []) {
+          const key = teleporter.id ?? teleporter.channel ?? '1';
+          if (!grouped.has(key)) {
+            grouped.set(key, []);
+          }
+          grouped.get(key).push({ x: teleporter.x, y: teleporter.y });
+        }
+
+        for (const [key, cells] of grouped) {
+          if (cells.length !== 2) {
+            throw new Error(`Scenario teleporter ${key} must contain exactly two cells`);
+          }
+          map.set(`${cells[0].x}:${cells[0].y}`, { ...cells[1] });
+          map.set(`${cells[1].x}:${cells[1].y}`, { ...cells[0] });
+        }
+
+        return map;
+      }
+
       const game = window[target];
       if (!game) {
         throw new Error(`Game global not found: ${target}`);
@@ -50,6 +73,21 @@ async function applyScenario(page, { globalName, setup }) {
           layout.goals = scenario.layout.goals.map((goal, index) => ({ id: goal.id ?? index, ...goal }));
           layout.goalKeys = new Set(layout.goals.map((goal) => `${goal.x}:${goal.y}`));
         }
+        if (scenario.layout.switches) {
+          layout.switches = scenario.layout.switches.map((tile, index) => ({ id: tile.id ?? index, ...tile }));
+          layout.switchKeys = new Set(layout.switches.map((tile) => `${tile.x}:${tile.y}`));
+        }
+        if (scenario.layout.gates) {
+          layout.gates = scenario.layout.gates.map((tile, index) => ({ id: tile.id ?? index, ...tile }));
+          layout.gateKeys = new Set(layout.gates.map((tile) => `${tile.x}:${tile.y}`));
+        }
+        if (scenario.layout.teleporters) {
+          layout.teleporters = scenario.layout.teleporters.map((tile) => ({
+            id: tile.id ?? tile.channel ?? '1',
+            ...tile,
+          }));
+          layout.teleportMap = buildTeleportMap(layout.teleporters);
+        }
       }
 
       if (scenario.state) {
@@ -63,6 +101,7 @@ async function applyScenario(page, { globalName, setup }) {
           specialCooldown: scenario.state.specialCooldown ?? state.specialCooldown,
           freezeTurns: scenario.state.freezeTurns ?? state.freezeTurns,
           exitUnlocked: scenario.state.exitUnlocked ?? state.exitUnlocked,
+          gatesOpen: scenario.state.gatesOpen ?? state.gatesOpen,
           player: scenario.state.player ? { ...scenario.state.player } : state.player,
           items: normalizeActors(scenario.state.items, { active: true }),
           hazards: normalizeActors(scenario.state.hazards),
@@ -101,6 +140,7 @@ function assertSnapshotMatches(current, baseline) {
   assert.equal(current.progress, baseline.progress);
   assert.equal(current.turns, baseline.turns);
   assert.equal(current.specialCooldown, baseline.specialCooldown);
+  assert.equal(current.gatesOpen, baseline.gatesOpen);
   assert.equal(current.exit.unlocked, baseline.exit.unlocked);
   assert.deepEqual(current.player, baseline.player);
   assert.deepEqual(current.items, baseline.items);
@@ -184,6 +224,9 @@ function assertState(state, expected) {
   }
   if (expected.floor !== undefined) {
     assert.equal(state.floor, expected.floor);
+  }
+  if (expected.gatesOpen !== undefined) {
+    assert.equal(state.gatesOpen, expected.gatesOpen);
   }
   if (expected.exitUnlocked !== undefined) {
     assert.equal(state.exit.unlocked, expected.exitUnlocked);
