@@ -1,9 +1,14 @@
 import path from 'node:path';
-import { spawn } from 'node:child_process';
 import { startStaticServer } from './static-server.mjs';
+import {
+  createSuiteLabel,
+  formatDurationMs,
+  runJsonCommand,
+} from './json-command-runner.mjs';
 
 const rootDir = process.cwd();
 const shouldCapture = process.env.DEMOCODEX_BROWSER_CAPTURE === '1';
+const browserSuiteTimeoutMs = Number(process.env.DEMOCODEX_BROWSER_SUITE_TIMEOUT_MS || '300000');
 const browserSuites = [
   { key: 'indexMenu', script: 'scripts/test-index-menu-browser.mjs', captureEnv: 'INDEX_MENU_CAPTURE' },
   { key: 'solarSentry', script: 'scripts/test-solar-sentry-browser.mjs', captureEnv: 'SOLAR_SENTRY_CAPTURE' },
@@ -51,49 +56,6 @@ const browserSuites = [
   { key: 'priorityCanvas', script: 'scripts/test-priority-canvas-browser.mjs', captureEnv: 'PRIORITY_CANVAS_CAPTURE' },
 ];
 
-function runNodeScript(scriptPath, extraEnv) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [scriptPath], {
-      cwd: rootDir,
-      env: { ...process.env, ...extraEnv },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout.on('data', (chunk) => {
-      stdout += chunk.toString();
-    });
-
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-    });
-
-    child.on('error', reject);
-    child.on('close', (code) => {
-      if (code !== 0) {
-        reject(
-          new Error(
-            `Script failed: ${scriptPath}\nstdout:\n${stdout.trim()}\nstderr:\n${stderr.trim()}`,
-          ),
-        );
-        return;
-      }
-
-      try {
-        resolve(JSON.parse(stdout));
-      } catch (error) {
-        reject(
-          new Error(
-            `Script returned non-JSON output: ${scriptPath}\nstdout:\n${stdout.trim()}\nstderr:\n${stderr.trim()}`,
-          ),
-        );
-      }
-    });
-  });
-}
-
 async function main() {
   const server = await startStaticServer({ rootDir });
 
@@ -106,10 +68,30 @@ async function main() {
       { DEMOCODEX_BASE_URL: server.url },
     );
     const tests = {};
+    const suiteStart = Date.now();
 
-    for (const suite of browserSuites) {
-      tests[suite.key] = await runNodeScript(path.resolve(rootDir, suite.script), sharedEnv);
+    for (const [index, suite] of browserSuites.entries()) {
+      const label = createSuiteLabel({
+        index: index + 1,
+        total: browserSuites.length,
+        key: suite.key,
+      });
+      const startedAt = Date.now();
+
+      console.error(`${label} running ${suite.script}`);
+      tests[suite.key] = await runJsonCommand({
+        command: process.execPath,
+        args: [path.resolve(rootDir, suite.script)],
+        cwd: rootDir,
+        env: sharedEnv,
+        timeoutMs: browserSuiteTimeoutMs,
+      });
+      console.error(`${label} passed in ${formatDurationMs(Date.now() - startedAt)}`);
     }
+
+    console.error(
+      `[browser-suite] completed ${browserSuites.length} suites in ${formatDurationMs(Date.now() - suiteStart)}`,
+    );
 
     console.log(
       JSON.stringify(

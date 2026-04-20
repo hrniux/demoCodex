@@ -199,8 +199,9 @@ npm run test:browser
 
 - `npm run check:manifest` 会核对仓库 HTML 总数、`index.html` 主推卡片数量，以及 README 中声明的页面数是否一致。
 - `npm test` 运行当前内建的逻辑自检，现已覆盖 43 个主推页面逻辑，其中包括策略游戏与轻量应用。
-- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的主推像素游戏浏览器回归。
+- `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的主推像素游戏浏览器回归，并输出每个用例的进度与耗时。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
+- 总套件默认给单用例 `300000ms` 超时保护；如需继续调大，可临时设置 `DEMOCODEX_BROWSER_SUITE_TIMEOUT_MS`。
 - 仓库不会回退到 Playwright bundled browser，也不需要为本项目运行 `playwright install`。
 
 ## 作品清单
