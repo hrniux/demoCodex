@@ -43,10 +43,16 @@
             <button class="menu-action menu-action--primary" id="menu-random-pick" type="button">
               随机挑一页
             </button>
+            <button class="menu-action menu-action--soft" id="menu-share-view" type="button">
+              复制当前视图
+            </button>
             <button class="menu-action menu-action--ghost" id="menu-reset" type="button">
               清空筛选
             </button>
           </div>
+          <p class="menu-share-feedback" id="menu-share-feedback" aria-live="polite">
+            当前是默认合集视图。
+          </p>
         </div>
 
         <aside class="menu-spotlight" aria-labelledby="menu-spotlight-title">
@@ -134,6 +140,7 @@
     </noscript>
   </main>
 
+  <script src="src/js/index-menu-url-state.js" defer></script>
   <script src="src/js/index-menu.js" defer></script>
 </body>
 </html>

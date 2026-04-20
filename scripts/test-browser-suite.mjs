@@ -5,6 +5,7 @@ import { startStaticServer } from './static-server.mjs';
 const rootDir = process.cwd();
 const shouldCapture = process.env.DEMOCODEX_BROWSER_CAPTURE === '1';
 const browserSuites = [
+  { key: 'indexMenu', script: 'scripts/test-index-menu-browser.mjs', captureEnv: 'INDEX_MENU_CAPTURE' },
   { key: 'solarSentry', script: 'scripts/test-solar-sentry-browser.mjs', captureEnv: 'SOLAR_SENTRY_CAPTURE' },
   { key: 'crateCircuit', script: 'scripts/test-crate-circuit-browser.mjs', captureEnv: 'CRATE_CIRCUIT_CAPTURE' },
   { key: 'reefRaider', script: 'scripts/test-reef-raider-browser.mjs', captureEnv: 'REEF_RAIDER_CAPTURE' },

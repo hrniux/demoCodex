@@ -676,8 +676,21 @@
   ];
 
   const categoryById = new Map(categoryCatalog.map((item) => [item.id, item]));
+  const sortOptions = ["recommended", "recent", "quick", "name"];
   const preparedCards = cards.map((card, index) => prepareCard(card, index));
   const featuredCount = preparedCards.filter((card) => card.featured).length;
+  const urlStateApi = typeof window !== "undefined" ? window.DemoCodexMenuUrlState : null;
+  const urlStateOptions = {
+    allowedCategories: categoryCatalog.map((item) => item.id),
+    allowedSorts: sortOptions,
+    allowedSpotlights: preparedCards.map((card) => card.href),
+    defaultCategory: "all",
+    defaultSort: "recommended",
+  };
+  const initialUrlState = urlStateApi
+    ? urlStateApi.parseMenuViewFromSearch(window.location.search, urlStateOptions)
+    : { query: "", category: "all", sort: "recommended", spotlightHref: null };
+  const defaultSpotlightHref = getDefaultSpotlight(preparedCards).href;
 
   const elements = {
     grid: document.getElementById("games-grid"),
@@ -686,6 +699,8 @@
     visible: document.getElementById("menu-visible"),
     subtitle: document.getElementById("menu-subtitle"),
     randomPick: document.getElementById("menu-random-pick"),
+    share: document.getElementById("menu-share-view"),
+    shareFeedback: document.getElementById("menu-share-feedback"),
     reset: document.getElementById("menu-reset"),
     spotlightLabel: document.getElementById("menu-spotlight-label"),
     spotlightTitle: document.getElementById("menu-spotlight-title"),
@@ -706,14 +721,14 @@
   }
 
   const state = {
-    query: "",
-    category: "all",
-    sort: "recommended",
+    query: initialUrlState.query,
+    category: initialUrlState.category,
+    sort: initialUrlState.sort,
     onlyFavorites: false,
     favorites: new Set(loadStoredList(STORAGE_KEYS.favorites)),
     recent: loadStoredList(STORAGE_KEYS.recent),
-    spotlightHref: getDefaultSpotlight(preparedCards).href,
-    spotlightMode: "auto",
+    spotlightHref: initialUrlState.spotlightHref || defaultSpotlightHref,
+    spotlightMode: initialUrlState.spotlightHref ? "shared" : "auto",
   };
 
   bindEvents();
@@ -772,6 +787,10 @@
       elements.spotlightLink.focus();
     });
 
+    elements.share.addEventListener("click", async () => {
+      await copyCurrentView();
+    });
+
     elements.reset.addEventListener("click", () => {
       resetFilters();
     });
@@ -800,6 +819,8 @@
     renderActiveFilters();
     renderSpotlight(visibleCards);
     renderGrid(visibleCards);
+    syncLocationState();
+    setShareFeedback(getDefaultShareFeedback());
   }
 
   function syncControls() {
@@ -1153,7 +1174,7 @@
   }
 
   function normalizeText(value) {
-    return String(value || "").trim().toLowerCase();
+    return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
   }
 
   function getVisibleCards() {
@@ -1298,6 +1319,10 @@
       return "随机点名";
     }
 
+    if (state.spotlightMode === "shared") {
+      return "共享视图";
+    }
+
     if (state.onlyFavorites && state.favorites.has(card.href)) {
       return "你的收藏";
     }
@@ -1362,11 +1387,106 @@
     state.sort = "recommended";
     state.onlyFavorites = false;
     state.spotlightMode = "auto";
-    state.spotlightHref = getDefaultSpotlight(preparedCards).href;
+    state.spotlightHref = defaultSpotlightHref;
     render();
   }
 
   function hasActiveFilters() {
     return state.category !== "all" || Boolean(state.query.trim()) || state.onlyFavorites || state.sort !== "recommended";
+  }
+
+  function getDefaultShareFeedback() {
+    return hasShareableView()
+      ? "当前视图链接已同步到地址栏，可直接收藏或复制。"
+      : "当前是默认合集视图。";
+  }
+
+  function hasShareableView() {
+    return Boolean(state.query.trim()) || state.category !== "all" || state.sort !== "recommended" || state.spotlightMode !== "auto";
+  }
+
+  function setShareFeedback(message, tone = "neutral") {
+    elements.shareFeedback.textContent = message;
+
+    if (tone === "neutral") {
+      delete elements.shareFeedback.dataset.tone;
+      return;
+    }
+
+    elements.shareFeedback.dataset.tone = tone;
+  }
+
+  function getShareableSpotlightHref() {
+    return state.spotlightMode === "auto" ? null : state.spotlightHref;
+  }
+
+  function buildShareSearch() {
+    if (!urlStateApi) {
+      return "";
+    }
+
+    return urlStateApi.buildMenuViewSearch(
+      {
+        query: state.query,
+        category: state.category,
+        sort: state.sort,
+        spotlightHref: getShareableSpotlightHref(),
+      },
+      urlStateOptions
+    );
+  }
+
+  function syncLocationState() {
+    if (!urlStateApi || !window.history || typeof window.history.replaceState !== "function") {
+      return;
+    }
+
+    const nextUrl = new URL(window.location.href);
+    nextUrl.search = buildShareSearch();
+
+    const nextRelative = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+    const currentRelative = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+    if (nextRelative !== currentRelative) {
+      window.history.replaceState(null, "", nextRelative);
+    }
+  }
+
+  function buildShareUrl() {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.search = buildShareSearch();
+    return nextUrl.toString();
+  }
+
+  async function copyCurrentView() {
+    try {
+      await writeClipboardText(buildShareUrl());
+      setShareFeedback("当前视图链接已复制。", "success");
+    } catch {
+      setShareFeedback("当前浏览器不允许自动复制，但地址栏里的链接已经是最新视图。", "warning");
+    }
+  }
+
+  async function writeClipboardText(value) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    textarea.style.pointerEvents = "none";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    const copied = typeof document.execCommand === "function" && document.execCommand("copy");
+    textarea.remove();
+
+    if (!copied) {
+      throw new Error("Clipboard copy is not available.");
+    }
   }
 })();
