@@ -8,6 +8,7 @@ import {
   trackPageErrors,
 } from './browser-test-helpers.mjs';
 import { launchLocalChrome } from './local-chrome.mjs';
+import { startStaticServer } from './static-server.mjs';
 
 function normalizeActors(items, defaults = {}) {
   return (items || []).map((item, index) => ({
@@ -272,6 +273,14 @@ async function assertInternal(page, globalName, expected) {
 }
 
 export async function runGridArcadeBrowserTest(config) {
+  const rootDir = process.cwd();
+  const previousBaseUrl = process.env.DEMOCODEX_BASE_URL;
+  const ownsServer = !process.env[config.envName] && !process.env.DEMOCODEX_BASE_URL;
+  const server = ownsServer ? await startStaticServer({ rootDir }) : null;
+  if (server) {
+    process.env.DEMOCODEX_BASE_URL = server.url;
+  }
+
   const testUrl = buildTestUrl({
     envName: config.envName,
     pathname: config.pathname,
@@ -279,13 +288,16 @@ export async function runGridArcadeBrowserTest(config) {
   });
   const captureEnabled = process.env[config.captureEnv] === '1';
   const screenshotDir = path.resolve(process.cwd(), config.screenshotDir);
-  const { browser, executablePath } = await launchLocalChrome(chromium);
-  const page = await browser.newPage({
-    viewport: config.viewport || { width: 1460, height: 1300 },
-  });
-  const errors = trackPageErrors(page);
+  let browser = null;
 
   try {
+    const launched = await launchLocalChrome(chromium);
+    browser = launched.browser;
+    const executablePath = launched.executablePath;
+    const page = await browser.newPage({
+      viewport: config.viewport || { width: 1460, height: 1300 },
+    });
+    const errors = trackPageErrors(page);
     const results = {};
 
     for (const scenario of config.scenarios) {
@@ -338,6 +350,16 @@ export async function runGridArcadeBrowserTest(config) {
       ),
     };
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
+    if (server) {
+      if (previousBaseUrl === undefined) {
+        delete process.env.DEMOCODEX_BASE_URL;
+      } else {
+        process.env.DEMOCODEX_BASE_URL = previousBaseUrl;
+      }
+      await server.close();
+    }
   }
 }

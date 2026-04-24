@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="齿轮库房：像素风推箱策略小游戏，踩开齿轮门、穿过换向舱，把机芯箱压进锁位后撤离。"
+    />
+    <title>齿轮库房 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1020'/%3E%3Ccircle cx='32' cy='32' r='18' fill='%23fbbf24'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%230f172a'/%3E%3Cpath d='M32 9v9M32 46v9M9 32h9M46 32h9M16 16l7 7M41 41l7 7M48 16l-7 7M23 41l-7 7' stroke='%237dd3fc' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/gear-vault.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Gear Vault</p>
+          <h1 class="pixel-title">齿轮库房</h1>
+          <p class="pixel-lead">
+            库房的机芯箱被卡在不同齿轮层。先踩开齿轮门，再用换向舱绕到正确角度，把 3 个机芯箱推上锁位。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">进入库房</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置齿轮</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">关卡</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">锁位</span><strong class="pixel-stat__value" id="stat-target">0 / 3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">止轮</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="齿轮库房棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">库房简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 接管库房</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                方向键移动和推箱，空格等待，Q 启动止轮器冻结追击齿轮。先开门，再找角度推箱。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">等</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">止轮</button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">把 3 个机芯箱推上锁位，再从右上出口撤出。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">
+              换向舱只送人不送箱，先换边再回到箱子的正确推进方向。
+            </p>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>机芯箱被推到锁位后会固定。</li>
+              <li>踩到齿轮开关会打开封闭门。</li>
+              <li>Q 冻结追击齿轮，给推箱留出窗口。</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动或推箱</li>
+              <li>Space：等待一拍</li>
+              <li>Q：启动止轮器</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">止轮</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div>
+              <div class="pixel-metrics__row"><dt>追击齿轮</dt><dd id="metric-danger">0</dd></div>
+              <div class="pixel-metrics__row"><dt>最佳关卡</dt><dd id="metric-best-stage">0</dd></div>
+            </dl>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/gear-vault.js"></script>
+  </body>
+</html>

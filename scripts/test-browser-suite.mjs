@@ -51,6 +51,8 @@ const browserSuites = [
   { key: 'emberGate', script: 'scripts/test-ember-gate-browser.mjs', captureEnv: 'EMBER_GATE_CAPTURE' },
   { key: 'riftRelay', script: 'scripts/test-rift-relay-browser.mjs', captureEnv: 'RIFT_RELAY_CAPTURE' },
   { key: 'stormLock', script: 'scripts/test-storm-lock-browser.mjs', captureEnv: 'STORM_LOCK_CAPTURE' },
+  { key: 'skylineSwitch', script: 'scripts/test-skyline-switch-browser.mjs', captureEnv: 'SKYLINE_SWITCH_CAPTURE' },
+  { key: 'gearVault', script: 'scripts/test-gear-vault-browser.mjs', captureEnv: 'GEAR_VAULT_CAPTURE' },
   { key: 'decisionCompass', script: 'scripts/test-decision-compass-browser.mjs', captureEnv: 'DECISION_COMPASS_CAPTURE' },
   { key: 'meetingWeave', script: 'scripts/test-meeting-weave-browser.mjs', captureEnv: 'MEETING_WEAVE_CAPTURE' },
   { key: 'priorityCanvas', script: 'scripts/test-priority-canvas-browser.mjs', captureEnv: 'PRIORITY_CANVAS_CAPTURE' },
