@@ -1,0 +1,176 @@
+import assert from 'node:assert/strict';
+import { runGridArcadeBrowserTest } from './test-grid-arcade-browser.mjs';
+
+function goalExtractionSetup({ score, progress = 3, exit = { x: 6, y: 6 } }) {
+  return {
+    layout: {
+      start: { x: 0, y: 0 },
+      exit,
+      walls: [],
+      goals: [
+        { x: 1, y: 1 },
+        { x: 2, y: 1 },
+        { x: 3, y: 1 },
+      ],
+    },
+    state: {
+      mode: 'active',
+      floor: 1,
+      player: { x: 5, y: 6 },
+      boxes: [
+        { x: 1, y: 1, locked: true },
+        { x: 2, y: 1, locked: true },
+        { x: 3, y: 1, locked: true },
+      ],
+      hazards: [],
+      items: [],
+      progress,
+      turns: 5,
+      score,
+      hull: 2,
+      specialCooldown: 0,
+      freezeTurns: 0,
+      exitUnlocked: true,
+      gatesOpen: false,
+      lastAbility: [],
+    },
+  };
+}
+
+const result = await runGridArcadeBrowserTest({
+  envName: 'GEAR_VAULT_TEST_URL',
+  pathname: '/gear-vault.html',
+  globalName: 'gearVaultGame',
+  captureEnv: 'GEAR_VAULT_CAPTURE',
+  screenshotDir: 'output/gear-vault-browser',
+  scenarios: [
+    {
+      name: 'gate-push',
+      screenshot: 'gate-push.png',
+      setup: {
+        layout: {
+          start: { x: 0, y: 0 },
+          exit: { x: 6, y: 6 },
+          walls: [],
+          goals: [{ x: 5, y: 1 }],
+          switches: [{ x: 2, y: 1 }],
+          gates: [{ x: 3, y: 1 }],
+          teleporters: [],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 1, y: 1 },
+          boxes: [{ x: 4, y: 1, locked: false }],
+          hazards: [],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 0,
+          hull: 3,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: false,
+          lastAbility: [],
+        },
+        status: '测试开门推箱',
+      },
+      actions: ['ArrowRight', 'ArrowRight', 'ArrowRight'],
+      expect: {
+        player: { x: 4, y: 1 },
+        progress: 1,
+        score: 145,
+        gatesOpen: true,
+        boxes: [{ x: 5, y: 1, locked: true }],
+        hazardsLength: 0,
+      },
+    },
+    {
+      name: 'teleport-angle',
+      screenshot: 'teleport-angle.png',
+      setup: {
+        layout: {
+          start: { x: 0, y: 0 },
+          exit: { x: 6, y: 6 },
+          walls: [],
+          goals: [],
+          switches: [],
+          gates: [],
+          teleporters: [
+            { id: '1', x: 2, y: 1 },
+            { id: '1', x: 5, y: 3 },
+          ],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 1, y: 1 },
+          boxes: [],
+          hazards: [],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 0,
+          hull: 3,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: false,
+          lastAbility: [],
+        },
+        status: '测试换向舱',
+      },
+      actions: ['ArrowRight'],
+      expect: {
+        player: { x: 5, y: 3 },
+        progress: 0,
+        score: 0,
+        hazardsLength: 0,
+      },
+    },
+    {
+      name: 'gear-freeze',
+      screenshot: 'gear-freeze.png',
+      setup: {
+        layout: {
+          start: { x: 0, y: 0 },
+          exit: { x: 6, y: 6 },
+          walls: [],
+          goals: [],
+        },
+        state: {
+          mode: 'active',
+          floor: 1,
+          player: { x: 2, y: 2 },
+          boxes: [],
+          hazards: [{ id: 0, x: 2, y: 1 }],
+          items: [],
+          progress: 0,
+          turns: 0,
+          score: 0,
+          hull: 3,
+          specialCooldown: 0,
+          freezeTurns: 0,
+          exitUnlocked: false,
+          gatesOpen: false,
+          lastAbility: [],
+        },
+        status: '测试止轮',
+      },
+      actions: ['KeyQ'],
+      expect: { specialCooldown: 4, hazardsLength: 1, score: 0 },
+      internalExpect: { freezeTurns: 1 },
+    },
+    {
+      name: 'extraction',
+      screenshot: 'extract.png',
+      setup: goalExtractionSetup({ score: 260 }),
+      actions: ['ArrowRight'],
+      expect: { floor: 2, score: 590, hull: 2, progress: 0, exitUnlocked: false },
+    },
+  ],
+});
+
+assert.equal(result.ok, true);
+console.log(JSON.stringify(result, null, 2));
