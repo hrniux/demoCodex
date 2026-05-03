@@ -56,6 +56,8 @@ const browserSuites = [
   { key: 'harborHaze', script: 'scripts/test-harbor-haze-browser.mjs', captureEnv: 'HARBOR_HAZE_CAPTURE' },
   { key: 'crystalConduit', script: 'scripts/test-crystal-conduit-browser.mjs', captureEnv: 'CRYSTAL_CONDUIT_CAPTURE' },
   { key: 'lunarLock', script: 'scripts/test-lunar-lock-browser.mjs', captureEnv: 'LUNAR_LOCK_CAPTURE' },
+  { key: 'cinderCanal', script: 'scripts/test-cinder-canal-browser.mjs', captureEnv: 'CINDER_CANAL_CAPTURE' },
+  { key: 'echoBazaar', script: 'scripts/test-echo-bazaar-browser.mjs', captureEnv: 'ECHO_BAZAAR_CAPTURE' },
   { key: 'decisionCompass', script: 'scripts/test-decision-compass-browser.mjs', captureEnv: 'DECISION_COMPASS_CAPTURE' },
   { key: 'meetingWeave', script: 'scripts/test-meeting-weave-browser.mjs', captureEnv: 'MEETING_WEAVE_CAPTURE' },
   { key: 'priorityCanvas', script: 'scripts/test-priority-canvas-browser.mjs', captureEnv: 'PRIORITY_CANVAS_CAPTURE' },
@@ -90,6 +92,7 @@ async function main() {
         cwd: rootDir,
         env: sharedEnv,
         timeoutMs: browserSuiteTimeoutMs,
+        attempts: 2,
       });
       console.error(`${label} passed in ${formatDurationMs(Date.now() - startedAt)}`);
     }

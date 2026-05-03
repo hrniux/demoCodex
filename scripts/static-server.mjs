@@ -89,6 +89,13 @@ export async function startStaticServer({ rootDir, host = '127.0.0.1', port = 0 
           }
           resolve();
         });
+
+        if (typeof server.closeIdleConnections === 'function') {
+          server.closeIdleConnections();
+        }
+        if (typeof server.closeAllConnections === 'function') {
+          server.closeAllConnections();
+        }
       }),
   };
 }

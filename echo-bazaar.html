@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="回声集市：像素风战术推箱小游戏，开门、换边、推货箱并躲开巡音影。"
+    />
+    <title>回声集市 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23100f1f'/%3E%3Cpath d='M14 40 32 14l18 26-18 12Z' fill='%23c084fc'/%3E%3Cpath d='M22 38h22' stroke='%23f59e0b' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M25 28c5-5 9-5 14 0' stroke='%235eead4' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/echo-bazaar.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Echo Bazaar</p>
+          <h1 class="pixel-title">回声集市</h1>
+          <p class="pixel-lead">夜市摊位被巡音影打乱。你要踩开铜闸，借回声门换到箱子背面，把 3 个货箱推回摊位后撤离。</p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">接管集市</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置摊位</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">关卡</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">摊位</span><strong class="pixel-stat__value" id="stat-target">0 / 3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">静音</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="回声集市棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">集市简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 接管集市</h2>
+              <p class="pixel-overlay__body" id="overlay-body">方向键移动和推箱，空格听声，Q 展开静音罩。回声门只传送人，必须先换边再推箱。</p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">停</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">静音</button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">把 3 个货箱推回摊位，再从北门撤离。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">回声门只送人不送箱，别把货箱推到死角。</p>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>踩铜闸开关会打开封闭通道。</li>
+              <li>货箱压到摊位后会锁定得分。</li>
+              <li>静音罩能让巡音影停住一拍。</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动和推箱</li>
+              <li>Space：听声等待</li>
+              <li>Q：静音罩</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">听声</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">静音</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div>
+              <div class="pixel-metrics__row"><dt>巡音影</dt><dd id="metric-danger">0</dd></div>
+              <div class="pixel-metrics__row"><dt>最佳关卡</dt><dd id="metric-best-stage">0</dd></div>
+            </dl>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/echo-bazaar.js"></script>
+  </body>
+</html>

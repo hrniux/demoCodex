@@ -1,10 +1,32 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import http from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
 
 import {
   createSuiteLabel,
   formatDurationMs,
   runJsonCommand,
 } from './json-command-runner.mjs';
+import { startStaticServer } from './static-server.mjs';
+
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function getWithAgent(url, agent) {
+  return new Promise((resolve, reject) => {
+    const request = http.get(url, { agent }, (response) => {
+      response.resume();
+      response.on('end', resolve);
+      response.on('error', reject);
+    });
+    request.on('error', reject);
+  });
+}
 
 assert.equal(formatDurationMs(950), '950ms');
 assert.equal(formatDurationMs(1250), '1.3s');
@@ -30,4 +52,50 @@ await assert.rejects(
   /timed out after 50ms/,
 );
 
-console.log(JSON.stringify({ ok: true, checks: 5 }));
+const retryDir = await fs.mkdtemp(path.join(os.tmpdir(), 'democodex-json-runner-'));
+const retryMarker = path.join(retryDir, 'attempt');
+
+try {
+  const retryScript = `
+    const fs = require('node:fs');
+    const marker = process.env.DEMOCODEX_RETRY_MARKER;
+    if (!fs.existsSync(marker)) {
+      fs.writeFileSync(marker, '1');
+      setTimeout(() => {}, 2000);
+    } else {
+      console.log(JSON.stringify({ ok: true, attempt: 2 }));
+    }
+  `;
+  const retryPayload = await runJsonCommand({
+    command: process.execPath,
+    args: ['-e', retryScript],
+    cwd: process.cwd(),
+    env: { DEMOCODEX_RETRY_MARKER: retryMarker },
+    timeoutMs: 250,
+    attempts: 2,
+  });
+
+  assert.deepEqual(retryPayload, { ok: true, attempt: 2 });
+} finally {
+  await fs.rm(retryDir, { recursive: true, force: true });
+}
+
+const server = await startStaticServer({ rootDir: process.cwd() });
+const agent = new http.Agent({ keepAlive: true });
+let closePromise = null;
+
+try {
+  await getWithAgent(`${server.url}/index.html`, agent);
+  closePromise = server.close();
+  const closed = await Promise.race([closePromise.then(() => true), delay(200).then(() => false)]);
+  assert.equal(closed, true, 'static server should close promptly with idle keep-alive connections');
+} finally {
+  agent.destroy();
+  if (closePromise) {
+    await closePromise.catch(() => {});
+  } else {
+    await server.close().catch(() => {});
+  }
+}
+
+console.log(JSON.stringify({ ok: true, checks: 7 }));

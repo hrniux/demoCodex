@@ -974,6 +974,89 @@ const PRESETS = {
       },
     ],
   },
+  'cinder-canal': {
+    envName: 'CINDER_CANAL_TEST_URL',
+    pathname: '/cinder-canal.html',
+    globalName: 'cinderCanalGame',
+    captureEnv: 'CINDER_CANAL_CAPTURE',
+    screenshotDir: 'output/cinder-canal-browser',
+    scenarios: [
+      {
+        name: 'progress',
+        screenshot: 'progress.png',
+        setup: itemProgressSetup({
+          item: { x: 2, y: 1 },
+          player: { x: 1, y: 1 },
+        }),
+        actions: ['ArrowRight'],
+        expect: {
+          player: { x: 2, y: 1 },
+          progress: 1,
+          score: 65,
+          itemsLength: 0,
+          hazardsLength: 0,
+          exitUnlocked: false,
+        },
+      },
+      {
+        name: 'special',
+        screenshot: 'special.png',
+        setup: clearSetup({}),
+        actions: ['KeyQ'],
+        expect: { specialCooldown: 4, hazardsLength: 0, score: 35 },
+        internalExpect: { hazards: 0 },
+      },
+      {
+        name: 'extraction',
+        screenshot: 'extract.png',
+        setup: itemExtractionSetup({ score: 195, progress: 5 }),
+        actions: ['ArrowRight'],
+        expect: { floor: 2, score: 475, hull: 2, progress: 0, exitUnlocked: false },
+      },
+    ],
+  },
+  'echo-bazaar': {
+    envName: 'ECHO_BAZAAR_TEST_URL',
+    pathname: '/echo-bazaar.html',
+    globalName: 'echoBazaarGame',
+    captureEnv: 'ECHO_BAZAAR_CAPTURE',
+    screenshotDir: 'output/echo-bazaar-browser',
+    scenarios: [
+      {
+        name: 'progress',
+        screenshot: 'progress.png',
+        setup: goalProgressSetup({
+          goal: { x: 3, y: 1 },
+          box: { x: 2, y: 1 },
+          player: { x: 1, y: 1 },
+        }),
+        actions: ['ArrowRight'],
+        expect: {
+          player: { x: 2, y: 1 },
+          progress: 1,
+          score: 110,
+          boxes: [{ x: 3, y: 1, locked: true }],
+          hazardsLength: 0,
+          exitUnlocked: false,
+        },
+      },
+      {
+        name: 'special',
+        screenshot: 'special.png',
+        setup: freezeSetup({}),
+        actions: ['KeyQ'],
+        expect: { specialCooldown: 4, hazardsLength: 1, score: 0 },
+        internalExpect: { freezeTurns: 1 },
+      },
+      {
+        name: 'extraction',
+        screenshot: 'extract.png',
+        setup: goalExtractionSetup({ score: 205 }),
+        actions: ['ArrowRight'],
+        expect: { floor: 2, score: 535, hull: 2, progress: 0, exitUnlocked: false },
+      },
+    ],
+  },
 };
 
 export async function runNamedGridArcadeBrowserTest(name) {
