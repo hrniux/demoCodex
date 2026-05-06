@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="铜轨换桥：像素风推箱策略小游戏，开闸、穿换桥门、推铜箱并抢出撤离窗口。"
+    />
+    <title>铜轨换桥 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23160f0a'/%3E%3Cpath d='M14 44h36v8H14zM20 16h8v28h-8zm16 0h8v28h-8z' fill='%23f59e0b'/%3E%3Cpath d='M10 28h44' stroke='%235eead4' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/copper-crossing.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Copper Crossing</p>
+          <h1 class="pixel-title">铜轨换桥</h1>
+          <p class="pixel-lead">旧港铜轨断成几段。踩开桥闸，穿过换桥门找背面角度，把 3 个铜箱推上桥座后安全撤离。</p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">接管铜轨</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置桥面</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">关卡</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">桥座</span><strong class="pixel-stat__value" id="stat-target">0 / 3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">停机</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="铜轨换桥棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">桥面简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 接管铜轨</h2>
+              <p class="pixel-overlay__body" id="overlay-body">回声换桥门只送人不送箱。先开桥闸，再绕到铜箱背面，把箱子推上桥座。</p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">停</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">停机</button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">把 3 个铜箱推上桥座，再从北侧桥口撤离。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">换桥门只送人，箱子的推进角度要提前算好。</p>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>踩开桥闸才能进入深处桥面。</li>
+              <li>换桥门能绕到箱子背面。</li>
+              <li>停机波能冻结巡轨影两回合。</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动 / 推箱</li>
+              <li>Space：等待</li>
+              <li>Q：停机波</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">等待</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">停机波</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div>
+              <div class="pixel-metrics__row"><dt>巡轨影</dt><dd id="metric-danger">0</dd></div>
+              <div class="pixel-metrics__row"><dt>最佳关卡</dt><dd id="metric-best-stage">0</dd></div>
+            </dl>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/copper-crossing.js"></script>
+  </body>
+</html>

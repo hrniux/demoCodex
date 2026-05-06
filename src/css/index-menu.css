@@ -814,6 +814,16 @@ dd {
   line-height: 1.7;
 }
 
+.menu-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.menu-load-more[hidden] {
+  display: none;
+}
+
 .menu-footer {
   display: grid;
   justify-items: center;

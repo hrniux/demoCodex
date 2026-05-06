@@ -92,13 +92,30 @@ try {
     locationSearch: window.location.search,
     shareFeedback: document.getElementById('menu-share-feedback')?.textContent || '',
     spotlightTitle: document.getElementById('menu-spotlight-title')?.textContent || '',
-    visibleCards: document.querySelectorAll('#games-grid .menu-card').length,
+    renderedCards: document.querySelectorAll('#games-grid .menu-card').length,
+    totalCards: Number(document.getElementById('menu-total')?.textContent || 0),
+    loadMoreHidden: document.getElementById('menu-load-more-wrap')?.hidden ?? true,
   }));
 
   assert.equal(afterReset.locationSearch, '');
   assert.match(afterReset.shareFeedback, /默认合集视图/);
   assert(afterReset.spotlightTitle.length > 0, 'expected default spotlight title after reset');
-  assert(afterReset.visibleCards > initial.visibleCards, 'expected reset to restore the full shelf');
+  assert(afterReset.totalCards > initial.visibleCards, 'expected reset to restore a broader shelf');
+  assert(afterReset.renderedCards < afterReset.totalCards, 'expected default shelf to defer offscreen cards');
+  assert.equal(afterReset.loadMoreHidden, false, 'expected load-more control when cards are deferred');
+
+  await page.click('#menu-load-more');
+  await page.waitForFunction(() => document.querySelectorAll('#games-grid .menu-card').length > 18);
+
+  const afterLoadMore = await page.evaluate(() => ({
+    renderedCards: document.querySelectorAll('#games-grid .menu-card').length,
+    totalCards: Number(document.getElementById('menu-total')?.textContent || 0),
+    loadMoreText: document.getElementById('menu-load-more')?.textContent || '',
+  }));
+
+  assert(afterLoadMore.renderedCards > afterReset.renderedCards, 'expected load-more to render another batch');
+  assert(afterLoadMore.renderedCards <= afterLoadMore.totalCards);
+  assert.match(afterLoadMore.loadMoreText, /继续展开|已经全部展开/);
 
   const screenshot = await maybeCaptureScreenshot(page, screenshotDir, 'index-menu.png', captureEnabled);
   assert.equal(errors.length, 0, `unexpected browser errors: ${JSON.stringify(errors)}`);
@@ -113,6 +130,7 @@ try {
         initial,
         copied,
         afterReset,
+        afterLoadMore,
       },
       null,
       2,

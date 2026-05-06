@@ -465,6 +465,26 @@
       cta: "🎪 整理集市",
     },
     {
+      title: "雾线修补",
+      href: "mist-mender.html",
+      icon: "🌫️",
+      badge: "🆕 新增",
+      theme: ["#7dd3fc", "#a7f3d0"],
+      description: "雾轨会把你一路滑到停点。踩开雾闸、借折光门换边，回收雾芯并用净灯清掉贴脸雾影。",
+      features: ["雾轨滑行", "折光门换边", "净灯清场"],
+      cta: "🌫️ 修补雾线",
+    },
+    {
+      title: "铜轨换桥",
+      href: "copper-crossing.html",
+      icon: "🟧",
+      badge: "🆕 新增",
+      theme: ["#f59e0b", "#5eead4"],
+      description: "旧港铜轨推箱局。先踩开桥闸，再穿换桥门绕到箱子背面，把 3 个铜箱压上桥座。",
+      features: ["桥闸开路", "换桥绕位", "铜箱推送"],
+      cta: "🟧 接管铜轨",
+    },
+    {
       title: "太阳哨站",
       href: "solar-sentry.html",
       icon: "☀️",
@@ -673,6 +693,7 @@
   };
 
   const RECENT_LIMIT = 6;
+  const GRID_RENDER_BATCH = 18;
   const interactiveHrefs = new Set([
     "daily-insights.html",
     "bazi-insights.html",
@@ -731,6 +752,8 @@
     "lunar-lock.html",
     "cinder-canal.html",
     "echo-bazaar.html",
+    "mist-mender.html",
+    "copper-crossing.html",
     "solar-sentry.html",
     "crate-circuit.html",
     "reef-raider.html",
@@ -791,6 +814,8 @@
     categoryChips: document.getElementById("menu-category-chips"),
     resultsSummary: document.getElementById("menu-results-summary"),
     activeFilters: document.getElementById("menu-active-filters"),
+    loadMoreWrap: document.getElementById("menu-load-more-wrap"),
+    loadMore: document.getElementById("menu-load-more"),
   };
 
   if (Object.values(elements).some((element) => !element)) {
@@ -806,6 +831,7 @@
     recent: loadStoredList(STORAGE_KEYS.recent),
     spotlightHref: initialUrlState.spotlightHref || defaultSpotlightHref,
     spotlightMode: initialUrlState.spotlightHref ? "shared" : "auto",
+    renderLimit: GRID_RENDER_BATCH,
   };
 
   bindEvents();
@@ -836,18 +862,21 @@
     elements.search.addEventListener("input", (event) => {
       state.query = event.target.value;
       state.spotlightMode = "auto";
+      resetRenderLimit();
       render();
     });
 
     elements.sort.addEventListener("change", (event) => {
       state.sort = event.target.value;
       state.spotlightMode = "auto";
+      resetRenderLimit();
       render();
     });
 
     elements.favoritesToggle.addEventListener("click", () => {
       state.onlyFavorites = !state.onlyFavorites;
       state.spotlightMode = "auto";
+      resetRenderLimit();
       render();
     });
 
@@ -872,6 +901,11 @@
       resetFilters();
     });
 
+    elements.loadMore.addEventListener("click", () => {
+      state.renderLimit += GRID_RENDER_BATCH;
+      render();
+    });
+
     document.addEventListener("keydown", (event) => {
       if (event.key === "/" && document.activeElement !== elements.search) {
         event.preventDefault();
@@ -883,6 +917,7 @@
         event.preventDefault();
         state.query = "";
         elements.search.value = "";
+        resetRenderLimit();
         render();
       }
     });
@@ -890,23 +925,24 @@
 
   function render() {
     const visibleCards = getVisibleCards();
-    syncControls();
+    syncControls(visibleCards);
     renderHero(visibleCards);
     renderCategories();
     renderActiveFilters();
     renderSpotlight(visibleCards);
     renderGrid(visibleCards);
+    renderLoadMore(visibleCards);
     syncLocationState();
     setShareFeedback(getDefaultShareFeedback());
   }
 
-  function syncControls() {
+  function syncControls(visibleCards) {
     elements.search.value = state.query;
     elements.sort.value = state.sort;
     elements.favoritesToggle.setAttribute("aria-pressed", String(state.onlyFavorites));
     elements.favoritesToggle.textContent = state.onlyFavorites ? "显示全部" : "只看收藏";
     elements.reset.disabled = !hasActiveFilters();
-    elements.randomPick.disabled = getVisibleCards().length === 0;
+    elements.randomPick.disabled = visibleCards.length === 0;
   }
 
   function renderHero(visibleCards) {
@@ -1027,17 +1063,31 @@
 
   function renderGrid(visibleCards) {
     const fragment = document.createDocumentFragment();
+    const renderedCards = visibleCards.slice(0, state.renderLimit);
 
     if (visibleCards.length === 0) {
       fragment.appendChild(createEmptyState());
     } else {
-      visibleCards.forEach((card, index) => {
+      renderedCards.forEach((card, index) => {
         fragment.appendChild(createCard(card, index, shouldStretchCard(card)));
       });
     }
 
     elements.grid.replaceChildren(fragment);
     elements.grid.setAttribute("aria-busy", "false");
+  }
+
+  function renderLoadMore(visibleCards) {
+    const hidden = visibleCards.length <= state.renderLimit;
+    elements.loadMoreWrap.hidden = hidden;
+    if (hidden) {
+      elements.loadMore.textContent = "已经全部展开";
+      return;
+    }
+
+    const remaining = visibleCards.length - state.renderLimit;
+    const nextBatch = Math.min(GRID_RENDER_BATCH, remaining);
+    elements.loadMore.textContent = `继续展开 ${nextBatch} 个`;
   }
 
   function createCard(card, index, featuredLayout) {
@@ -1465,7 +1515,12 @@
     state.onlyFavorites = false;
     state.spotlightMode = "auto";
     state.spotlightHref = defaultSpotlightHref;
+    resetRenderLimit();
     render();
+  }
+
+  function resetRenderLimit() {
+    state.renderLimit = GRID_RENDER_BATCH;
   }
 
   function hasActiveFilters() {
