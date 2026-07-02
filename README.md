@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <img alt="Playable pages" src="https://img.shields.io/badge/playable_pages-72-0ea5e9?style=for-the-badge" />
-  <img alt="Curated picks" src="https://img.shields.io/badge/curated_picks-66-22c55e?style=for-the-badge" />
+  <img alt="Playable pages" src="https://img.shields.io/badge/playable_pages-73-0ea5e9?style=for-the-badge" />
+  <img alt="Curated picks" src="https://img.shields.io/badge/curated_picks-67-22c55e?style=for-the-badge" />
   <img alt="Tech stack" src="https://img.shields.io/badge/vanilla_js-canvas-f59e0b?style=for-the-badge" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-111827?style=for-the-badge" />
 </p>
@@ -26,7 +26,7 @@
 > 一个以原生 Web 技术构建的小游戏与互动实验合集。  
 > A curated collection of browser-native mini games, pixel-art experiments, and interactive demos.
 
-DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 72 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 66 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
+DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前仓库包含 73 个可直接运行的 HTML 页面，其中 `index.html` 聚合了 67 个主推作品；其余页面保留为实验原型、历史版本或扩展说明页，方便继续迭代和对照实现。
 现在首页的搜索、分类、排序和指定推荐位会同步到 URL，既能直接收藏，也能把当前视图原样分享出去。
 
 如果这个仓库给你带来一个可复用的玩法灵感、一个值得拆解的页面结构，或者只是给你 5 分钟好玩的浏览器时光，欢迎直接点个 Star。
@@ -149,6 +149,7 @@ DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前�
 | [`echo-bazaar.html`](./echo-bazaar.html) | 战术推箱 | 回声门只送人不送箱，先换边再把货箱推回夜市摊位。 |
 | [`mist-mender.html`](./mist-mender.html) | 滑行策略 | 雾轨滑行、雾闸和折光门换边组合，首屏就能看出路线压力。 |
 | [`copper-crossing.html`](./copper-crossing.html) | 战术推箱 | 铜轨换桥门只送人不送箱，必须绕位后再把铜箱压上桥座。 |
+| [`capacitor-courier.html`](./capacitor-courier.html) | 战术推箱 | 断路闸、电容箱和绝缘脉冲压成一条紧凑的电站转运路线。 |
 | [`cavern-blast.html`](./cavern-blast.html) | 像素爆破 | 爆炸时序、碎岩清障和虫群追击非常适合被围观。 |
 | [`solar-sentry.html`](./solar-sentry.html) | 像素策略 | 光核回收、清场脉冲和高速回航结合得很干净。 |
 | [`relay-rush.html`](./relay-rush.html) | 滑行策略 | 长直线滑行和稳频冻结把节奏拉得非常紧。 |
@@ -157,9 +158,9 @@ DemoCodex 聚焦于“无需构建、打开即玩”的浏览器体验。当前�
 
 ## Fast Facts
 
-- `72` 个可直接运行的 HTML 页面
-- `66` 个首页主推入口
-- `148` 个 `src/js` / `src/css` 文件
+- `73` 个可直接运行的 HTML 页面
+- `67` 个首页主推入口
+- `150` 个 `src/js` / `src/css` 文件
 - `npm run check:manifest` 会对 README 声明、首页入口数和仓库真实页面数做一致性校验
 - `npm run test:browser` 使用本机 `Google Chrome` 跑统一浏览器回归，不回退到 Playwright bundled browser
 
@@ -207,7 +208,7 @@ npm run test:browser
 补充说明：
 
 - `npm run check:manifest` 会核对仓库 HTML 总数、`index.html` 主推卡片数量，以及 README 中声明的页面数是否一致。
-- `npm test` 通过 `scripts/test-logic-suite.mjs` 自动发现并运行 `test:*:logic`，现已覆盖 56 个主推页面逻辑，其中包括策略游戏与轻量应用。
+- `npm test` 通过 `scripts/test-logic-suite.mjs` 自动发现并运行 `test:*:logic`，现已覆盖 57 个主推页面逻辑，其中包括策略游戏与轻量应用。
 - `npm run test:browser` 会自动拉起仓库根目录的本地静态服务，再顺序执行当前已接入统一套件的主推像素游戏浏览器回归，并输出每个用例的进度与耗时。
 - 浏览器回归只使用本机已安装的 `Google Chrome`；如路径不在默认位置，可通过环境变量 `DEMOCODEX_CHROME_EXECUTABLE` 指向现有本机 Chrome 可执行文件。
 - 总套件默认给单用例 `300000ms` 超时保护；如需继续调大，可临时设置 `DEMOCODEX_BROWSER_SUITE_TIMEOUT_MS`。
@@ -263,6 +264,7 @@ npm run test:browser
 | 像素策略 | `echo-bazaar.html` | 夜市推箱页，回声门只送人不送箱，必须换边后再把货箱推回摊位。 |
 | 像素策略 | `mist-mender.html` | 雾线滑行修补页，开闸、折光门换边和净灯清场挤在同一条路线里。 |
 | 像素策略 | `copper-crossing.html` | 铜轨推箱页，桥闸、换桥门和铜箱桥座构成一条连续绕位链。 |
+| 像素策略 | `capacitor-courier.html` | 电站推箱页，断路闸、电容箱和贴身绝缘脉冲构成紧凑转运路线。 |
 | 像素策略 | `solar-sentry.html` | 太阳阵列巡检关卡，回收光核后用日冕脉冲扫开碎片再撤离。 |
 | 像素策略 | `crate-circuit.html` | 机房接线推箱页，把电路箱送上节点后卡着断流窗口穿过闸门。 |
 | 像素策略 | `reef-raider.html` | 海床打捞路线题，收回遗物、冻结潮流，再从右下角出口带着成果撤走。 |

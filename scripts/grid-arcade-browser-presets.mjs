@@ -1140,6 +1140,48 @@ const PRESETS = {
       },
     ],
   },
+  'capacitor-courier': {
+    envName: 'CAPACITOR_COURIER_TEST_URL',
+    pathname: '/capacitor-courier.html',
+    globalName: 'capacitorCourierGame',
+    captureEnv: 'CAPACITOR_COURIER_CAPTURE',
+    screenshotDir: 'output/capacitor-courier-browser',
+    scenarios: [
+      {
+        name: 'progress',
+        screenshot: 'progress.png',
+        setup: goalProgressSetup({
+          goal: { x: 3, y: 1 },
+          box: { x: 2, y: 1 },
+          player: { x: 1, y: 1 },
+        }),
+        actions: ['ArrowRight'],
+        expect: {
+          player: { x: 2, y: 1 },
+          progress: 1,
+          score: 90,
+          boxes: [{ x: 3, y: 1, locked: true }],
+          hazardsLength: 0,
+          exitUnlocked: false,
+        },
+      },
+      {
+        name: 'special',
+        screenshot: 'special.png',
+        setup: clearSetup({}),
+        actions: ['KeyQ'],
+        expect: { specialCooldown: 4, hazardsLength: 0, score: 36 },
+        internalExpect: { hazards: 0 },
+      },
+      {
+        name: 'extraction',
+        screenshot: 'extract.png',
+        setup: goalExtractionSetup({ score: 210 }),
+        actions: ['ArrowRight'],
+        expect: { floor: 2, score: 520, hull: 2, progress: 0, exitUnlocked: false },
+      },
+    ],
+  },
 };
 
 export async function runNamedGridArcadeBrowserTest(name) {
