@@ -9,6 +9,10 @@ import {
   formatDurationMs,
   runJsonCommand,
 } from './json-command-runner.mjs';
+import {
+  deriveBrowserCaptureEnv,
+  discoverBrowserSuitesFromScripts,
+} from './browser-suite-discovery.mjs';
 import { startStaticServer } from './static-server.mjs';
 
 function delay(ms) {
@@ -31,6 +35,30 @@ function getWithAgent(url, agent) {
 assert.equal(formatDurationMs(950), '950ms');
 assert.equal(formatDurationMs(1250), '1.3s');
 assert.equal(createSuiteLabel({ index: 3, total: 12, key: 'indexMenu' }), '[3/12] indexMenu');
+assert.equal(deriveBrowserCaptureEnv('prism-relay'), 'PRISM_RELAY_CAPTURE');
+
+const discoveredSuites = discoverBrowserSuitesFromScripts({
+  'test:browser': 'node scripts/test-browser-suite.mjs',
+  'test:logic': 'node scripts/test-logic-suite.mjs',
+  'test:index-menu:browser': 'node scripts/test-index-menu-browser.mjs',
+  'test:prism-relay:browser': 'node scripts/test-prism-relay-browser.mjs',
+  'test:prism-relay:logic': 'node scripts/test-prism-relay-mechanics.mjs',
+});
+
+assert.deepEqual(discoveredSuites, [
+  {
+    key: 'indexMenu',
+    scriptName: 'test:index-menu:browser',
+    script: 'scripts/test-index-menu-browser.mjs',
+    captureEnv: 'INDEX_MENU_CAPTURE',
+  },
+  {
+    key: 'prismRelay',
+    scriptName: 'test:prism-relay:browser',
+    script: 'scripts/test-prism-relay-browser.mjs',
+    captureEnv: 'PRISM_RELAY_CAPTURE',
+  },
+]);
 
 const okPayload = await runJsonCommand({
   command: process.execPath,
@@ -98,4 +126,4 @@ try {
   }
 }
 
-console.log(JSON.stringify({ ok: true, checks: 7 }));
+console.log(JSON.stringify({ ok: true, checks: 9 }));

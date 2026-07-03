@@ -1182,6 +1182,48 @@ const PRESETS = {
       },
     ],
   },
+  'prism-relay': {
+    envName: 'PRISM_RELAY_TEST_URL',
+    pathname: '/prism-relay.html',
+    globalName: 'prismRelayGame',
+    captureEnv: 'PRISM_RELAY_CAPTURE',
+    screenshotDir: 'output/prism-relay-browser',
+    scenarios: [
+      {
+        name: 'progress',
+        screenshot: 'progress.png',
+        setup: goalProgressSetup({
+          goal: { x: 3, y: 1 },
+          box: { x: 2, y: 1 },
+          player: { x: 1, y: 1 },
+        }),
+        actions: ['ArrowRight'],
+        expect: {
+          player: { x: 2, y: 1 },
+          progress: 1,
+          score: 92,
+          boxes: [{ x: 3, y: 1, locked: true }],
+          hazardsLength: 0,
+          exitUnlocked: false,
+        },
+      },
+      {
+        name: 'special',
+        screenshot: 'special.png',
+        setup: clearSetup({}),
+        actions: ['KeyQ'],
+        expect: { specialCooldown: 4, hazardsLength: 0, score: 38 },
+        internalExpect: { hazards: 0 },
+      },
+      {
+        name: 'extraction',
+        screenshot: 'extract.png',
+        setup: goalExtractionSetup({ score: 210 }),
+        actions: ['ArrowRight'],
+        expect: { floor: 2, score: 525, hull: 2, progress: 0, exitUnlocked: false },
+      },
+    ],
+  },
 };
 
 export async function runNamedGridArcadeBrowserTest(name) {

@@ -114,6 +114,8 @@
     "test:copper-crossing:browser": "node scripts/test-copper-crossing-browser.mjs",
     "test:capacitor-courier:logic": "node scripts/test-capacitor-courier-mechanics.mjs",
     "test:capacitor-courier:browser": "node scripts/test-capacitor-courier-browser.mjs",
+    "test:prism-relay:logic": "node scripts/test-prism-relay-mechanics.mjs",
+    "test:prism-relay:browser": "node scripts/test-prism-relay-browser.mjs",
     "test:decision-compass:logic": "node -e \"const mod=require('./src/js/decision-compass.js'); const result=mod.runSelfCheck(); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
     "test:decision-compass:browser": "node scripts/test-decision-compass-browser.mjs",
     "test:meeting-weave:logic": "node -e \"const mod=require('./src/js/meeting-weave.js'); const result=mod.runSelfCheck(); if (!result.ok) { console.error(JSON.stringify(result)); process.exit(1); } console.log(JSON.stringify(result));\"",
