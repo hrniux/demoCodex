@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="辉苔林廊：像素风战术推箱小游戏，踩开林闸、推辉苔箱、用苔灯脉冲清掉贴身孢影并撤离。"
+    />
+    <title>辉苔林廊 | DemoCodex</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1510'/%3E%3Cpath d='M14 44c6-16 18-26 36-30-3 18-13 30-30 36z' fill='%2386efac'/%3E%3Ccircle cx='27' cy='33' r='8' fill='%235eead4'/%3E%3Cpath d='M18 48 46 20' stroke='%23fef08a' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="src/css/glow-grove.css" />
+  </head>
+  <body>
+    <main class="pixel-shell">
+      <header class="pixel-hero">
+        <a class="pixel-back" href="index.html">返回首页</a>
+        <div>
+          <p class="pixel-eyebrow">Glow Grove</p>
+          <h1 class="pixel-title">辉苔林廊</h1>
+          <p class="pixel-lead">
+            林廊被暗闸切断。你要踩开林闸，把辉苔箱推上辉苔座，并在孢影逼近前从巡护口撤离。
+          </p>
+        </div>
+        <div class="pixel-actions">
+          <button class="pixel-cta" id="app-start" type="button">点亮林廊</button>
+          <button class="pixel-cta pixel-cta--ghost" id="app-reset" type="button">重置林廊</button>
+        </div>
+      </header>
+
+      <section class="pixel-layout">
+        <section class="pixel-panel pixel-panel--primary">
+          <div class="pixel-stats">
+            <article class="pixel-stat"><span class="pixel-stat__label">关卡</span><strong class="pixel-stat__value" id="stat-stage">1</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">得分</span><strong class="pixel-stat__value" id="stat-score">0</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">护盾</span><strong class="pixel-stat__value" id="stat-life">3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">辉苔座</span><strong class="pixel-stat__value" id="stat-target">0 / 3</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">苔灯</span><strong class="pixel-stat__value" id="stat-skill">就绪</strong></article>
+            <article class="pixel-stat"><span class="pixel-stat__label">纪录</span><strong class="pixel-stat__value" id="stat-best">0</strong></article>
+          </div>
+
+          <div class="pixel-board-shell">
+            <canvas class="pixel-canvas" id="pixel-canvas" width="840" height="840" role="img" aria-label="辉苔林廊棋盘"></canvas>
+            <div class="pixel-overlay is-visible" id="pixel-overlay" aria-live="polite">
+              <p class="pixel-overlay__kicker">林廊简报</p>
+              <h2 class="pixel-overlay__title" id="overlay-title">按开始或 Enter 点亮林廊</h2>
+              <p class="pixel-overlay__body" id="overlay-body">
+                每一步都会让孢影逼近。先踩林闸，再找辉苔箱背面，把它推上辉苔座。
+              </p>
+            </div>
+          </div>
+
+          <section class="pixel-pad">
+            <button class="pixel-pad__button" data-action="up" type="button">上</button>
+            <button class="pixel-pad__button" data-action="left" type="button">左</button>
+            <button class="pixel-pad__button" data-action="wait" type="button">稳</button>
+            <button class="pixel-pad__button" data-action="right" type="button">右</button>
+            <button class="pixel-pad__button" data-action="down" type="button">下</button>
+            <button class="pixel-pad__button pixel-pad__button--accent" data-action="skill" type="button">苔灯</button>
+          </section>
+        </section>
+
+        <aside class="pixel-panel pixel-panel--side">
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">任务状态</h2>
+            <p class="pixel-sidecard__body" id="status-text">把 3 个辉苔箱推上辉苔座，再从巡护口撤离。</p>
+            <p class="pixel-sidecard__body pixel-sidecard__body--hint" id="objective-text">苔灯脉冲只清贴身孢影，最好留给被堵路的一回合。</p>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">玩法说明</h2>
+            <ul class="pixel-rules">
+              <li>踩到林闸后，封闭通道会立刻打开。</li>
+              <li>辉苔箱压住辉苔座才算接通。</li>
+              <li>孢影会逐回合追近，贴身时可用苔灯脉冲清掉。</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">控制方式</h2>
+            <ul class="pixel-rules">
+              <li>WASD / 方向键：移动 / 推块</li>
+              <li>Space：稳光一拍</li>
+              <li>Q：苔灯脉冲</li>
+              <li>Enter：开始</li>
+              <li>R：重置</li>
+            </ul>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动面板</h2>
+            <div class="pixel-mini-actions">
+              <button class="pixel-button pixel-button--ghost" id="action-wait" type="button">稳光</button>
+              <button class="pixel-button pixel-button--accent" id="action-skill" type="button">苔灯脉冲</button>
+              <button class="pixel-button pixel-button--ghost" id="action-restart" type="button">重开</button>
+            </div>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">遥测</h2>
+            <dl class="pixel-metrics">
+              <div class="pixel-metrics__row"><dt>当前回合</dt><dd id="metric-turn">0</dd></div>
+              <div class="pixel-metrics__row"><dt>孢影数</dt><dd id="metric-danger">0</dd></div>
+              <div class="pixel-metrics__row"><dt>最佳关卡</dt><dd id="metric-best-stage">0</dd></div>
+            </dl>
+          </section>
+          <section class="pixel-sidecard">
+            <h2 class="pixel-sidecard__title">行动日志</h2>
+            <ul class="pixel-feed" id="feed-list"></ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="src/js/grid-arcade-core.js"></script>
+    <script src="src/js/pixel-page-runtime.js"></script>
+    <script src="src/js/glow-grove.js"></script>
+  </body>
+</html>
