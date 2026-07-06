@@ -254,6 +254,7 @@ async function assertInternal(page, globalName, expected) {
       freezeTurns: game.state.freezeTurns,
       hazards: game.state.hazards.length,
       overlayVisible: game.refs.overlay.classList.contains('is-visible'),
+      overlayOpacity: window.getComputedStyle(game.refs.overlay).opacity,
       overlayTitle: game.refs.overlayTitle.textContent,
     };
   }, globalName);
@@ -267,9 +268,27 @@ async function assertInternal(page, globalName, expected) {
   if (expected.overlayVisible !== undefined) {
     assert.equal(payload.overlayVisible, expected.overlayVisible);
   }
+  if (expected.overlayOpacity !== undefined) {
+    assert.equal(payload.overlayOpacity, expected.overlayOpacity);
+  }
   if (expected.overlayTitle !== undefined) {
     assert.equal(payload.overlayTitle, expected.overlayTitle);
   }
+}
+
+async function waitForInternalVisualState(page, globalName, expected) {
+  if (!expected || expected.overlayOpacity === undefined) {
+    return;
+  }
+
+  await page.waitForFunction(
+    ({ target, opacity }) => {
+      const game = window[target];
+      return window.getComputedStyle(game.refs.overlay).opacity === opacity;
+    },
+    { target: globalName, opacity: expected.overlayOpacity },
+    { timeout: 3000 },
+  );
 }
 
 export async function runGridArcadeBrowserTest(config) {
@@ -316,6 +335,7 @@ export async function runGridArcadeBrowserTest(config) {
 
       const state = await readRenderState(page);
       assertState(state, scenario.expect);
+      await waitForInternalVisualState(page, config.globalName, scenario.internalExpect);
       await assertInternal(page, config.globalName, scenario.internalExpect);
       if (scenario.postGameoverRestart) {
         await assertGameOverRecovery(page, baseline, config.globalName);

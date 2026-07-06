@@ -1255,7 +1255,7 @@ const PRESETS = {
         setup: clearSetup({}),
         actions: ['KeyQ'],
         expect: { specialCooldown: 3, hazardsLength: 0, score: 35 },
-        internalExpect: { hazards: 0 },
+        internalExpect: { hazards: 0, overlayOpacity: '0' },
       },
       {
         name: 'extraction',
