@@ -4,7 +4,7 @@
 
 ## 推荐 Description
 
-43 playable browser-native mini games and interactive experiments, from pixel-art tactics to creative tools, built with vanilla JavaScript.
+69 playable browser-native mini games and interactive experiments, from pixel-art tactics to creative tools, built with vanilla JavaScript.
 
 ## 中文补充版
 

@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 
-import { findMissingTargets, parseMenuTargets, parseSpotlightHref } from './check-demo-manifest.mjs';
+import {
+  findMissingTargets,
+  parseMenuTargets,
+  parseProjectAboutCount,
+  parseSpotlightHref,
+} from './check-demo-manifest.mjs';
 
 const sampleMenuScript = `
   const cards = [
@@ -26,4 +31,19 @@ assert.deepEqual(
   ['ghost-page.html']
 );
 
-console.log(JSON.stringify({ ok: true, checks: 3 }));
+assert.deepEqual(parseProjectAboutCount('70 playable browser-native mini games'), {
+  count: 70,
+  problem: null,
+});
+
+assert.deepEqual(parseProjectAboutCount('Browser-native mini games'), {
+  count: null,
+  problem: '.github/project-about.md does not contain the expected playable count.',
+});
+
+assert.deepEqual(parseProjectAboutCount('many playable browser-native mini games'), {
+  count: null,
+  problem: '.github/project-about.md playable count many is not numeric.',
+});
+
+console.log(JSON.stringify({ ok: true, checks: 6 }));

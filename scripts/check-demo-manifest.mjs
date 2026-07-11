@@ -74,6 +74,29 @@ export function parseSpotlightHref(htmlText) {
   return reverseMatch ? reverseMatch[1] : null;
 }
 
+export function parseProjectAboutCount(projectAboutText) {
+  const match = projectAboutText.match(/(\S+)\s+playable browser-native/);
+
+  if (!match) {
+    return {
+      count: null,
+      problem: '.github/project-about.md does not contain the expected playable count.',
+    };
+  }
+
+  if (!/^\d+$/.test(match[1])) {
+    return {
+      count: null,
+      problem: `.github/project-about.md playable count ${match[1]} is not numeric.`,
+    };
+  }
+
+  return {
+    count: Number(match[1]),
+    problem: null,
+  };
+}
+
 function countFeaturedCards(scriptText) {
   const featuredMatches = scriptText.match(/featured:\s*true/g);
   return featuredMatches ? featuredMatches.length : 0;
@@ -113,6 +136,7 @@ function readManifestSources(rootPath) {
     return {
       indexHtml: readText(rootPath, 'index.html'),
       indexMenu: readText(rootPath, 'src/js/index-menu.js'),
+      projectAbout: readText(rootPath, '.github/project-about.md'),
       readme: readText(rootPath, 'README.md'),
     };
   } catch (error) {
@@ -121,7 +145,7 @@ function readManifestSources(rootPath) {
 }
 
 export function buildManifestReport(rootPath = repoRoot) {
-  const { indexHtml, indexMenu, readme } = readManifestSources(rootPath);
+  const { indexHtml, indexMenu, projectAbout, readme } = readManifestSources(rootPath);
   const htmlFiles = listHtmlFiles(rootPath);
   const htmlFileSet = new Set(htmlFiles);
   const menuTargets = parseMenuTargets(indexMenu);
@@ -129,10 +153,19 @@ export function buildManifestReport(rootPath = repoRoot) {
   const menuCardCount = menuTargets.length;
   const featuredCardCount = countFeaturedCards(indexMenu);
   const homepageCounts = parseHomepageCounts(indexHtml);
+  const { count: projectAboutCount, problem: projectAboutProblem } = parseProjectAboutCount(projectAbout);
   const readmeCounts = parseReadmeCounts(readme);
   const spotlightHref = parseSpotlightHref(indexHtml);
   const missingMenuTargets = findMissingTargets(menuTargets, htmlFileSet);
   const problems = [];
+
+  if (projectAboutProblem) {
+    problems.push(projectAboutProblem);
+  } else if (projectAboutCount !== menuCardCount) {
+    problems.push(
+      `GitHub About playable count ${projectAboutCount} does not match index menu card count ${menuCardCount}.`
+    );
+  }
 
   if (!readmeCounts) {
     problems.push('README.md does not contain the expected manifest sentence.');
@@ -184,6 +217,7 @@ export function buildManifestReport(rootPath = repoRoot) {
     menuCardCount,
     featuredCardCount,
     homepageCounts,
+    projectAboutCount,
     readmeCounts,
     menuTargets,
     uniqueMenuTargetCount: new Set(menuTargets).size,
@@ -208,6 +242,7 @@ function main() {
       menuCardCount: report.menuCardCount,
       featuredCardCount: report.featuredCardCount,
       homepageCounts: report.homepageCounts,
+      projectAboutCount: report.projectAboutCount,
       readmeCounts: report.readmeCounts,
       uniqueMenuTargetCount: report.uniqueMenuTargetCount,
       spotlightHref: report.spotlightHref,
