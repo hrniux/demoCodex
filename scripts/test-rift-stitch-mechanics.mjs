@@ -150,6 +150,19 @@ test('rejects an unknown event type', () => {
   assert.equal(validateEvent({ type: 'unknown' }).ok, false);
 });
 
+for (const [description, schedule] of [
+  ['null', [null]],
+  ['undefined', [undefined]],
+  ['a sparse slot', Array(1)],
+]) {
+  test(`rejects ${description} schedule entries as non-objects`, () => {
+    const result = validateSchedule(schedule);
+
+    assert.equal(result.ok, false);
+    assert.equal(result.problems.filter((problem) => problem === 'event 0 must be an object').length, 1);
+  });
+}
+
 for (const rail of [-1, 3]) {
   test(`rejects rail ${rail}`, () => {
     assert.equal(validateEvent({ rail }).ok, false);
@@ -228,6 +241,24 @@ test('snapshot mutations do not change nested source state', () => {
     },
     expectedSource,
   );
+});
+
+test('snapshot object arrays are isolated and optional hitStitchIds stay optional', () => {
+  const state = createGameState({ seed: 4242 });
+  state.objects = [
+    { id: 7, type: 'armor', rail: 1, pair: [0, 1], hitStitchIds: [7] },
+    { id: 8, type: 'rift', rail: 2 },
+  ];
+
+  const snapshot = snapshotGame(state);
+  snapshot.objects[0].pair[0] = 2;
+  snapshot.objects[0].hitStitchIds.push(8);
+
+  assert.deepEqual(state.objects, [
+    { id: 7, type: 'armor', rail: 1, pair: [0, 1], hitStitchIds: [7] },
+    { id: 8, type: 'rift', rail: 2 },
+  ]);
+  assert.equal(Object.hasOwn(snapshot.objects[1], 'hitStitchIds'), false);
 });
 
 test('initializes resumeMode to null', () => {

@@ -64,7 +64,14 @@
       return { ok: false, problems: ['schedule must be an array'] };
     }
 
-    schedule.forEach((event, index) => {
+    for (let index = 0; index < schedule.length; index += 1) {
+      const event = schedule[index];
+
+      if (event === null || typeof event !== 'object' || Array.isArray(event)) {
+        problems.push(`event ${index} must be an object`);
+        continue;
+      }
+
       if (!Number.isInteger(event.tick) || event.tick < 0 || event.tick >= CONSTANTS.WAVE_TICKS) {
         problems.push(`event ${index} tick must be an integer from 0 through ${CONSTANTS.WAVE_TICKS - 1}`);
       }
@@ -82,7 +89,7 @@
         occupiedRails.add(event.rail);
         burnRailsByImpact.set(event.impactTick, occupiedRails);
       }
-    });
+    }
 
     for (const [impactTick, occupiedRails] of burnRailsByImpact) {
       if (occupiedRails.size === CONSTANTS.RAILS.length) {
@@ -151,10 +158,19 @@
             segments: state.stitch.segments.map((segment) => ({ ...segment })),
           }
         : state.stitch,
-      objects: state.objects.map((object) => ({
-        ...object,
-        hitStitchIds: [...object.hitStitchIds],
-      })),
+      objects: state.objects.map((object) => {
+        const snapshot = { ...object };
+
+        if (Array.isArray(object.pair)) {
+          snapshot.pair = [...object.pair];
+        }
+
+        if (Array.isArray(object.hitStitchIds)) {
+          snapshot.hitStitchIds = [...object.hitStitchIds];
+        }
+
+        return snapshot;
+      }),
       bossHits: state.bossHits,
     };
   }
