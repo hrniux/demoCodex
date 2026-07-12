@@ -1,16 +1,9 @@
 import assert from 'node:assert/strict';
+import test from 'node:test';
 
 import engine from '../src/js/rift-stitch-engine.js';
 
-const { CONSTANTS, createGameState, getWaveSchedule, snapshotGame, validateSchedule } = engine;
-
-assert.deepEqual(Object.keys(engine).sort(), [
-  'CONSTANTS',
-  'createGameState',
-  'getWaveSchedule',
-  'snapshotGame',
-  'validateSchedule',
-]);
+const { CONSTANTS, createGameState, getWaveSchedule, nextRandom, snapshotGame, validateSchedule } = engine;
 
 assert.equal(CONSTANTS.TICK_RATE, 60);
 assert.deepEqual(CONSTANTS, {
@@ -63,13 +56,6 @@ assert.deepEqual(Object.keys(firstState), [
   'waveDamage',
   'events',
 ]);
-assert.deepEqual(firstState.player, {
-  rail: 1,
-  from: 1,
-  to: 1,
-  moveTicks: 0,
-});
-
 const evenWave = getWaveSchedule(4242, 1);
 const repeatedEvenWave = getWaveSchedule(4242, 1);
 const oddWave = getWaveSchedule(4243, 1);
@@ -102,3 +88,56 @@ assert.equal(
   ),
   true,
 );
+
+test('publishes the CommonJS engine on globalThis as an independent UMD outlet', () => {
+  assert.equal(globalThis.RiftStitchEngine, engine);
+});
+
+test('exposes nextRandom as part of the engine contract', () => {
+  assert.deepEqual(Object.keys(engine).sort(), [
+    'CONSTANTS',
+    'createGameState',
+    'getWaveSchedule',
+    'nextRandom',
+    'snapshotGame',
+    'validateSchedule',
+  ]);
+});
+
+test('nextRandom returns the pure xorshift32 next state', () => {
+  assert.equal(nextRandom?.(4242), 1079534331);
+});
+
+test('createGameState advances rngState from seed || 1', () => {
+  assert.equal(createGameState({ seed: 4242 }).rngState, 1079534331);
+  assert.equal(createGameState({ seed: 0 }).rngState, nextRandom?.(1));
+});
+
+test('unknown waves fall back to a fresh wave-one schedule', () => {
+  assert.deepEqual(getWaveSchedule(4242, 99), evenWave);
+});
+
+test('rejects an event at the exclusive WAVE_TICKS boundary', () => {
+  const boundaryResult = validateSchedule([
+    { tick: CONSTANTS.WAVE_TICKS, impactTick: CONSTANTS.WAVE_TICKS, type: 'rift', rail: 0, speed: 180 },
+  ]);
+
+  assert.equal(boundaryResult.ok, false);
+});
+
+test('initializes resumeMode to null', () => {
+  assert.equal(firstState.resumeMode, null);
+});
+
+test('initializes countdownTicks to zero', () => {
+  assert.equal(firstState.countdownTicks, 0);
+});
+
+test('initializes the player with the exact rail-transition fields', () => {
+  assert.deepEqual(firstState.player, {
+    rail: 1,
+    fromRail: 1,
+    toRail: 1,
+    moveTicks: 0,
+  });
+});

@@ -3,9 +3,9 @@
 
   if (typeof module === 'object' && module.exports) {
     module.exports = engine;
-  } else {
-    root.RiftStitchEngine = engine;
   }
+
+  root.RiftStitchEngine = engine;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
@@ -43,10 +43,7 @@
     nextState ^= nextState << 5;
     nextState >>>= 0;
 
-    return {
-      state: nextState,
-      value: nextState / 0x100000000,
-    };
+    return nextState;
   }
 
   function cloneValue(value) {
@@ -63,7 +60,7 @@
 
   function getWaveSchedule(seed, wave) {
     const shouldMirror = (seed >>> 0) % 2 === 1;
-    const schedule = BASE_WAVES[wave] || [];
+    const schedule = BASE_WAVES[wave] || BASE_WAVES[1];
 
     return schedule.map((event) => ({
       ...event,
@@ -80,8 +77,8 @@
     }
 
     schedule.forEach((event, index) => {
-      if (!Number.isInteger(event.tick) || event.tick < 0 || event.tick > CONSTANTS.WAVE_TICKS) {
-        problems.push(`event ${index} tick must be an integer from 0 through ${CONSTANTS.WAVE_TICKS}`);
+      if (!Number.isInteger(event.tick) || event.tick < 0 || event.tick >= CONSTANTS.WAVE_TICKS) {
+        problems.push(`event ${index} tick must be an integer from 0 through ${CONSTANTS.WAVE_TICKS - 1}`);
       }
 
       if (!EVENT_TYPES.includes(event.type)) {
@@ -116,13 +113,13 @@
 
     return {
       seed: normalizedSeed,
-      rngState: normalizedSeed,
+      rngState: nextRandom(normalizedSeed || 1),
       mode,
-      resumeMode: mode,
+      resumeMode: null,
       tick: 0,
       wave,
       waveTick: 0,
-      countdownTicks: CONSTANTS.COUNTDOWN_TICKS,
+      countdownTicks: 0,
       resultTicks: 0,
       integrity: 3,
       score: 0,
@@ -130,8 +127,8 @@
       comboIdleTicks: 0,
       player: {
         rail: 1,
-        from: 1,
-        to: 1,
+        fromRail: 1,
+        toRail: 1,
         moveTicks: 0,
       },
       stitch: null,
@@ -169,6 +166,7 @@
     CONSTANTS,
     createGameState,
     getWaveSchedule,
+    nextRandom,
     snapshotGame,
     validateSchedule,
   });
