@@ -31,6 +31,13 @@ function validateEvent(overrides = {}) {
   ]);
 }
 
+function assertRejectedActionDoesNotMutate(state, action) {
+  const before = structuredClone(state);
+
+  assert.equal(queueAction(state, action), false);
+  assert.deepEqual(state, before);
+}
+
 assert.equal(CONSTANTS.TICK_RATE, 60);
 assert.deepEqual(CONSTANTS, {
   TICK_RATE: 60,
@@ -179,6 +186,44 @@ test('rejects movement beyond the left boundary without mutating state', () => {
   assert.deepEqual(state, before);
 });
 
+test('rejects a duplicate action while moving without mutating state', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  assertRejectedActionDoesNotMutate(state, 'right');
+});
+
+for (const mode of ['idle', 'paused', 'countdown']) {
+  test(`rejects movement in ${mode} mode without mutating state`, () => {
+    const state = createGameState({ seed: 4242, mode });
+
+    assertRejectedActionDoesNotMutate(state, 'left');
+  });
+}
+
+for (const action of ['up', '']) {
+  test(`rejects invalid ${JSON.stringify(action)} action without mutating state`, () => {
+    assertRejectedActionDoesNotMutate(createRunningState(), action);
+  });
+}
+
+for (const [rail, action] of [
+  [0, 'left'],
+  [2, 'right'],
+]) {
+  test(`rejects ${action} at rail ${rail} without mutating state`, () => {
+    const state = createRunningState();
+    state.player = {
+      rail,
+      fromRail: rail,
+      toRail: rail,
+      moveTicks: 0,
+    };
+
+    assertRejectedActionDoesNotMutate(state, action);
+  });
+}
+
 test('creates an X stitch at the exact twenty-five-tick crossing boundary', () => {
   const state = createRunningState();
 
@@ -245,6 +290,35 @@ test('replaces a prior normal stitch instead of accumulating active structures',
   assert.notDeepEqual(state.stitch.segments, firstSegments);
 });
 
+test('replaces an unrelated normal stitch with only the new rail-pair segment', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 8);
+  stepGame(state, 18);
+  assert.equal(queueAction(state, 'right'), true);
+  stepGame(state, 8);
+
+  assert.equal(state.player.rail, 1);
+  assert.equal(state.stitch.type, 'normal');
+  assert.deepEqual(state.stitch.pair, [0, 1]);
+  const previousId = state.stitch.id;
+  const previousSegment = { ...state.stitch.segments[0] };
+
+  assert.equal(queueAction(state, 'right'), true);
+  stepGame(state, 8);
+
+  assert.notEqual(state.stitch.id, previousId);
+  assert.equal(state.stitch.type, 'normal');
+  assert.deepEqual(state.stitch.pair, [1, 2]);
+  assert.equal(state.stitch.fromRail, 1);
+  assert.equal(state.stitch.toRail, 2);
+  assert.deepEqual(state.stitch.segments, [
+    { x1: 480, y1: 500, x2: 720, y2: 390 },
+  ]);
+  assert.notDeepEqual(state.stitch.segments[0], previousSegment);
+});
+
 test('expires a stitch exactly at expiresAt', () => {
   const state = createRunningState();
 
@@ -259,6 +333,53 @@ test('expires a stitch exactly at expiresAt', () => {
   stepGame(state, 1);
   assert.equal(state.tick, expiresAt);
   assert.equal(state.stitch, null);
+});
+
+for (const mode of ['idle', 'paused', 'countdown']) {
+  test(`does not advance ticks while the game is ${mode}`, () => {
+    const state = createGameState({ seed: 4242, mode });
+    const before = {
+      tick: state.tick,
+      waveTick: state.waveTick,
+    };
+
+    assert.equal(stepGame(state, 5), state);
+    assert.deepEqual(
+      {
+        tick: state.tick,
+        waveTick: state.waveTick,
+      },
+      before,
+    );
+  });
+}
+
+test('retains an event emitted before the final internal tick of stepGame', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 9);
+
+  assert.equal(state.tick, 9);
+  assert.deepEqual(state.events, ['stitch-created']);
+});
+
+test('advancing 300 Task 3 ticks only changes tick counters with the default schedule', () => {
+  const state = createGameState({ seed: 4242, mode: 'running' });
+  const before = structuredClone(state);
+
+  stepGame(state, 300);
+
+  assert.deepEqual(state, {
+    ...before,
+    tick: 300,
+    waveTick: 300,
+  });
+  assert.equal(state.score, 0);
+  assert.equal(state.integrity, 3);
+  assert.deepEqual(state.objects, []);
+  assert.equal(state.scheduleIndex, 0);
+  assert.equal(state.mode, 'running');
 });
 
 test('createGameState advances rngState from seed || 1', () => {
