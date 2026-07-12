@@ -137,6 +137,105 @@
     };
   }
 
+  function pairFor(fromRail, toRail) {
+    return [Math.min(fromRail, toRail), Math.max(fromRail, toRail)];
+  }
+
+  function samePair(firstPair, secondPair) {
+    return firstPair[0] === secondPair[0] && firstPair[1] === secondPair[1];
+  }
+
+  function makeSegment(fromRail, toRail) {
+    return {
+      x1: CONSTANTS.RAILS[fromRail],
+      y1: CONSTANTS.STITCH_BOTTOM,
+      x2: CONSTANTS.RAILS[toRail],
+      y2: CONSTANTS.STITCH_TOP,
+    };
+  }
+
+  function queueAction(state, action) {
+    if (state.mode !== 'running' || state.player.moveTicks > 0) {
+      return false;
+    }
+
+    const direction = action === 'left' ? -1 : action === 'right' ? 1 : 0;
+    const targetRail = state.player.rail + direction;
+
+    if (direction === 0 || targetRail < 0 || targetRail >= CONSTANTS.RAILS.length) {
+      return false;
+    }
+
+    state.player.fromRail = state.player.rail;
+    state.player.toRail = targetRail;
+    state.player.moveTicks = CONSTANTS.MOVE_TICKS;
+
+    return true;
+  }
+
+  function finishMove(state) {
+    const { fromRail, toRail } = state.player;
+    const pair = pairFor(fromRail, toRail);
+    const segment = makeSegment(fromRail, toRail);
+    const previousStitch = state.stitch;
+    const createsX =
+      previousStitch !== null &&
+      previousStitch.type === 'normal' &&
+      samePair(previousStitch.pair, pair) &&
+      previousStitch.fromRail === toRail &&
+      previousStitch.toRail === fromRail &&
+      state.tick - previousStitch.createdAt <= CONSTANTS.X_WINDOW_TICKS;
+    const stitchId = state.nextObjectId;
+
+    state.nextObjectId += 1;
+    state.stitch = {
+      id: stitchId,
+      type: createsX ? 'x' : 'normal',
+      pair,
+      fromRail,
+      toRail,
+      segments: createsX ? [previousStitch.segments[0], segment] : [segment],
+      createdAt: state.tick,
+      expiresAt:
+        state.tick + (createsX ? CONSTANTS.X_STITCH_TICKS : CONSTANTS.STITCH_TICKS),
+    };
+    state.player.rail = toRail;
+    state.events.push(createsX ? 'x-created' : 'stitch-created');
+  }
+
+  function stepOne(state) {
+    if (state.mode !== 'running') {
+      return;
+    }
+
+    state.tick += 1;
+    state.waveTick += 1;
+
+    if (state.player.moveTicks > 0) {
+      state.player.moveTicks -= 1;
+
+      if (state.player.moveTicks === 0) {
+        finishMove(state);
+      }
+    }
+
+    if (state.stitch && state.tick >= state.stitch.expiresAt) {
+      state.stitch = null;
+    }
+  }
+
+  function stepGame(state, ticks = 1) {
+    state.events = [];
+
+    if (Number.isInteger(ticks) && ticks > 0) {
+      for (let index = 0; index < ticks; index += 1) {
+        stepOne(state);
+      }
+    }
+
+    return state;
+  }
+
   function snapshotGame(state) {
     return {
       seed: state.seed,
@@ -179,7 +278,9 @@
     CONSTANTS,
     createGameState,
     getWaveSchedule,
+    queueAction,
     snapshotGame,
+    stepGame,
     validateSchedule,
   });
 });

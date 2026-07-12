@@ -3,7 +3,21 @@ import test from 'node:test';
 
 import engine from '../src/js/rift-stitch-engine.js';
 
-const { CONSTANTS, createGameState, getWaveSchedule, snapshotGame, validateSchedule } = engine;
+const {
+  CONSTANTS,
+  createGameState,
+  getWaveSchedule,
+  queueAction,
+  snapshotGame,
+  stepGame,
+  validateSchedule,
+} = engine;
+
+function createRunningState() {
+  const state = createGameState({ seed: 4242, mode: 'running' });
+  state.schedule = [];
+  return state;
+}
 
 function validateEvent(overrides = {}) {
   return validateSchedule([
@@ -110,9 +124,141 @@ test('exposes exactly the public engine contract', () => {
     'CONSTANTS',
     'createGameState',
     'getWaveSchedule',
+    'queueAction',
     'snapshotGame',
+    'stepGame',
     'validateSchedule',
   ]);
+});
+
+test('moves to an adjacent rail after eight ticks and creates one normal stitch', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  assert.deepEqual(state.player, {
+    rail: 1,
+    fromRail: 1,
+    toRail: 0,
+    moveTicks: 8,
+  });
+  assert.equal(queueAction(state, 'left'), false);
+
+  assert.equal(stepGame(state, 7), state);
+  assert.equal(state.player.rail, 1);
+  assert.equal(state.player.moveTicks, 1);
+  assert.equal(state.stitch, null);
+
+  stepGame(state, 1);
+
+  assert.equal(state.tick, 8);
+  assert.equal(state.player.rail, 0);
+  assert.equal(state.player.moveTicks, 0);
+  assert.equal(state.stitch.type, 'normal');
+  assert.deepEqual(state.stitch.pair, [0, 1]);
+  assert.equal(state.stitch.fromRail, 1);
+  assert.equal(state.stitch.toRail, 0);
+  assert.deepEqual(state.stitch.segments, [
+    { x1: 480, y1: 500, x2: 240, y2: 390 },
+  ]);
+  assert.equal(state.stitch.createdAt, state.tick);
+  assert.equal(state.stitch.expiresAt - state.tick, 54);
+  assert.deepEqual(state.events, ['stitch-created']);
+});
+
+test('rejects movement beyond the left boundary without mutating state', () => {
+  const state = createRunningState();
+  state.player = {
+    rail: 0,
+    fromRail: 0,
+    toRail: 0,
+    moveTicks: 0,
+  };
+  const before = structuredClone(state);
+
+  assert.equal(queueAction(state, 'left'), false);
+  assert.deepEqual(state, before);
+});
+
+test('creates an X stitch at the exact twenty-five-tick crossing boundary', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 8);
+  const firstSegment = { ...state.stitch.segments[0] };
+  const firstCreatedAt = state.stitch.createdAt;
+
+  stepGame(state, 17);
+  assert.equal(queueAction(state, 'right'), true);
+  stepGame(state, 8);
+
+  assert.equal(state.tick, 33);
+  assert.equal(state.tick - firstCreatedAt, 25);
+  assert.equal(state.stitch.type, 'x');
+  assert.deepEqual(state.stitch.pair, [0, 1]);
+  assert.equal(state.stitch.fromRail, 0);
+  assert.equal(state.stitch.toRail, 1);
+  assert.deepEqual(state.stitch.segments, [
+    firstSegment,
+    { x1: 240, y1: 500, x2: 480, y2: 390 },
+  ]);
+  assert.equal(state.stitch.createdAt, state.tick);
+  assert.equal(state.stitch.expiresAt - state.tick, 39);
+  assert.deepEqual(state.events, ['x-created']);
+});
+
+test('does not create an X stitch after the twenty-five-tick crossing window', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 8);
+  const firstCreatedAt = state.stitch.createdAt;
+
+  stepGame(state, 18);
+  assert.equal(queueAction(state, 'right'), true);
+  stepGame(state, 8);
+
+  assert.equal(state.tick, 34);
+  assert.equal(state.tick - firstCreatedAt, 26);
+  assert.equal(state.stitch.type, 'normal');
+  assert.deepEqual(state.stitch.pair, [0, 1]);
+  assert.deepEqual(state.stitch.segments, [
+    { x1: 240, y1: 500, x2: 480, y2: 390 },
+  ]);
+  assert.deepEqual(state.events, ['stitch-created']);
+});
+
+test('replaces a prior normal stitch instead of accumulating active structures', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 8);
+  const firstId = state.stitch.id;
+  const firstSegments = state.stitch.segments.map((segment) => ({ ...segment }));
+
+  stepGame(state, 18);
+  assert.equal(queueAction(state, 'right'), true);
+  stepGame(state, 8);
+
+  assert.notEqual(state.stitch.id, firstId);
+  assert.equal(state.stitch.type, 'normal');
+  assert.equal(state.stitch.segments.length, 1);
+  assert.notDeepEqual(state.stitch.segments, firstSegments);
+});
+
+test('expires a stitch exactly at expiresAt', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 8);
+  const { expiresAt } = state.stitch;
+
+  stepGame(state, expiresAt - state.tick - 1);
+  assert.equal(state.tick, expiresAt - 1);
+  assert.notEqual(state.stitch, null);
+
+  stepGame(state, 1);
+  assert.equal(state.tick, expiresAt);
+  assert.equal(state.stitch, null);
 });
 
 test('createGameState advances rngState from seed || 1', () => {
