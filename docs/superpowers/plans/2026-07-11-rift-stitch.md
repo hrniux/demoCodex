@@ -503,13 +503,20 @@ function stepOne(state) {
 }
 
 function stepGame(state, ticks = 1) {
-  state.events = [];
+  if (!Number.isSafeInteger(ticks) || ticks < 1) {
+    throw new RangeError('ticks must be a positive safe integer');
+  }
   for (let index = 0; index < ticks; index += 1) {
     stepOne(state);
   }
   return state;
 }
 ```
+
+`state.events` is an append-only outbox between controller reads. Every event is an object with a
+`type` property. `stepGame()` does not erase it; `RiftStitchGame.consumeEvents()` drains it with
+`splice(0)` after the requestAnimationFrame catch-up loop. Invalid tick counts throw before any
+state field changes.
 
 - [ ] **Step 4: Run the focused engine test**
 
@@ -939,6 +946,10 @@ frame(now) {
   this.rafId = requestAnimationFrame(this.boundFrame);
 }
 ```
+
+`consumeEvents()` begins with `const events = this.state.events.splice(0);` and dispatches that
+detached list to audio, feed, status, and overlay handlers. Autotest stepping performs the same
+drain after each requested burst.
 
 Autotest mode must not request a frame. `advanceTime(ms)` converts milliseconds to integer ticks and then calls the same engine `stepGame()`. `dispose()` removes keyboard, visibility, Canvas pointer, and button listeners; cancels `rafId`; closes audio; and clears resume timers.
 

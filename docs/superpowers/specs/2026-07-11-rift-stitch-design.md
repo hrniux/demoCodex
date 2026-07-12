@@ -206,6 +206,12 @@ A pure UMD-style simulation module usable from both Node and the browser. It own
 
 It performs no DOM, Canvas, Web Audio, localStorage, `requestAnimationFrame`, or wall-clock access.
 
+`state.events` is a durable outbox. Engine transitions append object-shaped events such as
+`{ type: 'stitch-created' }`; `stepGame()` never clears an unconsumed event and validates its
+positive integer tick count before touching state. The browser controller drains the outbox with
+`state.events.splice(0)` after each catch-up loop, so events produced on an intermediate fixed tick
+cannot disappear before audio, feed, and accessibility consumers see them.
+
 Public API:
 
 ```js
