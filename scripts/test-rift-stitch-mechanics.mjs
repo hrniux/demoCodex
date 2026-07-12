@@ -3,7 +3,19 @@ import test from 'node:test';
 
 import engine from '../src/js/rift-stitch-engine.js';
 
-const { CONSTANTS, createGameState, getWaveSchedule, nextRandom, snapshotGame, validateSchedule } = engine;
+const { CONSTANTS, createGameState, getWaveSchedule, snapshotGame, validateSchedule } = engine;
+
+function validateEvent(overrides = {}) {
+  return validateSchedule([
+    {
+      tick: 0,
+      impactTick: 120,
+      type: 'rift',
+      rail: 1,
+      ...overrides,
+    },
+  ]);
+}
 
 assert.equal(CONSTANTS.TICK_RATE, 60);
 assert.deepEqual(CONSTANTS, {
@@ -93,36 +105,129 @@ test('publishes the CommonJS engine on globalThis as an independent UMD outlet',
   assert.equal(globalThis.RiftStitchEngine, engine);
 });
 
-test('exposes nextRandom as part of the engine contract', () => {
+test('exposes exactly the public engine contract', () => {
   assert.deepEqual(Object.keys(engine).sort(), [
     'CONSTANTS',
     'createGameState',
     'getWaveSchedule',
-    'nextRandom',
     'snapshotGame',
     'validateSchedule',
   ]);
 });
 
-test('nextRandom returns the pure xorshift32 next state', () => {
-  assert.equal(nextRandom?.(4242), 1079534331);
-});
-
 test('createGameState advances rngState from seed || 1', () => {
   assert.equal(createGameState({ seed: 4242 }).rngState, 1079534331);
-  assert.equal(createGameState({ seed: 0 }).rngState, nextRandom?.(1));
+  assert.equal(createGameState({ seed: 0 }).rngState, 270369);
 });
 
 test('unknown waves fall back to a fresh wave-one schedule', () => {
   assert.deepEqual(getWaveSchedule(4242, 99), evenWave);
 });
 
-test('rejects an event at the exclusive WAVE_TICKS boundary', () => {
-  const boundaryResult = validateSchedule([
-    { tick: CONSTANTS.WAVE_TICKS, impactTick: CONSTANTS.WAVE_TICKS, type: 'rift', rail: 0, speed: 180 },
-  ]);
+for (const tick of [0, CONSTANTS.WAVE_TICKS - 1]) {
+  test(`accepts an event at tick ${tick}`, () => {
+    assert.equal(validateEvent({ tick }).ok, true);
+  });
+}
 
-  assert.equal(boundaryResult.ok, false);
+for (const [description, tick] of [
+  ['a negative', -1],
+  ['a noninteger', 1.5],
+  ['the exclusive WAVE_TICKS boundary', CONSTANTS.WAVE_TICKS],
+]) {
+  test(`rejects an event with ${description} tick`, () => {
+    assert.equal(validateEvent({ tick }).ok, false);
+  });
+}
+
+for (const type of ['rift', 'armor', 'burn', 'boss']) {
+  test(`accepts the allowed ${type} event type`, () => {
+    assert.equal(validateEvent({ type }).ok, true);
+  });
+}
+
+test('rejects an unknown event type', () => {
+  assert.equal(validateEvent({ type: 'unknown' }).ok, false);
+});
+
+for (const rail of [-1, 3]) {
+  test(`rejects rail ${rail}`, () => {
+    assert.equal(validateEvent({ rail }).ok, false);
+  });
+}
+
+for (const rail of [0, 1, 2]) {
+  test(`accepts rail ${rail}`, () => {
+    assert.equal(validateEvent({ rail }).ok, true);
+  });
+}
+
+test('snapshot mutations do not change nested source state', () => {
+  const state = createGameState({ seed: 4242 });
+  state.player = {
+    rail: 1,
+    fromRail: 0,
+    toRail: 2,
+    moveTicks: 4,
+  };
+  state.stitch = {
+    id: 17,
+    type: 'x',
+    pair: [0, 2],
+    fromRail: 0,
+    toRail: 2,
+    segments: [
+      { x1: 240, y1: 500, x2: 720, y2: 390 },
+      { x1: 720, y1: 500, x2: 240, y2: 390 },
+    ],
+    createdAt: 17,
+    expiresAt: 56,
+  };
+  state.objects = [
+    { id: 7, type: 'boss', rail: 1, hitStitchIds: [17] },
+  ];
+
+  const expectedSource = {
+    player: {
+      rail: 1,
+      fromRail: 0,
+      toRail: 2,
+      moveTicks: 4,
+    },
+    stitch: {
+      id: 17,
+      type: 'x',
+      pair: [0, 2],
+      fromRail: 0,
+      toRail: 2,
+      segments: [
+        { x1: 240, y1: 500, x2: 720, y2: 390 },
+        { x1: 720, y1: 500, x2: 240, y2: 390 },
+      ],
+      createdAt: 17,
+      expiresAt: 56,
+    },
+    objects: [
+      { id: 7, type: 'boss', rail: 1, hitStitchIds: [17] },
+    ],
+  };
+
+  const snapshot = snapshotGame(state);
+  snapshot.player.rail = 2;
+  snapshot.stitch.pair[0] = 1;
+  snapshot.stitch.segments[0].x1 = 999;
+  snapshot.stitch.segments.push({ x1: 0, y1: 0, x2: 0, y2: 0 });
+  snapshot.objects[0].hitStitchIds.push(56);
+  snapshot.objects.push({ id: 8, type: 'rift', rail: 2, hitStitchIds: [] });
+
+  assert.deepEqual(
+    {
+      player: state.player,
+      stitch: state.stitch,
+      objects: state.objects,
+    },
+    expectedSource,
+  );
 });
 
 test('initializes resumeMode to null', () => {

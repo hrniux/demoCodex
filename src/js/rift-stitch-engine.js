@@ -46,18 +46,6 @@
     return nextState;
   }
 
-  function cloneValue(value) {
-    if (Array.isArray(value)) {
-      return value.map(cloneValue);
-    }
-
-    if (value && typeof value === 'object') {
-      return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, cloneValue(entry)]));
-    }
-
-    return value;
-  }
-
   function getWaveSchedule(seed, wave) {
     const shouldMirror = (seed >>> 0) % 2 === 1;
     const schedule = BASE_WAVES[wave] || BASE_WAVES[1];
@@ -156,8 +144,17 @@
         rail: state.player.rail,
         moveTicks: state.player.moveTicks,
       },
-      stitch: cloneValue(state.stitch),
-      objects: cloneValue(state.objects),
+      stitch: state.stitch
+        ? {
+            ...state.stitch,
+            pair: [...state.stitch.pair],
+            segments: state.stitch.segments.map((segment) => ({ ...segment })),
+          }
+        : state.stitch,
+      objects: state.objects.map((object) => ({
+        ...object,
+        hitStitchIds: [...object.hitStitchIds],
+      })),
       bossHits: state.bossHits,
     };
   }
@@ -166,7 +163,6 @@
     CONSTANTS,
     createGameState,
     getWaveSchedule,
-    nextRandom,
     snapshotGame,
     validateSchedule,
   });
