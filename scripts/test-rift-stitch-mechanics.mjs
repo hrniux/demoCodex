@@ -19,6 +19,10 @@ function createRunningState() {
   return state;
 }
 
+function drainEvents(state) {
+  return state.events.splice(0);
+}
+
 function validateEvent(overrides = {}) {
   return validateSchedule([
     {
@@ -169,7 +173,7 @@ test('moves to an adjacent rail after eight ticks and creates one normal stitch'
   ]);
   assert.equal(state.stitch.createdAt, state.tick);
   assert.equal(state.stitch.expiresAt - state.tick, 54);
-  assert.deepEqual(state.events, ['stitch-created']);
+  assert.deepEqual(state.events, [{ type: 'stitch-created' }]);
 });
 
 test('rejects movement beyond the left boundary without mutating state', () => {
@@ -231,6 +235,7 @@ test('creates an X stitch at the exact twenty-five-tick crossing boundary', () =
   stepGame(state, 8);
   const firstSegment = { ...state.stitch.segments[0] };
   const firstCreatedAt = state.stitch.createdAt;
+  drainEvents(state);
 
   stepGame(state, 17);
   assert.equal(queueAction(state, 'right'), true);
@@ -248,7 +253,33 @@ test('creates an X stitch at the exact twenty-five-tick crossing boundary', () =
   ]);
   assert.equal(state.stitch.createdAt, state.tick);
   assert.equal(state.stitch.expiresAt - state.tick, 39);
-  assert.deepEqual(state.events, ['x-created']);
+  assert.deepEqual(state.events, [{ type: 'x-created' }]);
+});
+
+test('isolates X geometry from the normal stitch it replaces', () => {
+  const state = createRunningState();
+
+  assert.equal(queueAction(state, 'left'), true);
+  stepGame(state, 8);
+  const previousStitch = state.stitch;
+  const previousSegment = previousStitch.segments[0];
+  const expectedFirstSegment = { ...previousSegment };
+  drainEvents(state);
+
+  assert.equal(queueAction(state, 'right'), true);
+  stepGame(state, 8);
+  previousSegment.x1 = -1;
+
+  assert.deepEqual(
+    {
+      sharesReference: state.stitch.segments[0] === previousSegment,
+      firstSegment: state.stitch.segments[0],
+    },
+    {
+      sharesReference: false,
+      firstSegment: expectedFirstSegment,
+    },
+  );
 });
 
 test('does not create an X stitch after the twenty-five-tick crossing window', () => {
@@ -257,6 +288,7 @@ test('does not create an X stitch after the twenty-five-tick crossing window', (
   assert.equal(queueAction(state, 'left'), true);
   stepGame(state, 8);
   const firstCreatedAt = state.stitch.createdAt;
+  drainEvents(state);
 
   stepGame(state, 18);
   assert.equal(queueAction(state, 'right'), true);
@@ -269,7 +301,7 @@ test('does not create an X stitch after the twenty-five-tick crossing window', (
   assert.deepEqual(state.stitch.segments, [
     { x1: 240, y1: 500, x2: 480, y2: 390 },
   ]);
-  assert.deepEqual(state.events, ['stitch-created']);
+  assert.deepEqual(state.events, [{ type: 'stitch-created' }]);
 });
 
 test('replaces a prior normal stitch instead of accumulating active structures', () => {
@@ -279,6 +311,7 @@ test('replaces a prior normal stitch instead of accumulating active structures',
   stepGame(state, 8);
   const firstId = state.stitch.id;
   const firstSegments = state.stitch.segments.map((segment) => ({ ...segment }));
+  drainEvents(state);
 
   stepGame(state, 18);
   assert.equal(queueAction(state, 'right'), true);
@@ -295,6 +328,7 @@ test('replaces an unrelated normal stitch with only the new rail-pair segment', 
 
   assert.equal(queueAction(state, 'left'), true);
   stepGame(state, 8);
+  drainEvents(state);
   stepGame(state, 18);
   assert.equal(queueAction(state, 'right'), true);
   stepGame(state, 8);
@@ -304,6 +338,7 @@ test('replaces an unrelated normal stitch with only the new rail-pair segment', 
   assert.deepEqual(state.stitch.pair, [0, 1]);
   const previousId = state.stitch.id;
   const previousSegment = { ...state.stitch.segments[0] };
+  drainEvents(state);
 
   assert.equal(queueAction(state, 'right'), true);
   stepGame(state, 8);
@@ -354,15 +389,47 @@ for (const mode of ['idle', 'paused', 'countdown']) {
   });
 }
 
-test('retains an event emitted before the final internal tick of stepGame', () => {
+test('keeps object-shaped movement events until the consumer explicitly drains them', () => {
   const state = createRunningState();
 
   assert.equal(queueAction(state, 'left'), true);
-  stepGame(state, 9);
+  for (let index = 0; index < 9; index += 1) {
+    stepGame(state, 1);
+  }
 
   assert.equal(state.tick, 9);
-  assert.deepEqual(state.events, ['stitch-created']);
+  assert.deepEqual(state.events, [{ type: 'stitch-created' }]);
+  assert.deepEqual(drainEvents(state), [{ type: 'stitch-created' }]);
+  assert.deepEqual(state.events, []);
+
+  stepGame(state, 1);
+
+  assert.deepEqual(state.events, []);
 });
+
+for (const [description, ticks] of [
+  ['zero', 0],
+  ['negative', -1],
+  ['fractional', 1.5],
+  ['NaN', Number.NaN],
+  ['infinite', Number.POSITIVE_INFINITY],
+  ['string', '1'],
+  ['bigint', 1n],
+]) {
+  test(`rejects ${description} ticks before mutating a state with pending events`, () => {
+    const state = createRunningState();
+
+    assert.equal(queueAction(state, 'left'), true);
+    stepGame(state, 8);
+    const before = structuredClone(state);
+
+    assert.throws(() => stepGame(state, ticks), {
+      name: 'RangeError',
+      message: /positive safe integer/,
+    });
+    assert.deepEqual(state, before);
+  });
+}
 
 test('advancing 300 Task 3 ticks only changes tick counters with the default schedule', () => {
   const state = createGameState({ seed: 4242, mode: 'running' });

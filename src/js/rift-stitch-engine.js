@@ -194,13 +194,13 @@
       pair,
       fromRail,
       toRail,
-      segments: createsX ? [previousStitch.segments[0], segment] : [segment],
+      segments: createsX ? [{ ...previousStitch.segments[0] }, segment] : [segment],
       createdAt: state.tick,
       expiresAt:
         state.tick + (createsX ? CONSTANTS.X_STITCH_TICKS : CONSTANTS.STITCH_TICKS),
     };
     state.player.rail = toRail;
-    state.events.push(createsX ? 'x-created' : 'stitch-created');
+    state.events.push({ type: createsX ? 'x-created' : 'stitch-created' });
   }
 
   function stepOne(state) {
@@ -225,12 +225,12 @@
   }
 
   function stepGame(state, ticks = 1) {
-    state.events = [];
+    if (!Number.isSafeInteger(ticks) || ticks < 1) {
+      throw new RangeError('ticks must be a positive safe integer');
+    }
 
-    if (Number.isInteger(ticks) && ticks > 0) {
-      for (let index = 0; index < ticks; index += 1) {
-        stepOne(state);
-      }
+    for (let index = 0; index < ticks; index += 1) {
+      stepOne(state);
     }
 
     return state;
